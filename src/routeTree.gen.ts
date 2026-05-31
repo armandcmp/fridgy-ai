@@ -9,12 +9,25 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as RecettesRouteImport } from './routes/recettes'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as FrigoRouteImport } from './routes/frigo'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as RecetteIdRouteImport } from './routes/recette.$id'
 
+const RecettesRoute = RecettesRouteImport.update({
+  id: '/recettes',
+  path: '/recettes',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FrigoRoute = FrigoRouteImport.update({
+  id: '/frigo',
+  path: '/frigo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -22,40 +35,71 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RecetteIdRoute = RecetteIdRouteImport.update({
+  id: '/recette/$id',
+  path: '/recette/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/frigo': typeof FrigoRoute
   '/onboarding': typeof OnboardingRoute
+  '/recettes': typeof RecettesRoute
+  '/recette/$id': typeof RecetteIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/frigo': typeof FrigoRoute
   '/onboarding': typeof OnboardingRoute
+  '/recettes': typeof RecettesRoute
+  '/recette/$id': typeof RecetteIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/frigo': typeof FrigoRoute
   '/onboarding': typeof OnboardingRoute
+  '/recettes': typeof RecettesRoute
+  '/recette/$id': typeof RecetteIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/onboarding'
+  fullPaths: '/' | '/frigo' | '/onboarding' | '/recettes' | '/recette/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/onboarding'
-  id: '__root__' | '/' | '/onboarding'
+  to: '/' | '/frigo' | '/onboarding' | '/recettes' | '/recette/$id'
+  id: '__root__' | '/' | '/frigo' | '/onboarding' | '/recettes' | '/recette/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  FrigoRoute: typeof FrigoRoute
   OnboardingRoute: typeof OnboardingRoute
+  RecettesRoute: typeof RecettesRoute
+  RecetteIdRoute: typeof RecetteIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/recettes': {
+      id: '/recettes'
+      path: '/recettes'
+      fullPath: '/recettes'
+      preLoaderRoute: typeof RecettesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/onboarding': {
       id: '/onboarding'
       path: '/onboarding'
       fullPath: '/onboarding'
       preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/frigo': {
+      id: '/frigo'
+      path: '/frigo'
+      fullPath: '/frigo'
+      preLoaderRoute: typeof FrigoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -65,12 +109,22 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/recette/$id': {
+      id: '/recette/$id'
+      path: '/recette/$id'
+      fullPath: '/recette/$id'
+      preLoaderRoute: typeof RecetteIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  FrigoRoute: FrigoRoute,
   OnboardingRoute: OnboardingRoute,
+  RecettesRoute: RecettesRoute,
+  RecetteIdRoute: RecetteIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
