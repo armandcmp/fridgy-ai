@@ -7,13 +7,14 @@ import {
   History,
 } from "lucide-react";
 
-const tabs = [
+type Tab = { to: string; icon: typeof Home; label: string; exact?: boolean };
+const tabs: Tab[] = [
   { to: "/", icon: Home, label: "Accueil", exact: true },
   { to: "/recettes", icon: UtensilsCrossed, label: "Recettes" },
   { to: "/planning", icon: Calendar, label: "Planning" },
   { to: "/stats", icon: BarChart3, label: "Stats" },
   { to: "/historique", icon: History, label: "Historique" },
-] as const;
+];
 
 export function BottomNav() {
   const loc = useLocation();
