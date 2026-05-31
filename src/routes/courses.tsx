@@ -98,7 +98,7 @@ function Courses() {
                         type="checkbox"
                         checked={on}
                         onChange={() => toggle(k)}
-                        className="h-4 w-4 accent-[oklch(var(--primary))]"
+                        className="h-4 w-4 accent-emerald-500"
                       />
                       <span className={`text-sm ${on ? "text-muted-foreground line-through" : ""}`}>
                         {it}
