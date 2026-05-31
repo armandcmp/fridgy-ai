@@ -32,7 +32,7 @@ export function BottomNav() {
           return (
             <li key={t.to} className="flex-1">
               <Link
-                to={t.to}
+                to={t.to as never}
                 className={`flex h-full flex-col items-center justify-center gap-1 transition-colors ${
                   active ? "text-primary" : "text-muted-foreground"
                 }`}
