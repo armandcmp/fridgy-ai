@@ -9,15 +9,29 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as StatsRouteImport } from './routes/stats'
 import { Route as RecettesRouteImport } from './routes/recettes'
+import { Route as PlanningRouteImport } from './routes/planning'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as HistoriqueRouteImport } from './routes/historique'
 import { Route as FrigoRouteImport } from './routes/frigo'
+import { Route as CoursesRouteImport } from './routes/courses'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RecetteIdRouteImport } from './routes/recette.$id'
 
+const StatsRoute = StatsRouteImport.update({
+  id: '/stats',
+  path: '/stats',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RecettesRoute = RecettesRouteImport.update({
   id: '/recettes',
   path: '/recettes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlanningRoute = PlanningRouteImport.update({
+  id: '/planning',
+  path: '/planning',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OnboardingRoute = OnboardingRouteImport.update({
@@ -25,9 +39,19 @@ const OnboardingRoute = OnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HistoriqueRoute = HistoriqueRouteImport.update({
+  id: '/historique',
+  path: '/historique',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FrigoRoute = FrigoRouteImport.update({
   id: '/frigo',
   path: '/frigo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CoursesRoute = CoursesRouteImport.update({
+  id: '/courses',
+  path: '/courses',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -43,49 +67,107 @@ const RecetteIdRoute = RecetteIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/courses': typeof CoursesRoute
   '/frigo': typeof FrigoRoute
+  '/historique': typeof HistoriqueRoute
   '/onboarding': typeof OnboardingRoute
+  '/planning': typeof PlanningRoute
   '/recettes': typeof RecettesRoute
+  '/stats': typeof StatsRoute
   '/recette/$id': typeof RecetteIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/courses': typeof CoursesRoute
   '/frigo': typeof FrigoRoute
+  '/historique': typeof HistoriqueRoute
   '/onboarding': typeof OnboardingRoute
+  '/planning': typeof PlanningRoute
   '/recettes': typeof RecettesRoute
+  '/stats': typeof StatsRoute
   '/recette/$id': typeof RecetteIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/courses': typeof CoursesRoute
   '/frigo': typeof FrigoRoute
+  '/historique': typeof HistoriqueRoute
   '/onboarding': typeof OnboardingRoute
+  '/planning': typeof PlanningRoute
   '/recettes': typeof RecettesRoute
+  '/stats': typeof StatsRoute
   '/recette/$id': typeof RecetteIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/frigo' | '/onboarding' | '/recettes' | '/recette/$id'
+  fullPaths:
+    | '/'
+    | '/courses'
+    | '/frigo'
+    | '/historique'
+    | '/onboarding'
+    | '/planning'
+    | '/recettes'
+    | '/stats'
+    | '/recette/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/frigo' | '/onboarding' | '/recettes' | '/recette/$id'
-  id: '__root__' | '/' | '/frigo' | '/onboarding' | '/recettes' | '/recette/$id'
+  to:
+    | '/'
+    | '/courses'
+    | '/frigo'
+    | '/historique'
+    | '/onboarding'
+    | '/planning'
+    | '/recettes'
+    | '/stats'
+    | '/recette/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/courses'
+    | '/frigo'
+    | '/historique'
+    | '/onboarding'
+    | '/planning'
+    | '/recettes'
+    | '/stats'
+    | '/recette/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CoursesRoute: typeof CoursesRoute
   FrigoRoute: typeof FrigoRoute
+  HistoriqueRoute: typeof HistoriqueRoute
   OnboardingRoute: typeof OnboardingRoute
+  PlanningRoute: typeof PlanningRoute
   RecettesRoute: typeof RecettesRoute
+  StatsRoute: typeof StatsRoute
   RecetteIdRoute: typeof RecetteIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/stats': {
+      id: '/stats'
+      path: '/stats'
+      fullPath: '/stats'
+      preLoaderRoute: typeof StatsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/recettes': {
       id: '/recettes'
       path: '/recettes'
       fullPath: '/recettes'
       preLoaderRoute: typeof RecettesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/planning': {
+      id: '/planning'
+      path: '/planning'
+      fullPath: '/planning'
+      preLoaderRoute: typeof PlanningRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/onboarding': {
@@ -95,11 +177,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/historique': {
+      id: '/historique'
+      path: '/historique'
+      fullPath: '/historique'
+      preLoaderRoute: typeof HistoriqueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/frigo': {
       id: '/frigo'
       path: '/frigo'
       fullPath: '/frigo'
       preLoaderRoute: typeof FrigoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/courses': {
+      id: '/courses'
+      path: '/courses'
+      fullPath: '/courses'
+      preLoaderRoute: typeof CoursesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -121,9 +217,13 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CoursesRoute: CoursesRoute,
   FrigoRoute: FrigoRoute,
+  HistoriqueRoute: HistoriqueRoute,
   OnboardingRoute: OnboardingRoute,
+  PlanningRoute: PlanningRoute,
   RecettesRoute: RecettesRoute,
+  StatsRoute: StatsRoute,
   RecetteIdRoute: RecetteIdRoute,
 }
 export const routeTree = rootRouteImport
