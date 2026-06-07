@@ -5,6 +5,7 @@ import { Heart, RefreshCw, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { storage, programColor } from "@/lib/storage";
+import { RecipeImage } from "@/components/RecipeImage";
 import { useLocalReactive } from "@/lib/hooks";
 import { getLanguage } from "@/lib/i18n";
 import {
