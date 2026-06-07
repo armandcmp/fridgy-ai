@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Camera, Calendar, ChefHat, ShoppingBasket, History, Crown } from "lucide-react";
+import { ChefHat, ShoppingBasket, History, Crown, BarChart3 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { storage, frenchDate, programColor } from "@/lib/storage";
 import { useLocalReactive } from "@/lib/hooks";
@@ -15,6 +15,7 @@ export const Route = createFileRoute("/")({
 function Home() {
   const { t } = useTranslation();
   const nav = useNavigate();
+  const [mounted, setMounted] = useState(false);
   const user = useLocalReactive(() => storage.getUser());
   const history = useLocalReactive(() => storage.getHistory());
   const favorites = useLocalReactive(() => storage.getFavorites());
@@ -23,11 +24,12 @@ function Home() {
   const premium = usePremium();
   const [paywall, setPaywall] = useState(false);
 
+  useEffect(() => setMounted(true), []);
   useEffect(() => {
-    if (!user) nav({ to: "/onboarding" });
-  }, [user, nav]);
+    if (mounted && !user) nav({ to: "/onboarding" });
+  }, [mounted, user, nav]);
 
-  if (!user) return null;
+  if (!mounted || !user) return <div style={{ minHeight: "100vh" }} />;
 
   const todayKey = new Date().toDateString();
   const todayMeals = history.filter((h) => new Date(h.date).toDateString() === todayKey);
@@ -60,44 +62,17 @@ function Home() {
         </span>
       </header>
 
-      <div className="grid grid-cols-2 gap-3">
-        <Link
-          to="/frigo"
-          className="fc-card flex flex-col items-start gap-3 p-4 transition active:scale-[0.97]"
-        >
-          <div className="grid h-10 w-10 place-items-center rounded-xl bg-primary/15 text-primary">
-            <Camera size={20} />
-          </div>
-          <div>
-            <div className="font-semibold leading-tight">{t("home.scan")}</div>
-            <div className="text-xs text-muted-foreground">{t("home.scanSub")}</div>
-          </div>
-        </Link>
-        <Link
-          to="/planning"
-          className="fc-card flex flex-col items-start gap-3 p-4 transition active:scale-[0.97]"
-        >
-          <div className="grid h-10 w-10 place-items-center rounded-xl bg-amber-100 text-amber-700">
-            <Calendar size={20} />
-          </div>
-          <div>
-            <div className="font-semibold leading-tight">{t("home.planning")}</div>
-            <div className="text-xs text-muted-foreground">{t("home.planningSub")}</div>
-          </div>
-        </Link>
-      </div>
-
       {!premium && (
         <button
           onClick={() => remaining === 0 && setPaywall(true)}
-          className="mt-2 block w-full text-center text-[11px] text-muted-foreground"
+          className="mb-4 block w-full text-center text-[11px] text-muted-foreground"
         >
           {t("home.usageLeft", { count: remaining })}
         </button>
       )}
 
       {history.length > 0 && (
-        <section className="fc-card mt-5 p-4">
+        <section className="fc-card mb-5 p-4">
           <div className="flex items-baseline justify-between">
             <h2 className="text-sm font-semibold">{t("home.today")}</h2>
             <span className="text-xs text-muted-foreground">
@@ -116,21 +91,8 @@ function Home() {
         </section>
       )}
 
-      <section className="mt-6">
-        <h2 className="mb-3 text-sm font-semibold">{t("home.favorites")}</h2>
-        {favorites.length === 0 ? (
-          <div className="fc-card p-4 text-sm text-muted-foreground">{t("home.noFavorites")}</div>
-        ) : (
-          <div className="scrollbar-hide -mx-5 flex gap-3 overflow-x-auto px-5 pb-2">
-            {favorites.map((r) => (
-              <MiniRecipeCard key={r.id} recipe={r} />
-            ))}
-          </div>
-        )}
-      </section>
-
       {recipes.length > 0 && (
-        <section className="mt-6">
+        <section className="mb-6">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="inline-flex items-center gap-2 text-sm font-semibold">
               <ChefHat size={16} /> {t("home.lastRecipes")}
@@ -147,12 +109,29 @@ function Home() {
         </section>
       )}
 
-      <div className="mt-6 grid grid-cols-2 gap-3">
+      <section className="mb-6">
+        <h2 className="mb-3 text-sm font-semibold">{t("home.favorites")}</h2>
+        {favorites.length === 0 ? (
+          <div className="fc-card p-4 text-sm text-muted-foreground">{t("home.noFavorites")}</div>
+        ) : (
+          <div className="scrollbar-hide -mx-5 flex gap-3 overflow-x-auto px-5 pb-2">
+            {favorites.map((r) => (
+              <MiniRecipeCard key={r.id} recipe={r} />
+            ))}
+          </div>
+        )}
+      </section>
+
+      <div className="grid grid-cols-2 gap-3">
+        <Link to="/stats" className="fc-card flex items-center gap-3 p-4 transition active:scale-[0.97]">
+          <BarChart3 size={20} className="text-primary" />
+          <span className="text-sm font-medium">{t("home.tracking")}</span>
+        </Link>
         <Link to="/courses" className="fc-card flex items-center gap-3 p-4 transition active:scale-[0.97]">
           <ShoppingBasket size={20} className="text-primary" />
           <span className="text-sm font-medium">{t("home.shopping")}</span>
         </Link>
-        <Link to="/historique" className="fc-card flex items-center gap-3 p-4 transition active:scale-[0.97]">
+        <Link to="/historique" className="fc-card col-span-2 flex items-center gap-3 p-4 transition active:scale-[0.97]">
           <History size={20} className="text-primary" />
           <span className="text-sm font-medium">{t("home.history")}</span>
         </Link>
