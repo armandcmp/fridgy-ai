@@ -12,12 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as StatsRouteImport } from './routes/stats'
 import { Route as RecettesRouteImport } from './routes/recettes'
 import { Route as PlanningRouteImport } from './routes/planning'
-import { Route as ParametresRouteImport } from './routes/parametres'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as HistoriqueRouteImport } from './routes/historique'
 import { Route as FrigoRouteImport } from './routes/frigo'
 import { Route as CoursesRouteImport } from './routes/courses'
-import { Route as CommunauteRouteImport } from './routes/communaute'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RecetteIdRouteImport } from './routes/recette.$id'
 
@@ -34,11 +32,6 @@ const RecettesRoute = RecettesRouteImport.update({
 const PlanningRoute = PlanningRouteImport.update({
   id: '/planning',
   path: '/planning',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ParametresRoute = ParametresRouteImport.update({
-  id: '/parametres',
-  path: '/parametres',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OnboardingRoute = OnboardingRouteImport.update({
@@ -61,11 +54,6 @@ const CoursesRoute = CoursesRouteImport.update({
   path: '/courses',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CommunauteRoute = CommunauteRouteImport.update({
-  id: '/communaute',
-  path: '/communaute',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -79,12 +67,10 @@ const RecetteIdRoute = RecetteIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/communaute': typeof CommunauteRoute
   '/courses': typeof CoursesRoute
   '/frigo': typeof FrigoRoute
   '/historique': typeof HistoriqueRoute
   '/onboarding': typeof OnboardingRoute
-  '/parametres': typeof ParametresRoute
   '/planning': typeof PlanningRoute
   '/recettes': typeof RecettesRoute
   '/stats': typeof StatsRoute
@@ -92,12 +78,10 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/communaute': typeof CommunauteRoute
   '/courses': typeof CoursesRoute
   '/frigo': typeof FrigoRoute
   '/historique': typeof HistoriqueRoute
   '/onboarding': typeof OnboardingRoute
-  '/parametres': typeof ParametresRoute
   '/planning': typeof PlanningRoute
   '/recettes': typeof RecettesRoute
   '/stats': typeof StatsRoute
@@ -106,12 +90,10 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/communaute': typeof CommunauteRoute
   '/courses': typeof CoursesRoute
   '/frigo': typeof FrigoRoute
   '/historique': typeof HistoriqueRoute
   '/onboarding': typeof OnboardingRoute
-  '/parametres': typeof ParametresRoute
   '/planning': typeof PlanningRoute
   '/recettes': typeof RecettesRoute
   '/stats': typeof StatsRoute
@@ -121,12 +103,10 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/communaute'
     | '/courses'
     | '/frigo'
     | '/historique'
     | '/onboarding'
-    | '/parametres'
     | '/planning'
     | '/recettes'
     | '/stats'
@@ -134,12 +114,10 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/communaute'
     | '/courses'
     | '/frigo'
     | '/historique'
     | '/onboarding'
-    | '/parametres'
     | '/planning'
     | '/recettes'
     | '/stats'
@@ -147,12 +125,10 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/communaute'
     | '/courses'
     | '/frigo'
     | '/historique'
     | '/onboarding'
-    | '/parametres'
     | '/planning'
     | '/recettes'
     | '/stats'
@@ -161,12 +137,10 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  CommunauteRoute: typeof CommunauteRoute
   CoursesRoute: typeof CoursesRoute
   FrigoRoute: typeof FrigoRoute
   HistoriqueRoute: typeof HistoriqueRoute
   OnboardingRoute: typeof OnboardingRoute
-  ParametresRoute: typeof ParametresRoute
   PlanningRoute: typeof PlanningRoute
   RecettesRoute: typeof RecettesRoute
   StatsRoute: typeof StatsRoute
@@ -194,13 +168,6 @@ declare module '@tanstack/react-router' {
       path: '/planning'
       fullPath: '/planning'
       preLoaderRoute: typeof PlanningRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/parametres': {
-      id: '/parametres'
-      path: '/parametres'
-      fullPath: '/parametres'
-      preLoaderRoute: typeof ParametresRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/onboarding': {
@@ -231,13 +198,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CoursesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/communaute': {
-      id: '/communaute'
-      path: '/communaute'
-      fullPath: '/communaute'
-      preLoaderRoute: typeof CommunauteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -257,12 +217,10 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  CommunauteRoute: CommunauteRoute,
   CoursesRoute: CoursesRoute,
   FrigoRoute: FrigoRoute,
   HistoriqueRoute: HistoriqueRoute,
   OnboardingRoute: OnboardingRoute,
-  ParametresRoute: ParametresRoute,
   PlanningRoute: PlanningRoute,
   RecettesRoute: RecettesRoute,
   StatsRoute: StatsRoute,
