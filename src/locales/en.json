@@ -15,13 +15,11 @@
   "common.import": "Import",
   "common.export": "Export",
   "common.back": "Back",
-
   "nav.home": "Home",
   "nav.recipes": "Recipes",
   "nav.community": "Community",
   "nav.stats": "Stats",
   "nav.settings": "Settings",
-
   "onboarding.tagline": "Your ingredients, your recipes",
   "onboarding.question": "What should we call you?",
   "onboarding.questionSub": "To personalize your space.",
@@ -29,18 +27,16 @@
   "onboarding.programTitle": "Choose your program",
   "onboarding.programSub": "We'll tailor recipes to your goal.",
   "onboarding.start": "Get started",
-
   "program.bulk": "Bulking",
   "program.cut": "Cutting",
   "program.loss": "Weight loss",
   "program.balance": "Balanced",
   "program.pleasure": "Indulgent",
-  "program.bulkDesc": "High protein & calories",
-  "program.cutDesc": "Lean, high protein",
-  "program.lossDesc": "Light & filling",
+  "program.bulkDesc": "Maximize calories and protein to build muscle",
+  "program.cutDesc": "Reduce fat while preserving muscle",
+  "program.lossDesc": "Healthy, progressive calorie deficit",
   "program.balanceDesc": "Everyday balance",
   "program.pleasureDesc": "Tasty & comforting",
-
   "home.greeting": "Hello {{name}} 👋",
   "home.programLabel": "Program: {{program}}",
   "home.scan": "Scan my fridge",
@@ -59,7 +55,6 @@
   "home.usageLeft_one": "{{count}} generation left today",
   "home.usageLeft_other": "{{count}} generations left today",
   "home.upgradePro": "👑 Upgrade to Pro",
-
   "frigo.title": "My fridge",
   "frigo.subtitle": "Add what you have — we'll do the rest.",
   "frigo.habits": "Your habits",
@@ -81,7 +76,6 @@
   "frigo.detected": "{{count}} ingredients detected",
   "frigo.added": "{{count}} ingredients added",
   "frigo.micError": "Mic error: {{err}}",
-
   "recipe.generate": "Generate my recipes",
   "recipe.generating": "Generating recipes…",
   "recipe.regenerate": "Generate other recipes",
@@ -97,13 +91,11 @@
   "recipe.shared": "Image shared ✅",
   "recipe.downloadFallback": "Image downloaded",
   "recipe.generationError": "Generation error",
-
   "recettes.title": "My recipes",
   "recettes.count_one": "{{count}} recipe generated",
   "recettes.count_other": "{{count}} recipes generated",
   "recettes.empty": "No recipes yet",
   "recettes.emptyHint": "Scan your fridge to generate your first recipes.",
-
   "shopping.title": "Shopping list",
   "shopping.sub": "From your planned recipes",
   "shopping.empty": "No recipes to use.",
@@ -116,7 +108,6 @@
   "shopping.online": "🛒 Order online",
   "shopping.onlineSub": "Open your favorite delivery and paste your list",
   "shopping.copied": "✅ List copied! Paste it in {{retailer}}",
-
   "stats.title": "My tracking",
   "stats.empty": "Cook your first recipes to see stats.",
   "stats.meals": "🍽 Meals",
@@ -135,7 +126,6 @@
   "stats.ok": "Room to improve 📈",
   "stats.start": "Let's go again! 🔥",
   "stats.none": "Start cooking! 👨‍🍳",
-
   "history.title": "My history",
   "history.weekCount": "{{count}} meals this week",
   "history.empty": "No meals recorded",
@@ -145,7 +135,6 @@
   "history.yesterday": "Yesterday",
   "history.freeLimit": "History limited to the last 7 days on the free plan.",
   "history.unlockPro": "Unlock Pro",
-
   "planning.title": "My planning",
   "planning.week": "Week of {{from}} to {{to}}",
   "planning.generate": "Generate week",
@@ -160,13 +149,11 @@
   "planning.shoppingWeek": "Shopping list for the week",
   "planning.generated": "Planning generated 🎉",
   "planning.firstPlan": "Plan some meals first",
-
   "community.title": "Community",
   "community.refresh": "🔄 Refresh",
   "community.try": "Try this recipe",
   "community.error": "Couldn't load the feed. Check your connection.",
   "community.likedToast": "👍 Like saved",
-
   "settings.title": "Settings",
   "settings.profile": "MY PROFILE",
   "settings.name": "First name",
@@ -198,7 +185,6 @@
   "settings.confirmClearHistory": "Clear all history?",
   "settings.confirmReset": "Reset? All your data will be erased.",
   "settings.profileSaved": "Profile updated ✅",
-
   "group.title": "My group",
   "group.create": "Create a group",
   "group.join": "Join with a code",
@@ -225,7 +211,6 @@
   "group.role.member": "Member",
   "group.nothingShared": "Nothing shared yet",
   "group.updatedAt": "Updated {{when}}",
-
   "paywall.title": "FridgeChef Pro",
   "paywall.subtitle": "Unlock everything, no limits",
   "paywall.b1": "Unlimited recipes every day",
@@ -241,15 +226,30 @@
   "paywall.soon": "💳 Payments coming very soon!",
   "paywall.limitRecipes": "You've hit the free limit of 3 generations / day.",
   "paywall.limitShopping": "Free limit: 1 list per day.",
-
   "lang.fr": "🇫🇷 Français",
   "lang.en": "🇬🇧 English",
   "lang.es": "🇪🇸 Español",
   "lang.pt": "🇧🇷 Português",
   "lang.zh": "🇨🇳 中文",
-
   "retailer.copyTip": "Search items one by one in the drive",
   "retailer.leclerc": "E.Leclerc Drive",
   "retailer.carrefour": "Carrefour Drive",
-  "retailer.amazon": "Amazon Fresh"
+  "retailer.amazon": "Amazon Fresh",
+  "nav.planning": "Planning",
+  "nav.add": "Add",
+  "sheet.addTitle": "How would you like to add ingredients?",
+  "sheet.photoTitle": "Scan my fridge",
+  "sheet.photoSub": "Take a photo of your fridge",
+  "sheet.voiceTitle": "Dictate ingredients",
+  "sheet.voiceSub": "Speak and AI detects everything",
+  "sheet.manualTitle": "Enter manually",
+  "sheet.manualSub": "Type your ingredients one by one",
+  "program.maintain": "Maintenance",
+  "program.maintainDesc": "Stabilize weight and eat balanced",
+  "home.tracking": "My tracking",
+  "settings.tracking": "MY TRACKING",
+  "settings.openStats": "📊 Statistics",
+  "settings.openHistory": "📅 Meal history",
+  "settings.openPlanning": "🗓 Weekly planning",
+  "settings.openShopping": "🛒 Shopping list"
 }

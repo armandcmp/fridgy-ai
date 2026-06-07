@@ -15,13 +15,11 @@
   "common.import": "Importar",
   "common.export": "Exportar",
   "common.back": "Volver",
-
   "nav.home": "Inicio",
   "nav.recipes": "Recetas",
   "nav.community": "Comunidad",
   "nav.stats": "Stats",
   "nav.settings": "Ajustes",
-
   "onboarding.tagline": "Tus ingredientes, tus recetas",
   "onboarding.question": "¿Cómo te llamamos?",
   "onboarding.questionSub": "Para personalizar tu espacio.",
@@ -29,18 +27,16 @@
   "onboarding.programTitle": "Elige tu programa",
   "onboarding.programSub": "Adaptaremos las recetas a tu objetivo.",
   "onboarding.start": "Empezar",
-
   "program.bulk": "Volumen",
   "program.cut": "Definición",
   "program.loss": "Pérdida de peso",
   "program.balance": "Equilibrio",
   "program.pleasure": "Placer",
-  "program.bulkDesc": "Alto en proteínas y calorías",
-  "program.cutDesc": "Ligero, rico en proteínas",
-  "program.lossDesc": "Ligero y saciante",
+  "program.bulkDesc": "Maximizar calorías y proteínas para ganar músculo",
+  "program.cutDesc": "Reducir grasa preservando el músculo",
+  "program.lossDesc": "Déficit calórico sano y progresivo",
   "program.balanceDesc": "Equilibrio cotidiano",
   "program.pleasureDesc": "Sabroso y reconfortante",
-
   "home.greeting": "Hola {{name}} 👋",
   "home.programLabel": "Programa: {{program}}",
   "home.scan": "Escanear mi nevera",
@@ -59,7 +55,6 @@
   "home.usageLeft_one": "Queda {{count}} generación hoy",
   "home.usageLeft_other": "Quedan {{count}} generaciones hoy",
   "home.upgradePro": "👑 Pasar a Pro",
-
   "frigo.title": "Mi nevera",
   "frigo.subtitle": "Añade lo que tienes, nosotros nos encargamos.",
   "frigo.habits": "Tus hábitos",
@@ -81,7 +76,6 @@
   "frigo.detected": "{{count}} ingredientes detectados",
   "frigo.added": "{{count}} ingredientes añadidos",
   "frigo.micError": "Error de micrófono: {{err}}",
-
   "recipe.generate": "Generar mis recetas",
   "recipe.generating": "Generando recetas…",
   "recipe.regenerate": "Generar otras recetas",
@@ -97,13 +91,11 @@
   "recipe.shared": "Imagen compartida ✅",
   "recipe.downloadFallback": "Imagen descargada",
   "recipe.generationError": "Error de generación",
-
   "recettes.title": "Mis recetas",
   "recettes.count_one": "{{count}} receta generada",
   "recettes.count_other": "{{count}} recetas generadas",
   "recettes.empty": "Aún sin recetas",
   "recettes.emptyHint": "Escanea tu nevera para generar tus primeras recetas.",
-
   "shopping.title": "Lista de la compra",
   "shopping.sub": "A partir de tus recetas planificadas",
   "shopping.empty": "Sin recetas a usar.",
@@ -116,7 +108,6 @@
   "shopping.online": "🛒 Pedir online",
   "shopping.onlineSub": "Abre tu drive favorito y pega tu lista",
   "shopping.copied": "✅ ¡Lista copiada! Pégala en {{retailer}}",
-
   "stats.title": "Mi seguimiento",
   "stats.empty": "Cocina tus primeras recetas para ver estadísticas.",
   "stats.meals": "🍽 Comidas",
@@ -135,7 +126,6 @@
   "stats.ok": "Se puede mejorar 📈",
   "stats.start": "¡Vamos otra vez! 🔥",
   "stats.none": "¡Empieza a cocinar! 👨‍🍳",
-
   "history.title": "Mi historial",
   "history.weekCount": "{{count}} comidas esta semana",
   "history.empty": "Sin comidas registradas",
@@ -145,7 +135,6 @@
   "history.yesterday": "Ayer",
   "history.freeLimit": "Historial limitado a los últimos 7 días en gratis.",
   "history.unlockPro": "Desbloquear Pro",
-
   "planning.title": "Mi plan",
   "planning.week": "Semana del {{from}} al {{to}}",
   "planning.generate": "Generar semana",
@@ -160,13 +149,11 @@
   "planning.shoppingWeek": "Lista de la compra semanal",
   "planning.generated": "Plan generado 🎉",
   "planning.firstPlan": "Planifica primero algunas comidas",
-
   "community.title": "Comunidad",
   "community.refresh": "🔄 Actualizar",
   "community.try": "Probar esta receta",
   "community.error": "No se pudo cargar el feed. Comprueba tu conexión.",
   "community.likedToast": "👍 Me gusta guardado",
-
   "settings.title": "Ajustes",
   "settings.profile": "MI PERFIL",
   "settings.name": "Nombre",
@@ -198,7 +185,6 @@
   "settings.confirmClearHistory": "¿Borrar todo el historial?",
   "settings.confirmReset": "¿Reiniciar? Todos tus datos se borrarán.",
   "settings.profileSaved": "Perfil actualizado ✅",
-
   "group.title": "Mi grupo",
   "group.create": "Crear un grupo",
   "group.join": "Unirse con un código",
@@ -225,7 +211,6 @@
   "group.role.member": "Miembro",
   "group.nothingShared": "Aún nada para compartir",
   "group.updatedAt": "Actualizado {{when}}",
-
   "paywall.title": "FridgeChef Pro",
   "paywall.subtitle": "Desbloquea todo, sin límites",
   "paywall.b1": "Recetas ilimitadas cada día",
@@ -241,15 +226,30 @@
   "paywall.soon": "💳 ¡Pagos disponibles muy pronto!",
   "paywall.limitRecipes": "Has alcanzado el límite gratis de 3 generaciones/día.",
   "paywall.limitShopping": "Límite gratis: 1 lista al día.",
-
   "lang.fr": "🇫🇷 Français",
   "lang.en": "🇬🇧 English",
   "lang.es": "🇪🇸 Español",
   "lang.pt": "🇧🇷 Português",
   "lang.zh": "🇨🇳 中文",
-
   "retailer.copyTip": "Busca los artículos uno a uno en el drive",
   "retailer.leclerc": "E.Leclerc Drive",
   "retailer.carrefour": "Carrefour Drive",
-  "retailer.amazon": "Amazon Fresh"
+  "retailer.amazon": "Amazon Fresh",
+  "nav.planning": "Planificación",
+  "nav.add": "Añadir",
+  "sheet.addTitle": "¿Cómo quieres añadir ingredientes?",
+  "sheet.photoTitle": "Escanear mi nevera",
+  "sheet.photoSub": "Toma una foto de tu nevera",
+  "sheet.voiceTitle": "Dictar ingredientes",
+  "sheet.voiceSub": "Habla y la IA detecta todo",
+  "sheet.manualTitle": "Añadir manualmente",
+  "sheet.manualSub": "Escribe tus ingredientes uno a uno",
+  "program.maintain": "Mantenimiento",
+  "program.maintainDesc": "Estabiliza el peso y come equilibrado",
+  "home.tracking": "Mi seguimiento",
+  "settings.tracking": "MI SEGUIMIENTO",
+  "settings.openStats": "📊 Estadísticas",
+  "settings.openHistory": "📅 Historial de comidas",
+  "settings.openPlanning": "🗓 Planificación semanal",
+  "settings.openShopping": "🛒 Lista de la compra"
 }

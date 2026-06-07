@@ -3,6 +3,7 @@ import { Clock, Flame } from "lucide-react";
 import type { Recipe } from "@/lib/types";
 import { programColor } from "@/lib/storage";
 import { FavoriteHeart } from "./FavoriteHeart";
+import { RecipeImage } from "./RecipeImage";
 
 export function RecipeCard({ recipe, index = 0 }: { recipe: Recipe; index?: number }) {
   const pc = programColor(recipe.program);
@@ -10,13 +11,14 @@ export function RecipeCard({ recipe, index = 0 }: { recipe: Recipe; index?: numb
     <Link
       to="/recette/$id"
       params={{ id: recipe.id }}
-      className="fc-card relative block animate-fade-up overflow-hidden p-4 transition active:scale-[0.98]"
-      style={{ animationDelay: `${index * 80}ms` }}
+      className="fc-card relative block animate-fade-up overflow-hidden transition active:scale-[0.98]"
+      style={{ animationDelay: `${index * 80}ms`, padding: 0 }}
     >
+      <RecipeImage titre={recipe.titre} program={recipe.program} height={160} />
       <div className="absolute right-3 top-3">
-        <FavoriteHeart recipe={recipe} />
+        <FavoriteHeart recipe={recipe} variant="light" />
       </div>
-      <div className="pr-12">
+      <div className="p-4">
         <span
           className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold ${pc.bg} ${pc.text}`}
         >
@@ -46,17 +48,21 @@ export function MiniRecipeCard({ recipe }: { recipe: Recipe }) {
     <Link
       to="/recette/$id"
       params={{ id: recipe.id }}
-      className="fc-card block w-44 shrink-0 p-3 transition active:scale-[0.97]"
+      className="fc-card block w-44 shrink-0 overflow-hidden transition active:scale-[0.97]"
+      style={{ padding: 0 }}
     >
-      <span
-        className={`inline-block rounded-full px-2 py-0.5 text-[9px] font-semibold ${pc.bg} ${pc.text}`}
-      >
-        {recipe.program}
-      </span>
-      <h4 className="mt-2 line-clamp-2 text-sm font-semibold leading-tight">
-        {recipe.titre}
-      </h4>
-      <p className="mt-1 text-xs text-muted-foreground">{recipe.calories} kcal</p>
+      <RecipeImage titre={recipe.titre} program={recipe.program} height={90} />
+      <div className="p-3">
+        <span
+          className={`inline-block rounded-full px-2 py-0.5 text-[9px] font-semibold ${pc.bg} ${pc.text}`}
+        >
+          {recipe.program}
+        </span>
+        <h4 className="mt-2 line-clamp-2 text-sm font-semibold leading-tight">
+          {recipe.titre}
+        </h4>
+        <p className="mt-1 text-xs text-muted-foreground">{recipe.calories} kcal</p>
+      </div>
     </Link>
   );
 }

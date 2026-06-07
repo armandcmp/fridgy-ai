@@ -15,13 +15,11 @@
   "common.import": "导入",
   "common.export": "导出",
   "common.back": "返回",
-
   "nav.home": "首页",
   "nav.recipes": "食谱",
   "nav.community": "社区",
   "nav.stats": "统计",
   "nav.settings": "设置",
-
   "onboarding.tagline": "你的食材,你的食谱",
   "onboarding.question": "怎么称呼你?",
   "onboarding.questionSub": "用于个性化你的空间。",
@@ -29,18 +27,16 @@
   "onboarding.programTitle": "选择你的方案",
   "onboarding.programSub": "我们会根据你的目标调整食谱。",
   "onboarding.start": "开始",
-
   "program.bulk": "增肌",
   "program.cut": "减脂",
   "program.loss": "减重",
   "program.balance": "均衡",
   "program.pleasure": "享受",
-  "program.bulkDesc": "高蛋白高热量",
-  "program.cutDesc": "清淡高蛋白",
-  "program.lossDesc": "清淡饱腹",
+  "program.bulkDesc": "最大化卡路里和蛋白质以增肌",
+  "program.cutDesc": "在保持肌肉的同时减脂",
+  "program.lossDesc": "健康、渐进的热量赤字",
   "program.balanceDesc": "日常均衡",
   "program.pleasureDesc": "美味温暖",
-
   "home.greeting": "你好 {{name}} 👋",
   "home.programLabel": "方案:{{program}}",
   "home.scan": "扫描我的冰箱",
@@ -59,7 +55,6 @@
   "home.usageLeft_one": "今日还剩 {{count}} 次生成",
   "home.usageLeft_other": "今日还剩 {{count}} 次生成",
   "home.upgradePro": "👑 升级到 Pro",
-
   "frigo.title": "我的冰箱",
   "frigo.subtitle": "添加你拥有的食材,其余交给我们。",
   "frigo.habits": "你的习惯",
@@ -81,7 +76,6 @@
   "frigo.detected": "检测到 {{count}} 个食材",
   "frigo.added": "已添加 {{count}} 个食材",
   "frigo.micError": "麦克风错误:{{err}}",
-
   "recipe.generate": "生成食谱",
   "recipe.generating": "生成中…",
   "recipe.regenerate": "换一批",
@@ -97,13 +91,11 @@
   "recipe.shared": "已分享 ✅",
   "recipe.downloadFallback": "图片已下载",
   "recipe.generationError": "生成出错",
-
   "recettes.title": "我的食谱",
   "recettes.count_one": "已生成 {{count}} 道食谱",
   "recettes.count_other": "已生成 {{count}} 道食谱",
   "recettes.empty": "还没有食谱",
   "recettes.emptyHint": "扫描冰箱以生成首个食谱。",
-
   "shopping.title": "购物清单",
   "shopping.sub": "基于你的计划食谱",
   "shopping.empty": "没有可用的食谱。",
@@ -116,7 +108,6 @@
   "shopping.online": "🛒 在线下单",
   "shopping.onlineSub": "打开你喜欢的应用并粘贴清单",
   "shopping.copied": "✅ 已复制!在 {{retailer}} 中粘贴",
-
   "stats.title": "我的追踪",
   "stats.empty": "做几道食谱后即可查看统计。",
   "stats.meals": "🍽 餐数",
@@ -135,7 +126,6 @@
   "stats.ok": "还能更好 📈",
   "stats.start": "再来一次! 🔥",
   "stats.none": "开始烹饪吧! 👨‍🍳",
-
   "history.title": "我的记录",
   "history.weekCount": "本周 {{count}} 餐",
   "history.empty": "暂无记录",
@@ -145,7 +135,6 @@
   "history.yesterday": "昨天",
   "history.freeLimit": "免费版仅显示最近 7 天的记录。",
   "history.unlockPro": "解锁 Pro",
-
   "planning.title": "我的计划",
   "planning.week": "{{from}} 至 {{to}} 的一周",
   "planning.generate": "生成本周",
@@ -160,13 +149,11 @@
   "planning.shoppingWeek": "本周购物清单",
   "planning.generated": "计划已生成 🎉",
   "planning.firstPlan": "请先计划一些餐",
-
   "community.title": "社区",
   "community.refresh": "🔄 刷新",
   "community.try": "试做这道菜",
   "community.error": "无法加载,请检查网络。",
   "community.likedToast": "👍 已点赞",
-
   "settings.title": "设置",
   "settings.profile": "我的资料",
   "settings.name": "名字",
@@ -198,7 +185,6 @@
   "settings.confirmClearHistory": "确认清除全部历史?",
   "settings.confirmReset": "确认重置?所有数据将被删除。",
   "settings.profileSaved": "资料已更新 ✅",
-
   "group.title": "我的群组",
   "group.create": "创建群组",
   "group.join": "用代码加入",
@@ -225,7 +211,6 @@
   "group.role.member": "成员",
   "group.nothingShared": "暂无共享内容",
   "group.updatedAt": "更新于 {{when}}",
-
   "paywall.title": "FridgeChef Pro",
   "paywall.subtitle": "解锁全部,无限制",
   "paywall.b1": "每日无限食谱",
@@ -241,15 +226,30 @@
   "paywall.soon": "💳 支付即将上线!",
   "paywall.limitRecipes": "已达免费额度:每天 3 次生成。",
   "paywall.limitShopping": "免费额度:每天 1 份清单。",
-
   "lang.fr": "🇫🇷 Français",
   "lang.en": "🇬🇧 English",
   "lang.es": "🇪🇸 Español",
   "lang.pt": "🇧🇷 Português",
   "lang.zh": "🇨🇳 中文",
-
   "retailer.copyTip": "在线上商店逐项搜索",
   "retailer.leclerc": "E.Leclerc Drive",
   "retailer.carrefour": "Carrefour Drive",
-  "retailer.amazon": "Amazon Fresh"
+  "retailer.amazon": "Amazon Fresh",
+  "nav.planning": "计划",
+  "nav.add": "添加",
+  "sheet.addTitle": "如何添加食材？",
+  "sheet.photoTitle": "扫描冰箱",
+  "sheet.photoSub": "拍一张冰箱的照片",
+  "sheet.voiceTitle": "口述食材",
+  "sheet.voiceSub": "说话即可，AI 自动识别",
+  "sheet.manualTitle": "手动输入",
+  "sheet.manualSub": "逐一输入食材",
+  "program.maintain": "维持",
+  "program.maintainDesc": "稳定体重，均衡饮食",
+  "home.tracking": "我的跟踪",
+  "settings.tracking": "我的跟踪",
+  "settings.openStats": "📊 统计",
+  "settings.openHistory": "📅 用餐历史",
+  "settings.openPlanning": "🗓 每周计划",
+  "settings.openShopping": "🛒 购物清单"
 }

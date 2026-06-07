@@ -14,7 +14,7 @@ export const Route = createFileRoute("/parametres")({
   component: Settings,
 });
 
-const PROGRAMS = ["bulk", "cut", "loss", "balance", "pleasure"] as const;
+const PROGRAMS = ["bulk", "cut", "loss", "maintain"] as const;
 const COLORS = ["#4CAF82", "#F59E0B", "#EF4444", "#3B82F6", "#A855F7", "#EC4899"];
 
 function Settings() {
@@ -59,10 +59,10 @@ function Settings() {
       bulk: { name: t("program.bulk"), kcal: 2800 },
       cut: { name: t("program.cut"), kcal: 1900 },
       loss: { name: t("program.loss"), kcal: 1800 },
-      balance: { name: t("program.balance"), kcal: 2200 },
-      pleasure: { name: t("program.pleasure"), kcal: 2500 },
+      maintain: { name: t("program.maintain"), kcal: 2200 },
     };
     const p = map[slug];
+    if (!p) return;
     storage.patchUser({ program: p.name, dailyKcal: p.kcal });
     setEditingProgram(false);
     toast.success(t("settings.profileSaved"));
@@ -408,6 +408,14 @@ function Settings() {
             <span className="text-sm font-semibold text-amber-500">👑</span>
           )}
         </Row>
+      </Section>
+
+      {/* MY TRACKING */}
+      <Section title={t("settings.tracking")}>
+        <ButtonRow onClick={() => nav({ to: "/stats" })} label={t("settings.openStats")} />
+        <ButtonRow onClick={() => nav({ to: "/historique" })} label={t("settings.openHistory")} />
+        <ButtonRow onClick={() => nav({ to: "/planning" })} label={t("settings.openPlanning")} />
+        <ButtonRow onClick={() => nav({ to: "/courses" })} label={t("settings.openShopping")} />
       </Section>
 
       {/* DATA */}

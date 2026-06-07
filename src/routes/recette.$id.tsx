@@ -7,6 +7,7 @@ import { storage, programColor } from "@/lib/storage";
 import { useLocalReactive } from "@/lib/hooks";
 import { FavoriteHeart } from "@/components/FavoriteHeart";
 import { MacroBar } from "@/components/MacroBar";
+import { RecipeImage } from "@/components/RecipeImage";
 import { buildRecipeShareImage, shareOrDownload } from "@/lib/share";
 import { isPremium } from "@/lib/freemium";
 
@@ -74,38 +75,49 @@ function RecipeDetail() {
 
   return (
     <div className="pb-28">
-      <div className="relative bg-gradient-to-br from-primary to-emerald-600 px-5 pb-8 pt-6 text-white">
-        <div className="flex items-center justify-between">
-          <button
-            onClick={() => nav({ to: "/recettes" })}
-            className="grid h-9 w-9 place-items-center rounded-full bg-white/20 backdrop-blur"
-            aria-label={t("common.back")}
-          >
-            <ArrowLeft size={18} />
-          </button>
-          <div className="flex gap-2">
+      <div className="relative text-white" style={{ height: 260 }}>
+        <RecipeImage
+          titre={recipe.titre}
+          program={recipe.program}
+          height={260}
+          rounded="0"
+          overlay
+        />
+        <div className="absolute inset-0 flex flex-col px-5 pb-5 pt-6">
+          <div className="flex items-center justify-between">
             <button
-              onClick={share}
-              disabled={sharing}
-              className="grid h-9 w-9 place-items-center rounded-full bg-white/20 backdrop-blur disabled:opacity-60"
-              aria-label={t("recipe.share")}
+              onClick={() => nav({ to: "/recettes" })}
+              className="grid h-9 w-9 place-items-center rounded-full bg-white/20 backdrop-blur"
+              aria-label={t("common.back")}
             >
-              <Share2 size={16} />
+              <ArrowLeft size={18} />
             </button>
-            <FavoriteHeart recipe={recipe} variant="light" />
+            <div className="flex gap-2">
+              <button
+                onClick={share}
+                disabled={sharing}
+                className="grid h-9 w-9 place-items-center rounded-full bg-white/20 backdrop-blur disabled:opacity-60"
+                aria-label={t("recipe.share")}
+              >
+                <Share2 size={16} />
+              </button>
+              <FavoriteHeart recipe={recipe} variant="light" />
+            </div>
           </div>
-        </div>
-        <span
-          className={`mt-5 inline-block rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${pc.bg} ${pc.text}`}
-        >
-          {recipe.program}
-        </span>
-        <h1 className="mt-2 text-2xl font-bold leading-tight">{recipe.titre}</h1>
-        <p className="mt-2 text-sm text-white/85">{recipe.description}</p>
-        <div className="mt-4 flex flex-wrap gap-4 text-xs text-white/90">
-          <span className="inline-flex items-center gap-1"><Flame size={14} /> {recipe.calories} kcal</span>
-          <span className="inline-flex items-center gap-1"><Clock size={14} /> {recipe.temps}</span>
-          <span>· {recipe.difficulte}</span>
+          <div className="mt-auto">
+            <span
+              className={`inline-block rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${pc.bg} ${pc.text}`}
+            >
+              {recipe.program}
+            </span>
+            <h1 className="mt-2 text-2xl font-bold leading-tight drop-shadow">{recipe.titre}</h1>
+            <p className="mt-2 text-sm text-white/90 drop-shadow">{recipe.description}</p>
+            <div className="mt-3 flex flex-wrap gap-4 text-xs text-white/95">
+              <span className="inline-flex items-center gap-1"><Flame size={14} /> {recipe.calories} kcal</span>
+              <span className="inline-flex items-center gap-1"><Clock size={14} /> {recipe.temps}</span>
+              <span>· {recipe.difficulte}</span>
+            </div>
+          </div>
         </div>
       </div>
 

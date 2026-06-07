@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Camera, Keyboard, Mic, Plus, X, Sparkles, Brain } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -16,7 +16,13 @@ import {
 } from "@/lib/ai.functions";
 import { PaywallModal } from "@/components/PaywallModal";
 
+type ModeParam = "photo" | "voice" | "manual";
+
 export const Route = createFileRoute("/frigo")({
+  validateSearch: (s: Record<string, unknown>): { mode?: ModeParam } => {
+    const m = s.mode;
+    return m === "photo" || m === "voice" || m === "manual" ? { mode: m } : {};
+  },
   component: Frigo,
 });
 
@@ -25,6 +31,7 @@ type Mode = "menu" | "manual" | "voice";
 function Frigo() {
   const { t } = useTranslation();
   const nav = useNavigate();
+  const search = Route.useSearch();
   const user = useLocalReactive(() => storage.getUser());
   const memory = useLocalReactive(() => storage.getMemory());
   const [mode, setMode] = useState<Mode>("menu");
@@ -40,6 +47,18 @@ function Frigo() {
   const extractImg = useServerFn(extractFromImage);
   const extractTxt = useServerFn(extractIngredients);
   const genRecipes = useServerFn(generateRecipes);
+
+  const consumedRef = useRef(false);
+  useEffect(() => {
+    if (consumedRef.current || !search.mode) return;
+    consumedRef.current = true;
+    const m = search.mode;
+    if (m === "photo") setTimeout(() => fileRef.current?.click(), 50);
+    else if (m === "manual") setMode("manual");
+    else if (m === "voice") { setMode("voice"); setTimeout(() => toggleRecord(), 100); }
+    nav({ to: "/frigo", search: {}, replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search.mode]);
 
   const addItem = (raw: string) => {
     const v = raw.trim();
