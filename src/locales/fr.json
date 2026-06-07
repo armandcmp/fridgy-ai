@@ -15,13 +15,11 @@
   "common.import": "Importer",
   "common.export": "Exporter",
   "common.back": "Retour",
-
   "nav.home": "Accueil",
   "nav.recipes": "Recettes",
   "nav.community": "Communauté",
   "nav.stats": "Stats",
   "nav.settings": "Paramètres",
-
   "onboarding.tagline": "Vos ingrédients, vos recettes",
   "onboarding.question": "Comment on vous appelle ?",
   "onboarding.questionSub": "Pour personnaliser votre espace.",
@@ -29,18 +27,16 @@
   "onboarding.programTitle": "Choisissez votre programme",
   "onboarding.programSub": "On adaptera les recettes à votre objectif.",
   "onboarding.start": "Commencer",
-
   "program.bulk": "Prise de masse",
   "program.cut": "Sèche",
   "program.loss": "Perte de poids",
   "program.balance": "Équilibre",
   "program.pleasure": "Plaisir",
-  "program.bulkDesc": "Riche en protéines & calories",
-  "program.cutDesc": "Léger, riche en protéines",
-  "program.lossDesc": "Léger et rassasiant",
+  "program.bulkDesc": "Maximiser les calories et les protéines pour gagner du muscle",
+  "program.cutDesc": "Réduire les graisses tout en préservant le muscle",
+  "program.lossDesc": "Déficit calorique sain et progressif",
   "program.balanceDesc": "Polyvalent au quotidien",
   "program.pleasureDesc": "Gourmand et savoureux",
-
   "home.greeting": "Bonjour {{name}} 👋",
   "home.programLabel": "Programme : {{program}}",
   "home.scan": "Scanner mon frigo",
@@ -59,7 +55,6 @@
   "home.usageLeft_one": "{{count}} génération restante aujourd'hui",
   "home.usageLeft_other": "{{count}} générations restantes aujourd'hui",
   "home.upgradePro": "👑 Passer à Pro",
-
   "frigo.title": "Mon frigo",
   "frigo.subtitle": "Ajoutez ce que vous avez, on s'occupe du reste.",
   "frigo.habits": "Vos habitudes",
@@ -81,7 +76,6 @@
   "frigo.detected": "{{count}} ingrédients détectés",
   "frigo.added": "{{count}} ingrédients ajoutés",
   "frigo.micError": "Erreur micro : {{err}}",
-
   "recipe.generate": "Générer mes recettes",
   "recipe.generating": "Génération des recettes…",
   "recipe.regenerate": "Regénérer d'autres recettes",
@@ -97,13 +91,11 @@
   "recipe.shared": "Image partagée ✅",
   "recipe.downloadFallback": "Image téléchargée",
   "recipe.generationError": "Erreur de génération",
-
   "recettes.title": "Mes recettes",
   "recettes.count_one": "{{count}} recette générée",
   "recettes.count_other": "{{count}} recettes générées",
   "recettes.empty": "Aucune recette pour l'instant",
   "recettes.emptyHint": "Scannez votre frigo pour générer vos premières recettes.",
-
   "shopping.title": "Liste de courses",
   "shopping.sub": "À partir de vos recettes planifiées",
   "shopping.empty": "Aucune recette à utiliser.",
@@ -116,7 +108,6 @@
   "shopping.online": "🛒 Commander en ligne",
   "shopping.onlineSub": "Ouvrez votre drive préféré et collez votre liste",
   "shopping.copied": "✅ Liste copiée ! Collez-la dans {{retailer}}",
-
   "stats.title": "Mon suivi",
   "stats.empty": "Cuisinez vos premières recettes pour voir vos statistiques.",
   "stats.meals": "🍽 Repas",
@@ -135,7 +126,6 @@
   "stats.ok": "Peut mieux faire 📈",
   "stats.start": "Allez, on repart ! 🔥",
   "stats.none": "Commencez à cuisiner ! 👨‍🍳",
-
   "history.title": "Mon historique",
   "history.weekCount": "{{count}} repas cette semaine",
   "history.empty": "Aucun repas enregistré",
@@ -145,7 +135,6 @@
   "history.yesterday": "Hier",
   "history.freeLimit": "Historique limité aux 7 derniers jours en version gratuite.",
   "history.unlockPro": "Débloquer Pro",
-
   "planning.title": "Mon planning",
   "planning.week": "Semaine du {{from}} au {{to}}",
   "planning.generate": "Générer la semaine",
@@ -160,13 +149,11 @@
   "planning.shoppingWeek": "Liste de courses de la semaine",
   "planning.generated": "Planning généré 🎉",
   "planning.firstPlan": "Planifiez d'abord des repas",
-
   "community.title": "Communauté",
   "community.refresh": "🔄 Actualiser",
   "community.try": "Essayer cette recette",
   "community.error": "Impossible de charger le feed. Vérifiez votre connexion.",
   "community.likedToast": "👍 Like enregistré",
-
   "settings.title": "Paramètres",
   "settings.profile": "MON PROFIL",
   "settings.name": "Prénom",
@@ -198,7 +185,6 @@
   "settings.confirmClearHistory": "Effacer tout l'historique ?",
   "settings.confirmReset": "Réinitialiser ? Toutes vos données seront effacées.",
   "settings.profileSaved": "Profil mis à jour ✅",
-
   "group.title": "Mon groupe",
   "group.create": "Créer un groupe",
   "group.join": "Rejoindre avec un code",
@@ -225,7 +211,6 @@
   "group.role.member": "Membre",
   "group.nothingShared": "Rien à partager pour l'instant",
   "group.updatedAt": "Mis à jour {{when}}",
-
   "paywall.title": "FridgeChef Pro",
   "paywall.subtitle": "Débloquez tout sans limite",
   "paywall.b1": "Recettes illimitées chaque jour",
@@ -241,15 +226,30 @@
   "paywall.soon": "💳 Paiement disponible très bientôt !",
   "paywall.limitRecipes": "Vous avez atteint la limite gratuite de 3 générations / jour.",
   "paywall.limitShopping": "Limite gratuite : 1 liste par jour.",
-
   "lang.fr": "🇫🇷 Français",
   "lang.en": "🇬🇧 English",
   "lang.es": "🇪🇸 Español",
   "lang.pt": "🇧🇷 Português",
   "lang.zh": "🇨🇳 中文",
-
   "retailer.copyTip": "Recherche les éléments un par un dans le drive",
   "retailer.leclerc": "E.Leclerc Drive",
   "retailer.carrefour": "Carrefour Drive",
-  "retailer.amazon": "Amazon Fresh"
+  "retailer.amazon": "Amazon Fresh",
+  "nav.planning": "Planning",
+  "nav.add": "Ajouter",
+  "sheet.addTitle": "Comment saisir vos ingrédients ?",
+  "sheet.photoTitle": "Scanner mon frigo",
+  "sheet.photoSub": "Prenez une photo de votre frigo",
+  "sheet.voiceTitle": "Dicter mes ingrédients",
+  "sheet.voiceSub": "Parlez et l'IA détecte tout",
+  "sheet.manualTitle": "Saisir manuellement",
+  "sheet.manualSub": "Tapez vos ingrédients un par un",
+  "program.maintain": "Maintien",
+  "program.maintainDesc": "Stabiliser son poids et manger équilibré",
+  "home.tracking": "Mon suivi",
+  "settings.tracking": "MON SUIVI",
+  "settings.openStats": "📊 Statistiques",
+  "settings.openHistory": "📅 Historique des repas",
+  "settings.openPlanning": "🗓 Planning de la semaine",
+  "settings.openShopping": "🛒 Liste de courses"
 }
