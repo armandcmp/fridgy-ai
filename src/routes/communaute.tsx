@@ -116,9 +116,11 @@ function Community() {
             return (
               <article
                 key={r.id}
-                className="fc-card animate-fade-up overflow-hidden p-4"
-                style={{ animationDelay: `${i * 80}ms` }}
+                className="fc-card animate-fade-up overflow-hidden"
+                style={{ animationDelay: `${i * 80}ms`, padding: 0 }}
               >
+                <RecipeImage titre={r.titre} program={r.program} height={160} />
+                <div className="p-4">
                 <div className="flex items-center gap-3">
                   <div
                     className="grid h-10 w-10 place-items-center rounded-full text-xs font-bold text-white"
