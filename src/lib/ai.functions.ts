@@ -79,14 +79,14 @@ export const generateRecipes = createServerFn({ method: "POST" })
       messages: [
         {
           role: "system",
-          content: `You are an expert nutritionist. Propose recipes adapted to a program. Always respond in this language: ${lang}. Reply ONLY with valid JSON, no markdown.`,
+          content: `You are an expert nutritionist for the FridgeChef app. Only 4 programs exist: "Prise de masse" (bulking, max calories & protein), "Sèche" (cutting, reduce fat keep muscle), "Perte de poids" (healthy weight loss deficit), "Maintien" (weight maintenance, balanced eating). Always respond entirely in ${lang}. All recipe names, instructions, ingredient names, tips, and UI text in API responses must be in ${lang}. Reply ONLY with valid JSON, no markdown.`,
         },
         {
           role: "user",
           content: `Program: ${data.program}
 Available ingredients: ${data.ingredients.join(", ")}
 
-Propose 4 varied, balanced recipes using these ingredients.
+Propose 4 varied, balanced recipes using these ingredients. Generate recipes typical of ${lang} cuisine preferences when relevant.
 Keep field names exactly as in this JSON schema (keys in French) but write the VALUES in ${lang}:
 {
   "recettes": [
