@@ -8,12 +8,14 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Toaster } from "sonner";
+import { I18nextProvider } from "react-i18next";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { BottomNav } from "../components/BottomNav";
+import i18n from "../lib/i18n";
 
 function NotFoundComponent() {
   return (
@@ -95,13 +97,22 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const loc = useLocation();
   const hideNav = loc.pathname === "/onboarding";
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="mx-auto min-h-screen max-w-md" style={{ paddingBottom: hideNav ? 0 : 80 }}>
-        <Outlet />
-      </div>
-      {!hideNav && <BottomNav />}
-      <Toaster position="top-center" richColors />
+      <I18nextProvider i18n={i18n}>
+        <div
+          className="mx-auto min-h-screen max-w-md"
+          style={{ paddingBottom: hideNav ? 0 : 80 }}
+          suppressHydrationWarning
+        >
+          {mounted ? <Outlet /> : null}
+        </div>
+        {mounted && !hideNav && <BottomNav />}
+        <Toaster position="top-center" richColors />
+      </I18nextProvider>
     </QueryClientProvider>
   );
 }
