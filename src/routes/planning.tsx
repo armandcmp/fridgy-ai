@@ -186,7 +186,7 @@ function Planning() {
         onClick={goShoppingList}
         className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-full bg-secondary py-3.5 text-sm font-semibold text-secondary-foreground"
       >
-        <ShoppingBasket size={16} /> Liste de courses de la semaine
+        <ShoppingBasket size={16} /> {t("planning.shoppingWeek")}
       </button>
 
       {/* Picker bottom sheet */}
@@ -201,13 +201,13 @@ function Planning() {
             style={{ paddingBottom: "calc(1.25rem + env(safe-area-inset-bottom))" }}
           >
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="font-semibold">Ajouter un repas — {planning.days[picker].jour}</h3>
+              <h3 className="font-semibold">{t("planning.addFor", { day: planning.days[picker].jour })}</h3>
               <button onClick={() => setPicker(null)}><X size={20} /></button>
             </div>
 
-            <Section title="❤️ Favoris">
+            <Section title={t("planning.favorites")}>
               {favs.length === 0 ? (
-                <Empty>Aucun favori</Empty>
+                <Empty>{t("planning.noFav")}</Empty>
               ) : (
                 favs.map((r) => (
                   <PickRow
@@ -223,9 +223,9 @@ function Planning() {
               )}
             </Section>
 
-            <Section title="🕘 Récents">
+            <Section title={t("planning.recents")}>
               {histRecipes.length === 0 ? (
-                <Empty>Aucun repas récent</Empty>
+                <Empty>{t("planning.noRecent")}</Empty>
               ) : (
                 histRecipes.map((r) => (
                   <PickRow
@@ -248,7 +248,7 @@ function Planning() {
               }}
               className="mt-3 w-full rounded-full border border-primary py-2.5 text-sm font-semibold text-primary"
             >
-              ✨ Générer une recette pour ce jour
+              {t("planning.genForDay")}
             </button>
           </div>
         </div>
