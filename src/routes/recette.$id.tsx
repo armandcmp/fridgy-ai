@@ -1,10 +1,13 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { ArrowLeft, Clock, Flame, CheckCircle2 } from "lucide-react";
+import { useState } from "react";
+import { ArrowLeft, Clock, Flame, CheckCircle2, Share2 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { storage, programColor } from "@/lib/storage";
 import { useLocalReactive } from "@/lib/hooks";
 import { FavoriteHeart } from "@/components/FavoriteHeart";
 import { MacroBar } from "@/components/MacroBar";
+import { shareRecipe } from "@/lib/share";
 
 export const Route = createFileRoute("/recette/$id")({
   component: RecipeDetail,
@@ -13,9 +16,12 @@ export const Route = createFileRoute("/recette/$id")({
 function RecipeDetail() {
   const { id } = Route.useParams();
   const nav = useNavigate();
+  const { t } = useTranslation();
   const recipes = useLocalReactive(() => storage.getRecipes());
   const favs = useLocalReactive(() => storage.getFavorites());
   const planning = useLocalReactive(() => storage.getPlanning());
+  const premium = useLocalReactive(() => storage.isPremium());
+  const [sharing, setSharing] = useState(false);
   const all = [
     ...recipes,
     ...favs,
