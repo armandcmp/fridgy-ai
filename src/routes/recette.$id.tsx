@@ -70,7 +70,26 @@ function RecipeDetail() {
           >
             <ArrowLeft size={18} />
           </button>
-          <FavoriteHeart recipe={recipe} variant="light" />
+          <div className="flex items-center gap-2">
+            <button
+              onClick={async () => {
+                setSharing(true);
+                try {
+                  const res = await shareRecipe(recipe, premium);
+                  if (res.kind === "downloaded") toast.success(t("share.fallback_download"));
+                  if (res.kind === "shared") toast.success("Partagé ✨");
+                } finally {
+                  setSharing(false);
+                }
+              }}
+              disabled={sharing}
+              className="grid h-9 w-9 place-items-center rounded-full bg-white/20 backdrop-blur"
+              aria-label={t("share.button")}
+            >
+              <Share2 size={16} />
+            </button>
+            <FavoriteHeart recipe={recipe} variant="light" />
+          </div>
         </div>
         <span
           className={`mt-5 inline-block rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${pc.bg} ${pc.text}`}
