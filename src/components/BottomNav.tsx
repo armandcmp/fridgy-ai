@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
-import { Home, Calendar, Users, Settings, Plus, Camera, Mic, Keyboard } from "lucide-react";
+import { Home, ChefHat, Calendar, Settings, Plus, Camera, Mic, Keyboard } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { BottomSheet } from "./BottomSheet";
 
@@ -10,10 +10,10 @@ export function BottomNav() {
   const nav = useNavigate();
   const [sheet, setSheet] = useState(false);
 
-  const tabs: { to: string; icon: typeof Home; label: string; exact?: boolean }[] = [
-    { to: "/", icon: Home, label: t("nav.home"), exact: true },
+  const tabs: { to: string; icon: typeof Home; label: string }[] = [
+    { to: "/", icon: Home, label: t("nav.home") },
+    { to: "/recettes", icon: ChefHat, label: t("nav.recipes") },
     { to: "/planning", icon: Calendar, label: t("nav.planning") },
-    { to: "/communaute", icon: Users, label: t("nav.community") },
     { to: "/parametres", icon: Settings, label: t("nav.settings") },
   ];
 
@@ -22,6 +22,10 @@ export function BottomNav() {
     nav({ to: "/frigo", search: { mode } });
   };
 
+  const path = loc.pathname;
+  const isActive = (to: string) =>
+    to === "/" ? path === "/" : path.startsWith(to);
+
   return (
     <>
       <nav
@@ -29,12 +33,9 @@ export function BottomNav() {
         style={{ paddingBottom: "env(safe-area-inset-bottom)", overflow: "visible" }}
       >
         <ul className="relative mx-auto flex h-16 max-w-md items-stretch justify-between px-2">
-          {/* Tab 1 — Home */}
-          <Tab tab={tabs[0]} active={loc.pathname === "/"} />
-          {/* Tab 2 — Planning */}
-          <Tab tab={tabs[1]} active={loc.pathname.startsWith("/planning")} />
+          <Tab tab={tabs[0]} active={isActive(tabs[0].to)} />
+          <Tab tab={tabs[1]} active={isActive(tabs[1].to)} />
 
-          {/* Center action */}
           <li className="flex-1">
             <div className="relative h-full">
               <button
@@ -56,10 +57,8 @@ export function BottomNav() {
             </div>
           </li>
 
-          {/* Tab 4 — Community */}
-          <Tab tab={tabs[2]} active={loc.pathname.startsWith("/communaute")} />
-          {/* Tab 5 — Settings */}
-          <Tab tab={tabs[3]} active={loc.pathname.startsWith("/parametres")} />
+          <Tab tab={tabs[2]} active={isActive(tabs[2].to)} />
+          <Tab tab={tabs[3]} active={isActive(tabs[3].to)} />
         </ul>
       </nav>
 
@@ -69,24 +68,9 @@ export function BottomNav() {
         title={t("sheet.addTitle")}
       >
         <div className="space-y-3 pb-2">
-          <SheetCard
-            icon={<Camera size={22} />}
-            title={t("sheet.photoTitle")}
-            sub={t("sheet.photoSub")}
-            onClick={() => go("photo")}
-          />
-          <SheetCard
-            icon={<Mic size={22} />}
-            title={t("sheet.voiceTitle")}
-            sub={t("sheet.voiceSub")}
-            onClick={() => go("voice")}
-          />
-          <SheetCard
-            icon={<Keyboard size={22} />}
-            title={t("sheet.manualTitle")}
-            sub={t("sheet.manualSub")}
-            onClick={() => go("manual")}
-          />
+          <SheetCard icon={<Camera size={22} />} title={t("sheet.photoTitle")} sub={t("sheet.photoSub")} onClick={() => go("photo")} />
+          <SheetCard icon={<Mic size={22} />} title={t("sheet.voiceTitle")} sub={t("sheet.voiceSub")} onClick={() => go("voice")} />
+          <SheetCard icon={<Keyboard size={22} />} title={t("sheet.manualTitle")} sub={t("sheet.manualSub")} onClick={() => go("manual")} />
         </div>
       </BottomSheet>
     </>
@@ -105,12 +89,25 @@ function Tab({
     <li className="flex-1">
       <Link
         to={tab.to as never}
-        className={`flex h-full flex-col items-center justify-center gap-1 transition-colors ${
+        className={`relative flex h-full flex-col items-center justify-center gap-0.5 transition-colors ${
           active ? "text-primary" : "text-muted-foreground"
         }`}
       >
         <Icon size={22} strokeWidth={active ? 2.4 : 2} />
         <span className="text-[10px] font-medium">{tab.label}</span>
+        {active && (
+          <span
+            aria-hidden
+            style={{
+              position: "absolute",
+              bottom: 4,
+              width: 4,
+              height: 4,
+              borderRadius: 2,
+              background: "#4CAF82",
+            }}
+          />
+        )}
       </Link>
     </li>
   );
@@ -135,12 +132,7 @@ function SheetCard({
     >
       <span
         className="grid place-items-center text-primary"
-        style={{
-          width: 48,
-          height: 48,
-          borderRadius: 24,
-          background: "rgba(76,175,130,0.15)",
-        }}
+        style={{ width: 48, height: 48, borderRadius: 24, background: "rgba(76,175,130,0.15)" }}
       >
         {icon}
       </span>

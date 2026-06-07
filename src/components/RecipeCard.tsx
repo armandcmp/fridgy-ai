@@ -14,7 +14,7 @@ export function RecipeCard({ recipe, index = 0 }: { recipe: Recipe; index?: numb
       className="fc-card relative block animate-fade-up overflow-hidden transition active:scale-[0.98]"
       style={{ animationDelay: `${index * 80}ms`, padding: 0 }}
     >
-      <RecipeImage titre={recipe.titre} program={recipe.program} height={160} />
+      <RecipeImage titre={recipe.titre} program={recipe.program} height={180} />
       <div className="absolute right-3 top-3">
         <FavoriteHeart recipe={recipe} variant="light" />
       </div>
@@ -42,16 +42,24 @@ export function RecipeCard({ recipe, index = 0 }: { recipe: Recipe; index?: numb
   );
 }
 
-export function MiniRecipeCard({ recipe }: { recipe: Recipe }) {
+export function MiniRecipeCard({
+  recipe,
+  width = 160,
+  imageHeight = 120,
+}: {
+  recipe: Recipe;
+  width?: number;
+  imageHeight?: number;
+}) {
   const pc = programColor(recipe.program);
   return (
     <Link
       to="/recette/$id"
       params={{ id: recipe.id }}
-      className="fc-card block w-44 shrink-0 overflow-hidden transition active:scale-[0.97]"
-      style={{ padding: 0 }}
+      className="fc-card block shrink-0 overflow-hidden transition active:scale-[0.97]"
+      style={{ padding: 0, width }}
     >
-      <RecipeImage titre={recipe.titre} program={recipe.program} height={90} />
+      <RecipeImage titre={recipe.titre} program={recipe.program} height={imageHeight} />
       <div className="p-3">
         <span
           className={`inline-block rounded-full px-2 py-0.5 text-[9px] font-semibold ${pc.bg} ${pc.text}`}

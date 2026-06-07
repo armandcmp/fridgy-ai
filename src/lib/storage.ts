@@ -1,4 +1,6 @@
 import type {
+  Account,
+  CurrentUser,
   IngredientMemory,
   MealEntry,
   Recipe,
@@ -7,9 +9,12 @@ import type {
 } from "./types";
 
 const KEYS = {
-  user: "fridgechef_user",
-  session: "fridgechef_session",
+  legacyUser: "fridgechef_user",
+  session: "fridgechef_session_user",
+  accounts: "fridgechef_accounts",
+  ingredientSession: "fridgechef_session",
   recipes: "fridgechef_recipes",
+  allRecipes: "fridgechef_all_recipes",
   history: "fridgechef_history",
   memory: "fridgechef_memory",
   favorites: "fridgechef_favorites",
@@ -34,21 +39,114 @@ function write<T>(key: string, value: T) {
   window.dispatchEvent(new CustomEvent("fridgechef:change", { detail: key }));
 }
 
+function sessionToUser(s: CurrentUser): User {
+  return {
+    name: s.prenom,
+    program: s.program ?? "",
+    dailyKcal: s.dailyKcal ?? 2000,
+    avatarColor: s.avatarColor,
+  };
+}
+
 export const storage = {
-  getUser: () => read<User | null>(KEYS.user, null),
-  setUser: (u: User) => write(KEYS.user, u),
+  // ====== USER (bridges to session) ======
+  getSessionUser: (): CurrentUser | null => {
+    const sess = read<CurrentUser | null>(KEYS.session, null);
+    if (sess) return sess;
+    // migrate legacy
+    const legacy = read<User | null>(KEYS.legacyUser, null);
+    if (!legacy) return null;
+    const u: CurrentUser = {
+      id: "guest",
+      prenom: legacy.name,
+      email: null,
+      program: legacy.program,
+      dailyKcal: legacy.dailyKcal,
+      isPremium: false,
+      avatarColor: legacy.avatarColor,
+    };
+    write(KEYS.session, u);
+    return u;
+  },
+  getUser: (): User | null => {
+    const sess = storage.getSessionUser();
+    if (!sess || !sess.program) return sess ? null : null;
+    return sessionToUser(sess);
+  },
+  setUser: (u: User) => {
+    // legacy path used by old onboarding — kept for compat
+    write(KEYS.legacyUser, u);
+    const sess = read<CurrentUser | null>(KEYS.session, null);
+    const id = sess?.id ?? "guest";
+    const next: CurrentUser = {
+      id,
+      prenom: u.name,
+      email: sess?.email ?? null,
+      program: u.program,
+      dailyKcal: u.dailyKcal,
+      isPremium: sess?.isPremium ?? false,
+      avatarColor: u.avatarColor,
+    };
+    write(KEYS.session, next);
+  },
   patchUser: (patch: Partial<User>) => {
-    const u = storage.getUser();
-    if (!u) return;
-    write(KEYS.user, { ...u, ...patch });
+    const sess = read<CurrentUser | null>(KEYS.session, null);
+    if (!sess) return;
+    const next: CurrentUser = {
+      ...sess,
+      prenom: patch.name ?? sess.prenom,
+      program: patch.program ?? sess.program,
+      dailyKcal: patch.dailyKcal ?? sess.dailyKcal,
+      avatarColor: patch.avatarColor ?? sess.avatarColor,
+    };
+    write(KEYS.session, next);
+    // mirror into accounts
+    const accs = read<Account[]>(KEYS.accounts, []);
+    const idx = accs.findIndex((a) => a.id === sess.id);
+    if (idx >= 0) {
+      accs[idx] = {
+        ...accs[idx],
+        prenom: next.prenom,
+        program: next.program,
+        dailyKcal: next.dailyKcal,
+      };
+      write(KEYS.accounts, accs);
+    }
+    // mirror into legacy for older code paths
+    write(KEYS.legacyUser, sessionToUser(next));
   },
 
-  getSession: () => read<string[]>(KEYS.session, []),
-  setSession: (s: string[]) => write(KEYS.session, s),
+  // ====== INGREDIENT SESSION ======
+  getSession: () => read<string[]>(KEYS.ingredientSession, []),
+  setSession: (s: string[]) => write(KEYS.ingredientSession, s),
 
+  // ====== RECIPES (current generation set) ======
   getRecipes: () => read<Recipe[]>(KEYS.recipes, []),
-  setRecipes: (r: Recipe[]) => write(KEYS.recipes, r),
+  setRecipes: (r: Recipe[]) => {
+    write(KEYS.recipes, r);
+    storage.addAllRecipes(r);
+  },
 
+  // ====== ALL RECIPES (history of every generated recipe) ======
+  getAllRecipes: () => read<Recipe[]>(KEYS.allRecipes, []),
+  addAllRecipes: (recipes: Recipe[]) => {
+    if (!recipes?.length) return;
+    const existing = read<Recipe[]>(KEYS.allRecipes, []);
+    const seen = new Set(existing.map((r) => r.titre.toLowerCase().trim()));
+    const fresh: Recipe[] = [];
+    for (const r of recipes) {
+      const k = r.titre.toLowerCase().trim();
+      if (!seen.has(k)) {
+        seen.add(k);
+        fresh.push(r);
+      }
+    }
+    if (fresh.length === 0) return;
+    const next = [...fresh, ...existing].slice(0, 50);
+    write(KEYS.allRecipes, next);
+  },
+
+  // ====== HISTORY ======
   getHistory: () => read<MealEntry[]>(KEYS.history, []),
   setHistory: (h: MealEntry[]) => write(KEYS.history, h),
   addHistory: (entry: MealEntry) => {
@@ -63,6 +161,7 @@ export const storage = {
   },
   clearHistory: () => write(KEYS.history, []),
 
+  // ====== MEMORY ======
   getMemory: () => read<IngredientMemory>(KEYS.memory, { ingredients: [] }),
   rememberIngredients: (names: string[]) => {
     const mem = storage.getMemory();
@@ -86,6 +185,7 @@ export const storage = {
     write(KEYS.memory, { ingredients: sorted });
   },
 
+  // ====== FAVORITES ======
   getFavorites: () => read<Recipe[]>(KEYS.favorites, []),
   isFavorite: (id: string) => storage.getFavorites().some((r) => r.id === id),
   toggleFavorite: (recipe: Recipe): boolean => {
@@ -98,6 +198,7 @@ export const storage = {
     return !exists;
   },
 
+  // ====== PLANNING / LIKES ======
   getPlanning: () => read<WeekPlanning | null>(KEYS.planning, null),
   setPlanning: (p: WeekPlanning) => write(KEYS.planning, p),
 
@@ -112,8 +213,11 @@ export const storage = {
     if (typeof window === "undefined") return;
     [
       "fridgechef_user",
+      "fridgechef_session_user",
+      "fridgechef_accounts",
       "fridgechef_session",
       "fridgechef_recipes",
+      "fridgechef_all_recipes",
       "fridgechef_history",
       "fridgechef_memory",
       "fridgechef_favorites",
@@ -138,6 +242,15 @@ export function programColor(program: string): { bg: string; text: string } {
   if (p.includes("maintien") || p.includes("maintain") || p.includes("mantén") || p.includes("manten") || p.includes("维持"))
     return { bg: "bg-teal-100", text: "text-teal-700" };
   return { bg: "bg-emerald-100", text: "text-emerald-700" };
+}
+
+export function programEmoji(program: string): string {
+  const p = (program || "").toLowerCase();
+  if (p.includes("masse") || p.includes("bulk")) return "💪";
+  if (p.includes("sèche") || p.includes("seche") || p.includes("cut")) return "🔥";
+  if (p.includes("perte") || p.includes("loss")) return "⚖️";
+  if (p.includes("maintien") || p.includes("maintain")) return "🎯";
+  return "🍽";
 }
 
 export function frenchDate(iso?: string): string {
