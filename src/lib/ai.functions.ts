@@ -120,7 +120,7 @@ export const extractIngredients = createServerFn({ method: "POST" })
       messages: [
         {
           role: "system",
-          content: `Extract food ingredients from spoken text. Always respond in this language: ${lang}. Reply ONLY with valid JSON.`,
+          content: `Extract food ingredients from spoken text. Always respond entirely in ${lang}. All recipe names, ingredient names, instructions and labels must be in ${lang}. Reply ONLY with valid JSON.`,
         },
         {
           role: "user",
@@ -142,7 +142,7 @@ export const extractFromImage = createServerFn({ method: "POST" })
       messages: [
         {
           role: "system",
-          content: `Identify food ingredients visible in an image of a fridge or pantry. Always respond in this language: ${lang}. Reply ONLY with valid JSON.`,
+          content: `Identify food ingredients visible in an image of a fridge or pantry. Always respond entirely in ${lang}. All recipe names, ingredient names, instructions and labels must be in ${lang}. Reply ONLY with valid JSON.`,
         },
         {
           role: "user",
@@ -174,7 +174,7 @@ export const generateWeekPlan = createServerFn({ method: "POST" })
       messages: [
         {
           role: "system",
-          content: `You are an expert nutritionist. Plan balanced weeks of meals. Always respond in this language: ${lang}. Reply ONLY with valid JSON.`,
+          content: `You are an expert nutritionist. Plan balanced weeks of meals. Only 4 programs exist: Prise de masse, Sèche, Perte de poids, Maintien. Always respond entirely in ${lang}. All recipe names, ingredient names, instructions and labels must be in ${lang}. Reply ONLY with valid JSON.`,
         },
         {
           role: "user",
@@ -230,7 +230,7 @@ export const generateShoppingList = createServerFn({ method: "POST" })
       messages: [
         {
           role: "system",
-          content: `Consolidate ingredient lists into a shopping list grouped by category. Always respond in this language: ${lang}. Reply ONLY with valid JSON.`,
+          content: `Consolidate ingredient lists into a shopping list grouped by category. Always respond entirely in ${lang}. All recipe names, ingredient names, instructions and labels must be in ${lang}. Reply ONLY with valid JSON.`,
         },
         {
           role: "user",
@@ -274,7 +274,7 @@ export const generateCommunityFeed = createServerFn({ method: "POST" })
       messages: [
         {
           role: "system",
-          content: `You simulate a community feed for a cooking & nutrition app. Generate realistic recipes with fake French users. Always respond in this language: ${lang}. Reply ONLY with valid JSON, no markdown.`,
+          content: `You simulate a community feed for a cooking & nutrition app. Generate realistic recipes with fake French users. Always respond entirely in ${lang}. All recipe names, ingredient names, instructions and labels must be in ${lang}. Reply ONLY with valid JSON, no markdown.`,
         },
         {
           role: "user",
@@ -319,7 +319,7 @@ export const generateFullRecipeFromTitle = createServerFn({ method: "POST" })
       messages: [
         {
           role: "system",
-          content: `You are an expert nutritionist. Always respond in this language: ${lang}. Reply ONLY with valid JSON.`,
+          content: `You are an expert nutritionist. Always respond entirely in ${lang}. All recipe names, ingredient names, instructions and labels must be in ${lang}. Reply ONLY with valid JSON.`,
         },
         {
           role: "user",
