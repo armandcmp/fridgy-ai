@@ -2,10 +2,12 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
 import { Sparkles, Trash2, Plus, ShoppingBasket, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { storage, programColor, shortDate, startOfWeek, WEEK_DAYS } from "@/lib/storage";
 import { useLocalReactive } from "@/lib/hooks";
 import { generateWeekPlan } from "@/lib/ai.functions";
+import { getLanguage } from "@/lib/i18n";
 import type { Recipe, WeekPlanning } from "@/lib/types";
 
 export const Route = createFileRoute("/planning")({
