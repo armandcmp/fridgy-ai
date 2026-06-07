@@ -31,7 +31,6 @@ const LANGS: { code: Lang; flag: string; name: string; cta: string }[] = [
 type Step = "lang" | "auth" | "program";
 
 function Onboarding() {
-  const { t } = useTranslation();
   const nav = useNavigate();
   const [ready, setReady] = useState(false);
   const [step, setStep] = useState<Step>("lang");
