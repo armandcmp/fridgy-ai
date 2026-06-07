@@ -14,6 +14,7 @@ const KEYS = {
   memory: "fridgechef_memory",
   favorites: "fridgechef_favorites",
   planning: "fridgechef_planning",
+  likes: "fridgechef_likes",
 } as const;
 
 function read<T>(key: string, fallback: T): T {
@@ -34,20 +35,22 @@ function write<T>(key: string, value: T) {
 }
 
 export const storage = {
-  // User
   getUser: () => read<User | null>(KEYS.user, null),
   setUser: (u: User) => write(KEYS.user, u),
+  patchUser: (patch: Partial<User>) => {
+    const u = storage.getUser();
+    if (!u) return;
+    write(KEYS.user, { ...u, ...patch });
+  },
 
-  // Session ingredients
   getSession: () => read<string[]>(KEYS.session, []),
   setSession: (s: string[]) => write(KEYS.session, s),
 
-  // Recipes (last generated)
   getRecipes: () => read<Recipe[]>(KEYS.recipes, []),
   setRecipes: (r: Recipe[]) => write(KEYS.recipes, r),
 
-  // History
   getHistory: () => read<MealEntry[]>(KEYS.history, []),
+  setHistory: (h: MealEntry[]) => write(KEYS.history, h),
   addHistory: (entry: MealEntry) => {
     const h = storage.getHistory();
     write(KEYS.history, [entry, ...h]);
@@ -58,8 +61,8 @@ export const storage = {
       storage.getHistory().filter((e) => e.id !== id),
     );
   },
+  clearHistory: () => write(KEYS.history, []),
 
-  // Memory
   getMemory: () => read<IngredientMemory>(KEYS.memory, { ingredients: [] }),
   rememberIngredients: (names: string[]) => {
     const mem = storage.getMemory();
@@ -83,7 +86,6 @@ export const storage = {
     write(KEYS.memory, { ingredients: sorted });
   },
 
-  // Favorites
   getFavorites: () => read<Recipe[]>(KEYS.favorites, []),
   isFavorite: (id: string) => storage.getFavorites().some((r) => r.id === id),
   toggleFavorite: (recipe: Recipe): boolean => {
@@ -96,29 +98,66 @@ export const storage = {
     return !exists;
   },
 
-  // Planning
   getPlanning: () => read<WeekPlanning | null>(KEYS.planning, null),
   setPlanning: (p: WeekPlanning) => write(KEYS.planning, p),
+
+  getLikes: () => read<Record<string, number>>(KEYS.likes, {}),
+  addLike: (id: string, delta = 1) => {
+    const l = storage.getLikes();
+    l[id] = (l[id] ?? 0) + delta;
+    write(KEYS.likes, l);
+  },
+
+  resetAll: () => {
+    if (typeof window === "undefined") return;
+    [
+      "fridgechef_user",
+      "fridgechef_session",
+      "fridgechef_recipes",
+      "fridgechef_history",
+      "fridgechef_memory",
+      "fridgechef_favorites",
+      "fridgechef_planning",
+      "fridgechef_likes",
+      "fridgechef_usage",
+      "fridgechef_premium",
+      "fridgechef_group",
+    ].forEach((k) => localStorage.removeItem(k));
+    window.dispatchEvent(new CustomEvent("fridgechef:change", { detail: "*" }));
+  },
 };
 
 export function programColor(program: string): { bg: string; text: string } {
-  const p = program.toLowerCase();
-  if (p.includes("perte")) return { bg: "bg-sky-100", text: "text-sky-700" };
-  if (p.includes("masse")) return { bg: "bg-orange-100", text: "text-orange-700" };
-  if (p.includes("végé") || p.includes("vege"))
+  const p = (program || "").toLowerCase();
+  if (p.includes("perte") || p.includes("loss") || p.includes("emagre"))
+    return { bg: "bg-sky-100", text: "text-sky-700" };
+  if (p.includes("masse") || p.includes("bulk") || p.includes("volumen") || p.includes("ganho"))
+    return { bg: "bg-orange-100", text: "text-orange-700" };
+  if (p.includes("sèche") || p.includes("seche") || p.includes("cut") || p.includes("definici"))
+    return { bg: "bg-pink-100", text: "text-pink-700" };
+  if (p.includes("plaisir") || p.includes("indulg") || p.includes("placer") || p.includes("prazer") || p.includes("享受"))
+    return { bg: "bg-amber-100", text: "text-amber-700" };
+  if (p.includes("équilibre") || p.includes("equilibre") || p.includes("balance") || p.includes("均衡") || p.includes("equil"))
     return { bg: "bg-emerald-100", text: "text-emerald-700" };
-  if (p.includes("sport") || p.includes("perf"))
-    return { bg: "bg-violet-100", text: "text-violet-700" };
-  return { bg: "bg-amber-100", text: "text-amber-700" };
+  return { bg: "bg-emerald-100", text: "text-emerald-700" };
 }
 
 export function frenchDate(iso?: string): string {
   const d = iso ? new Date(iso) : new Date();
-  return d.toLocaleDateString("fr-FR", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-  });
+  if (typeof window === "undefined") return "";
+  try {
+    return d.toLocaleDateString(navigator.language || "fr-FR", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+    });
+  } catch {
+    return d.toLocaleDateString("fr-FR", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+    });
+  }
 }
 
 export function shortDate(iso: string): string {
@@ -130,7 +169,7 @@ export function shortDate(iso: string): string {
 
 export function startOfWeek(d = new Date()): Date {
   const date = new Date(d);
-  const day = date.getDay(); // 0=Sun
+  const day = date.getDay();
   const diff = day === 0 ? -6 : 1 - day;
   date.setDate(date.getDate() + diff);
   date.setHours(0, 0, 0, 0);

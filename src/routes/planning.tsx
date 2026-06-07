@@ -2,10 +2,12 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
 import { Sparkles, Trash2, Plus, ShoppingBasket, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { storage, programColor, shortDate, startOfWeek, WEEK_DAYS } from "@/lib/storage";
 import { useLocalReactive } from "@/lib/hooks";
 import { generateWeekPlan } from "@/lib/ai.functions";
+import { getLanguage } from "@/lib/i18n";
 import type { Recipe, WeekPlanning } from "@/lib/types";
 
 export const Route = createFileRoute("/planning")({
@@ -21,6 +23,7 @@ function ensurePlanning(p: WeekPlanning | null, weekStart: Date): WeekPlanning {
 }
 
 function Planning() {
+  const { t } = useTranslation();
   const nav = useNavigate();
   const user = useLocalReactive(() => storage.getUser());
   const planningRaw = useLocalReactive(() => storage.getPlanning());
@@ -46,6 +49,7 @@ function Planning() {
         data: {
           program: user.program,
           habitualIngredients: memory.ingredients.slice(0, 6).map((m) => m.nom),
+          lang: getLanguage(),
         },
       });
       const days = WEEK_DAYS.map((jour, i) => {
@@ -59,7 +63,7 @@ function Planning() {
         };
       });
       storage.setPlanning({ weekStart: weekStart.toISOString(), days });
-      toast.success("Planning généré 🎉");
+      toast.success(t("planning.generated"));
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Erreur");
     } finally {
@@ -80,7 +84,7 @@ function Planning() {
       .map((d) => d.recette)
       .filter((r): r is Recipe => !!r);
     if (recipes.length === 0) {
-      toast.error("Planifiez d'abord des repas");
+      toast.error(t("planning.firstPlan"));
       return;
     }
     nav({ to: "/courses", search: { fromPlanning: 1 } as never });
@@ -113,10 +117,12 @@ function Planning() {
     <div className="px-5 pt-8">
       <header className="mb-5 flex items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Mon planning</h1>
+          <h1 className="text-2xl font-bold">{t("planning.title")}</h1>
           <p className="text-sm text-muted-foreground">
-            Semaine du {shortDate(weekStart.toISOString())} au{" "}
-            {shortDate(weekEnd.toISOString())}
+            {t("planning.week", {
+              from: shortDate(weekStart.toISOString()),
+              to: shortDate(weekEnd.toISOString()),
+            })}
           </p>
         </div>
         <button
@@ -125,7 +131,7 @@ function Planning() {
           className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground disabled:opacity-60"
         >
           <Sparkles size={14} />
-          {generating ? "Génération…" : "Générer la semaine"}
+          {generating ? t("planning.generating") : t("planning.generate")}
         </button>
       </header>
 
@@ -168,7 +174,7 @@ function Planning() {
                   onClick={() => setPicker(i)}
                   className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border bg-transparent px-4 py-4 text-sm text-muted-foreground transition hover:border-primary hover:text-primary"
                 >
-                  <Plus size={16} /> Ajouter un repas
+                  <Plus size={16} /> {t("planning.add")}
                 </button>
               )}
             </div>
@@ -180,7 +186,7 @@ function Planning() {
         onClick={goShoppingList}
         className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-full bg-secondary py-3.5 text-sm font-semibold text-secondary-foreground"
       >
-        <ShoppingBasket size={16} /> Liste de courses de la semaine
+        <ShoppingBasket size={16} /> {t("planning.shoppingWeek")}
       </button>
 
       {/* Picker bottom sheet */}
@@ -195,13 +201,13 @@ function Planning() {
             style={{ paddingBottom: "calc(1.25rem + env(safe-area-inset-bottom))" }}
           >
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="font-semibold">Ajouter un repas — {planning.days[picker].jour}</h3>
+              <h3 className="font-semibold">{t("planning.addFor", { day: planning.days[picker].jour })}</h3>
               <button onClick={() => setPicker(null)}><X size={20} /></button>
             </div>
 
-            <Section title="❤️ Favoris">
+            <Section title={t("planning.favorites")}>
               {favs.length === 0 ? (
-                <Empty>Aucun favori</Empty>
+                <Empty>{t("planning.noFav")}</Empty>
               ) : (
                 favs.map((r) => (
                   <PickRow
@@ -217,9 +223,9 @@ function Planning() {
               )}
             </Section>
 
-            <Section title="🕘 Récents">
+            <Section title={t("planning.recents")}>
               {histRecipes.length === 0 ? (
-                <Empty>Aucun repas récent</Empty>
+                <Empty>{t("planning.noRecent")}</Empty>
               ) : (
                 histRecipes.map((r) => (
                   <PickRow
@@ -242,7 +248,7 @@ function Planning() {
               }}
               className="mt-3 w-full rounded-full border border-primary py-2.5 text-sm font-semibold text-primary"
             >
-              ✨ Générer une recette pour ce jour
+              {t("planning.genForDay")}
             </button>
           </div>
         </div>

@@ -1,21 +1,27 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { ArrowLeft, Clock, Flame, CheckCircle2 } from "lucide-react";
+import { useState } from "react";
+import { ArrowLeft, Clock, Flame, CheckCircle2, Share2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { storage, programColor } from "@/lib/storage";
 import { useLocalReactive } from "@/lib/hooks";
 import { FavoriteHeart } from "@/components/FavoriteHeart";
 import { MacroBar } from "@/components/MacroBar";
+import { buildRecipeShareImage, shareOrDownload } from "@/lib/share";
+import { isPremium } from "@/lib/freemium";
 
 export const Route = createFileRoute("/recette/$id")({
   component: RecipeDetail,
 });
 
 function RecipeDetail() {
+  const { t } = useTranslation();
   const { id } = Route.useParams();
   const nav = useNavigate();
   const recipes = useLocalReactive(() => storage.getRecipes());
   const favs = useLocalReactive(() => storage.getFavorites());
   const planning = useLocalReactive(() => storage.getPlanning());
+  const [sharing, setSharing] = useState(false);
   const all = [
     ...recipes,
     ...favs,
@@ -26,9 +32,9 @@ function RecipeDetail() {
   if (!recipe) {
     return (
       <div className="px-5 pt-8">
-        <p className="text-sm text-muted-foreground">Recette introuvable.</p>
+        <p className="text-sm text-muted-foreground">{t("recipe.notFound")}</p>
         <Link to="/recettes" className="mt-4 inline-block text-primary">
-          ← Mes recettes
+          ← {t("recipe.backToList")}
         </Link>
       </div>
     );
@@ -49,22 +55,45 @@ function RecipeDetail() {
         program: recipe.program,
       },
     });
-    toast.success("Repas ajouté à votre historique 🎉");
+    toast.success(t("recipe.addedHistory"));
+  };
+
+  const share = async () => {
+    if (sharing) return;
+    setSharing(true);
+    try {
+      const blob = await buildRecipeShareImage(recipe, !isPremium());
+      const r = await shareOrDownload(blob, recipe.titre);
+      toast.success(r === "shared" ? t("recipe.shared") : t("recipe.downloadFallback"));
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Erreur");
+    } finally {
+      setSharing(false);
+    }
   };
 
   return (
     <div className="pb-28">
-      {/* Hero */}
       <div className="relative bg-gradient-to-br from-primary to-emerald-600 px-5 pb-8 pt-6 text-white">
         <div className="flex items-center justify-between">
           <button
             onClick={() => nav({ to: "/recettes" })}
             className="grid h-9 w-9 place-items-center rounded-full bg-white/20 backdrop-blur"
-            aria-label="Retour"
+            aria-label={t("common.back")}
           >
             <ArrowLeft size={18} />
           </button>
-          <FavoriteHeart recipe={recipe} variant="light" />
+          <div className="flex gap-2">
+            <button
+              onClick={share}
+              disabled={sharing}
+              className="grid h-9 w-9 place-items-center rounded-full bg-white/20 backdrop-blur disabled:opacity-60"
+              aria-label={t("recipe.share")}
+            >
+              <Share2 size={16} />
+            </button>
+            <FavoriteHeart recipe={recipe} variant="light" />
+          </div>
         </div>
         <span
           className={`mt-5 inline-block rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${pc.bg} ${pc.text}`}
@@ -80,17 +109,15 @@ function RecipeDetail() {
         </div>
       </div>
 
-      {/* Macros */}
       <section className="px-5 pt-5">
-        <h2 className="mb-3 text-sm font-semibold">Macros</h2>
+        <h2 className="mb-3 text-sm font-semibold">{t("recipe.macros")}</h2>
         <div className="fc-card p-4">
           <MacroBar p={recipe.proteines} g={recipe.glucides} l={recipe.lipides} />
         </div>
       </section>
 
-      {/* Ingredients */}
       <section className="px-5 pt-6">
-        <h2 className="mb-3 text-sm font-semibold">Ingrédients</h2>
+        <h2 className="mb-3 text-sm font-semibold">{t("recipe.ingredients")}</h2>
         <div className="fc-card divide-y divide-border p-1">
           {recipe.ingredients.map((ing, i) => (
             <div key={i} className="flex items-center gap-3 px-3 py-2.5 text-sm">
@@ -101,9 +128,8 @@ function RecipeDetail() {
         </div>
       </section>
 
-      {/* Steps */}
       <section className="px-5 pt-6">
-        <h2 className="mb-3 text-sm font-semibold">Préparation</h2>
+        <h2 className="mb-3 text-sm font-semibold">{t("recipe.steps")}</h2>
         <ol className="space-y-3">
           {recipe.etapes.map((s, i) => (
             <li key={i} className="fc-card flex gap-3 p-4 text-sm">
@@ -116,7 +142,6 @@ function RecipeDetail() {
         </ol>
       </section>
 
-      {/* Sticky footer */}
       <div
         className="fixed bottom-16 left-0 right-0 z-40 mx-auto max-w-md border-t border-border bg-card px-5 py-3"
         style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
@@ -125,7 +150,7 @@ function RecipeDetail() {
           onClick={markCooked}
           className="inline-flex w-full items-center justify-center gap-2 rounded-full border-2 border-primary py-3 text-sm font-semibold text-primary transition active:scale-[0.98]"
         >
-          <CheckCircle2 size={18} /> J'ai cuisiné cette recette
+          <CheckCircle2 size={18} /> {t("recipe.cooked")}
         </button>
       </div>
     </div>
