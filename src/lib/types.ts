@@ -1,14 +1,15 @@
 export type Program =
-  | "Perte de poids"
   | "Prise de masse"
+  | "Sèche"
+  | "Perte de poids"
   | "Équilibre"
-  | "Végétarien"
-  | "Sport / Performance";
+  | "Plaisir";
 
 export interface User {
   name: string;
   program: Program;
   dailyKcal: number;
+  avatarColor?: string;
 }
 
 export interface Recipe {
@@ -52,4 +53,21 @@ export interface IngredientMemory {
 export interface WeekPlanning {
   weekStart: string;
   days: { jour: string; recette: Recipe | null }[];
+}
+
+export interface CommunityRecipe {
+  id: string;
+  titre: string;
+  auteur: string;
+  avatar: string;
+  avatarColor: string;
+  likes: number;
+  calories: number;
+  proteines: number;
+  glucides: number;
+  lipides: number;
+  temps: string;
+  difficulte: string;
+  description: string;
+  program: string;
 }
