@@ -5,13 +5,13 @@ import { useTranslation } from "react-i18next";
 export function BottomNav() {
   const { t } = useTranslation();
   const loc = useLocation();
-  const tabs = [
+  const tabs: { to: string; icon: typeof Home; label: string; exact?: boolean }[] = [
     { to: "/", icon: Home, label: t("nav.home"), exact: true },
     { to: "/recettes", icon: UtensilsCrossed, label: t("nav.recipes") },
     { to: "/communaute", icon: Users, label: t("nav.community") },
     { to: "/stats", icon: BarChart3, label: t("nav.stats") },
     { to: "/parametres", icon: Settings, label: t("nav.settings") },
-  ] as const;
+  ];
   return (
     <nav
       className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card"
