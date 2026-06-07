@@ -1,25 +1,26 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { useTranslation } from "react-i18next";
 import { Camera, Keyboard, Mic, Plus, X, Sparkles, Brain } from "lucide-react";
 import { toast } from "sonner";
 import { storage } from "@/lib/storage";
 import { useLocalReactive } from "@/lib/hooks";
 import { isSpeechSupported, startVoiceRecognition } from "@/lib/voice";
-import {
-  extractFromImage,
-  extractIngredients,
-  generateRecipes,
-} from "@/lib/ai.functions";
+import { extractFromImage, extractIngredients, generateRecipes } from "@/lib/ai.functions";
+import { checkGate, bumpUsage } from "@/lib/usage";
+import { Paywall } from "@/components/Paywall";
+import { getLanguage } from "@/lib/i18n";
 
 export const Route = createFileRoute("/frigo")({
   component: Frigo,
 });
 
-type Mode = "menu" | "photo" | "manual" | "voice";
+type Mode = "menu" | "manual";
 
 function Frigo() {
   const nav = useNavigate();
+  const { t } = useTranslation();
   const user = useLocalReactive(() => storage.getUser());
   const memory = useLocalReactive(() => storage.getMemory());
   const [mode, setMode] = useState<Mode>("menu");
@@ -28,6 +29,7 @@ function Frigo() {
   const [busy, setBusy] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [recording, setRecording] = useState(false);
+  const [paywall, setPaywall] = useState(false);
   const recogRef = useRef<unknown | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -38,26 +40,20 @@ function Frigo() {
   const addItem = (raw: string) => {
     const v = raw.trim();
     if (!v) return;
-    setItems((prev) =>
-      prev.some((p) => p.toLowerCase() === v.toLowerCase()) ? prev : [...prev, v],
-    );
+    setItems((p) => (p.some((x) => x.toLowerCase() === v.toLowerCase()) ? p : [...p, v]));
   };
   const addMany = (list: string[]) => {
     setItems((prev) => {
       const set = new Set(prev.map((p) => p.toLowerCase()));
       const next = [...prev];
       for (const v of list) {
-        const t = v.trim();
-        if (t && !set.has(t.toLowerCase())) {
-          next.push(t);
-          set.add(t.toLowerCase());
-        }
+        const x = v.trim();
+        if (x && !set.has(x.toLowerCase())) { next.push(x); set.add(x.toLowerCase()); }
       }
       return next;
     });
   };
-  const removeItem = (i: number) =>
-    setItems((p) => p.filter((_, idx) => idx !== i));
+  const removeItem = (i: number) => setItems((p) => p.filter((_, idx) => idx !== i));
 
   const handlePhoto = async (file: File) => {
     setBusy(true);
@@ -68,15 +64,13 @@ function Frigo() {
         r.onerror = rej;
         r.readAsDataURL(file);
       });
-      const { ingredients } = await extractImg({ data: { imageBase64: b64 } });
+      const { ingredients } = await extractImg({ data: { imageBase64: b64, lang: getLanguage() } });
       addMany(ingredients);
-      toast.success(`${ingredients.length} ingrédients détectés`);
+      toast.success(`${ingredients.length} ingrédients`);
       setMode("menu");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Erreur");
-    } finally {
-      setBusy(false);
-    }
+    } finally { setBusy(false); }
   };
 
   const toggleRecord = () => {
@@ -86,7 +80,7 @@ function Frigo() {
       return;
     }
     if (!isSpeechSupported()) {
-      toast.error("Dictée non supportée sur ce navigateur. Utilisez Chrome ou Safari.");
+      toast.error("Dictée non supportée");
       return;
     }
     setRecording(true);
@@ -95,44 +89,35 @@ function Frigo() {
         setRecording(false);
         setBusy(true);
         try {
-          const { ingredients } = await extractTxt({ data: { text: transcript } });
+          const { ingredients } = await extractTxt({ data: { text: transcript, lang: getLanguage() } });
           addMany(ingredients);
-          toast.success(`${ingredients.length} ingrédients ajoutés`);
-          setMode("menu");
-        } catch (e) {
-          toast.error(e instanceof Error ? e.message : "Erreur");
-        } finally {
-          setBusy(false);
-        }
+          toast.success(`${ingredients.length} ingrédients`);
+        } catch (e) { toast.error(e instanceof Error ? e.message : "Erreur"); }
+        finally { setBusy(false); }
       },
-      (err) => {
-        setRecording(false);
-        toast.error(`Erreur micro : ${err}`);
-      },
+      (err) => { setRecording(false); toast.error(`Erreur micro: ${err}`); },
     );
   };
 
   const generate = async () => {
     if (!user || items.length === 0) return;
+    const g = checkGate("recipes");
+    if (!g.allowed) { setPaywall(true); return; }
     setGenerating(true);
     try {
       const { recettes } = await genRecipes({
-        data: { ingredients: items, program: user.program },
+        data: { ingredients: items, program: user.program, lang: getLanguage() },
       });
       const withIds = recettes.map((r, i) => ({
-        ...r,
-        id: `${Date.now()}-${i}`,
-        program: user.program,
+        ...r, id: `${Date.now()}-${i}`, program: user.program,
       }));
       storage.setRecipes(withIds);
       storage.setSession(items);
       storage.rememberIngredients(items);
+      bumpUsage("recipes");
       nav({ to: "/recettes" });
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Erreur génération");
-    } finally {
-      setGenerating(false);
-    }
+    } catch (e) { toast.error(e instanceof Error ? e.message : "Erreur"); }
+    finally { setGenerating(false); }
   };
 
   const topMem = memory.ingredients.slice(0, 6);
@@ -140,39 +125,30 @@ function Frigo() {
   return (
     <div className="px-5 pt-8">
       <header className="mb-5">
-        <h1 className="text-2xl font-bold">Mon frigo</h1>
-        <p className="text-sm text-muted-foreground">
-          Ajoutez ce que vous avez, on s'occupe du reste.
-        </p>
+        <h1 className="text-2xl font-bold">{t("fridge.title")}</h1>
+        <p className="text-sm text-muted-foreground">{t("fridge.sub")}</p>
       </header>
 
-      {/* Memory chips */}
       {topMem.length > 0 && (
         <section className="fc-card mb-5 p-4">
           <h2 className="inline-flex items-center gap-2 text-sm font-semibold">
-            <Brain size={16} className="text-primary" /> Vos habitudes
+            <Brain size={16} className="text-primary" /> {t("fridge.habits")}
           </h2>
-          <p className="text-xs text-muted-foreground">
-            Ingrédients que vous avez souvent
-          </p>
+          <p className="text-xs text-muted-foreground">{t("fridge.habits.sub")}</p>
           <div className="mt-3 flex flex-wrap gap-2">
             {topMem.map((m) => (
               <button
                 key={m.nom}
                 onClick={() => addItem(m.nom)}
-                className="inline-flex items-center gap-1 rounded-full bg-secondary px-3 py-1.5 text-xs font-medium text-secondary-foreground transition active:scale-95"
+                className="inline-flex items-center gap-1 rounded-full bg-secondary px-3 py-1.5 text-xs font-medium text-secondary-foreground active:scale-95"
               >
                 <Plus size={12} /> {m.nom}
               </button>
             ))}
           </div>
-          <p className="mt-3 text-[11px] text-muted-foreground">
-            Basé sur vos {memory.ingredients.length} dernières sessions
-          </p>
         </section>
       )}
 
-      {/* Input methods */}
       {mode === "menu" && (
         <div className="grid grid-cols-1 gap-3">
           <button
@@ -184,8 +160,8 @@ function Frigo() {
               <Camera size={20} />
             </div>
             <div>
-              <div className="font-semibold">Prendre une photo</div>
-              <div className="text-xs text-muted-foreground">L'IA reconnaît vos ingrédients</div>
+              <div className="font-semibold">{t("fridge.photo")}</div>
+              <div className="text-xs text-muted-foreground">{t("fridge.photo.sub")}</div>
             </div>
           </button>
           <button
@@ -196,12 +172,12 @@ function Frigo() {
               <Keyboard size={20} />
             </div>
             <div>
-              <div className="font-semibold">Saisir à la main</div>
-              <div className="text-xs text-muted-foreground">Tapez vos ingrédients</div>
+              <div className="font-semibold">{t("fridge.manual")}</div>
+              <div className="text-xs text-muted-foreground">{t("fridge.manual.sub")}</div>
             </div>
           </button>
           <button
-            onClick={() => { setMode("voice"); toggleRecord(); }}
+            onClick={toggleRecord}
             disabled={busy}
             className={`fc-card flex items-center gap-4 p-4 text-left transition active:scale-[0.98] disabled:opacity-60 ${
               recording ? "ring-2 ring-destructive" : ""
@@ -213,14 +189,12 @@ function Frigo() {
               <Mic size={20} />
             </div>
             <div className="flex-1">
-              <div className="font-semibold">Dicter mes ingrédients</div>
+              <div className="font-semibold">{t("fridge.voice")}</div>
               <div className="text-xs text-muted-foreground">
-                {recording ? "À vous… parlez maintenant" : "Parlez et l'app détecte vos ingrédients"}
+                {recording ? t("fridge.voice.recording") : t("fridge.voice.sub")}
               </div>
             </div>
-            {recording && (
-              <span className="h-3 w-3 rounded-full bg-destructive animate-pulse-rec" />
-            )}
+            {recording && <span className="h-3 w-3 rounded-full bg-destructive animate-pulse-rec" />}
           </button>
         </div>
       )}
@@ -228,24 +202,20 @@ function Frigo() {
       {mode === "manual" && (
         <div className="fc-card animate-fade-up p-4">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold">Saisie manuelle</h3>
+            <h3 className="font-semibold">{t("fridge.manual")}</h3>
             <button onClick={() => setMode("menu")} className="text-xs text-muted-foreground">
-              ← Retour
+              ← {t("common.back")}
             </button>
           </div>
           <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              addItem(manualInput);
-              setManualInput("");
-            }}
+            onSubmit={(e) => { e.preventDefault(); addItem(manualInput); setManualInput(""); }}
             className="mt-3 flex gap-2"
           >
             <input
               autoFocus
               value={manualInput}
               onChange={(e) => setManualInput(e.target.value)}
-              placeholder="ex: tomates, riz, poulet…"
+              placeholder={t("fridge.manual.input")}
               className="flex-1 rounded-full border border-input bg-background px-4 py-2.5 text-sm outline-none focus:border-primary"
             />
             <button className="rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground">
@@ -261,24 +231,19 @@ function Frigo() {
         accept="image/*"
         capture="environment"
         className="hidden"
-        onChange={(e) => {
-          const f = e.target.files?.[0];
-          if (f) handlePhoto(f);
-          e.target.value = "";
-        }}
+        onChange={(e) => { const f = e.target.files?.[0]; if (f) handlePhoto(f); e.target.value = ""; }}
       />
 
       {busy && (
-        <div className="mt-4 fc-card animate-fade-up p-4 text-sm text-muted-foreground">
-          ⏳ Analyse en cours…
+        <div className="fc-card mt-4 animate-fade-up p-4 text-sm text-muted-foreground">
+          {t("fridge.analyzing")}
         </div>
       )}
 
-      {/* Ingredient list */}
       {items.length > 0 && (
         <section className="mt-6">
           <h2 className="mb-3 text-sm font-semibold">
-            Mes ingrédients · {items.length}
+            {t("fridge.myIngredients", { count: items.length })}
           </h2>
           <div className="flex flex-wrap gap-2">
             {items.map((it, i) => (
@@ -288,9 +253,7 @@ function Frigo() {
                 style={{ animationDelay: `${i * 30}ms` }}
               >
                 {it}
-                <button onClick={() => removeItem(i)} aria-label="Retirer">
-                  <X size={14} />
-                </button>
+                <button onClick={() => removeItem(i)} aria-label="x"><X size={14} /></button>
               </span>
             ))}
           </div>
@@ -300,10 +263,12 @@ function Frigo() {
             className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3.5 text-sm font-semibold text-primary-foreground disabled:opacity-60"
           >
             <Sparkles size={16} />
-            {generating ? "Génération des recettes…" : "Générer mes recettes"}
+            {generating ? t("recipe.generating") : t("recipe.generate")}
           </button>
         </section>
       )}
+
+      <Paywall open={paywall} onClose={() => setPaywall(false)} />
     </div>
   );
 }
