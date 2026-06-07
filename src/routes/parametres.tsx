@@ -14,7 +14,7 @@ export const Route = createFileRoute("/parametres")({
   component: Settings,
 });
 
-const PROGRAMS = ["bulk", "cut", "loss", "balance", "pleasure"] as const;
+const PROGRAMS = ["bulk", "cut", "loss", "maintain"] as const;
 const COLORS = ["#4CAF82", "#F59E0B", "#EF4444", "#3B82F6", "#A855F7", "#EC4899"];
 
 function Settings() {
