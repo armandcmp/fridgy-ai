@@ -7,6 +7,7 @@ import { storage, programColor } from "@/lib/storage";
 import { useLocalReactive } from "@/lib/hooks";
 import { FavoriteHeart } from "@/components/FavoriteHeart";
 import { MacroBar } from "@/components/MacroBar";
+import { RecipeImage } from "@/components/RecipeImage";
 import { buildRecipeShareImage, shareOrDownload } from "@/lib/share";
 import { isPremium } from "@/lib/freemium";
 
