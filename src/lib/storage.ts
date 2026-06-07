@@ -129,16 +129,14 @@ export const storage = {
 
 export function programColor(program: string): { bg: string; text: string } {
   const p = (program || "").toLowerCase();
-  if (p.includes("perte") || p.includes("loss") || p.includes("emagre"))
-    return { bg: "bg-sky-100", text: "text-sky-700" };
-  if (p.includes("masse") || p.includes("bulk") || p.includes("volumen") || p.includes("ganho"))
+  if (p.includes("masse") || p.includes("bulk") || p.includes("volumen") || p.includes("ganho") || p.includes("增"))
+    return { bg: "bg-blue-100", text: "text-blue-700" };
+  if (p.includes("sèche") || p.includes("seche") || p.includes("cut") || p.includes("definici") || p.includes("seca") || p.includes("减脂"))
     return { bg: "bg-orange-100", text: "text-orange-700" };
-  if (p.includes("sèche") || p.includes("seche") || p.includes("cut") || p.includes("definici"))
-    return { bg: "bg-pink-100", text: "text-pink-700" };
-  if (p.includes("plaisir") || p.includes("indulg") || p.includes("placer") || p.includes("prazer") || p.includes("享受"))
-    return { bg: "bg-amber-100", text: "text-amber-700" };
-  if (p.includes("équilibre") || p.includes("equilibre") || p.includes("balance") || p.includes("均衡") || p.includes("equil"))
+  if (p.includes("perte") || p.includes("loss") || p.includes("emagre") || p.includes("减重") || p.includes("pérdida"))
     return { bg: "bg-emerald-100", text: "text-emerald-700" };
+  if (p.includes("maintien") || p.includes("maintain") || p.includes("mantén") || p.includes("manten") || p.includes("维持"))
+    return { bg: "bg-teal-100", text: "text-teal-700" };
   return { bg: "bg-emerald-100", text: "text-emerald-700" };
 }
 
