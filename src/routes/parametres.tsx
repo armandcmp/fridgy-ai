@@ -59,10 +59,10 @@ function Settings() {
       bulk: { name: t("program.bulk"), kcal: 2800 },
       cut: { name: t("program.cut"), kcal: 1900 },
       loss: { name: t("program.loss"), kcal: 1800 },
-      balance: { name: t("program.balance"), kcal: 2200 },
-      pleasure: { name: t("program.pleasure"), kcal: 2500 },
+      maintain: { name: t("program.maintain"), kcal: 2200 },
     };
     const p = map[slug];
+    if (!p) return;
     storage.patchUser({ program: p.name, dailyKcal: p.kcal });
     setEditingProgram(false);
     toast.success(t("settings.profileSaved"));
