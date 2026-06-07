@@ -8,12 +8,15 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Toaster } from "sonner";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { BottomNav } from "../components/BottomNav";
+import { PaywallProvider } from "../components/PaywallProvider";
+import "../lib/i18n";
+import { initNotifications, maybeStreakNotification } from "../lib/notifications";
 
 function NotFoundComponent() {
   return (
@@ -93,15 +96,29 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const [mounted, setMounted] = useState(false);
   const loc = useLocation();
   const hideNav = loc.pathname === "/onboarding";
+
+  useEffect(() => {
+    setMounted(true);
+    initNotifications();
+    maybeStreakNotification();
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="mx-auto min-h-screen max-w-md" style={{ paddingBottom: hideNav ? 0 : 80 }}>
-        <Outlet />
-      </div>
-      {!hideNav && <BottomNav />}
-      <Toaster position="top-center" richColors />
+      <PaywallProvider>
+        <div
+          className="mx-auto min-h-screen max-w-md"
+          style={{ paddingBottom: hideNav ? 0 : 80 }}
+          suppressHydrationWarning
+        >
+          {mounted ? <Outlet /> : null}
+        </div>
+        {mounted && !hideNav && <BottomNav />}
+        <Toaster position="top-center" richColors />
+      </PaywallProvider>
     </QueryClientProvider>
   );
 }

@@ -11,6 +11,8 @@ import {
   extractIngredients,
   generateRecipes,
 } from "@/lib/ai.functions";
+import { useGate } from "@/lib/useGate";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/frigo")({
   component: Frigo,
@@ -34,6 +36,7 @@ function Frigo() {
   const extractImg = useServerFn(extractFromImage);
   const extractTxt = useServerFn(extractIngredients);
   const genRecipes = useServerFn(generateRecipes);
+  const gate = useGate("recipes");
 
   const addItem = (raw: string) => {
     const v = raw.trim();
@@ -114,11 +117,16 @@ function Frigo() {
 
   const generate = async () => {
     if (!user || items.length === 0) return;
+    if (!gate.allowed) {
+      gate.showPaywall();
+      return;
+    }
     setGenerating(true);
     try {
       const { recettes } = await genRecipes({
-        data: { ingredients: items, program: user.program },
+        data: { ingredients: items, program: user.program, lang: i18n.language },
       });
+      gate.consume();
       const withIds = recettes.map((r, i) => ({
         ...r,
         id: `${Date.now()}-${i}`,
