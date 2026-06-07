@@ -155,7 +155,7 @@ function Home() {
           <p className="mt-2 text-sm">
             <span className="text-xl font-bold text-primary">{todayKcal}</span>{" "}
             <span className="text-muted-foreground">
-              {t("home.kcal_proteins", { kcal: "", p: Math.round(todayP) }).replace(/^\s*kcal\s*·\s*/, "kcal · ")}
+              kcal · {Math.round(todayP)}g
             </span>
           </p>
           <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-muted">
