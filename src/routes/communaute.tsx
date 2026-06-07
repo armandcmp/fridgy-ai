@@ -174,6 +174,7 @@ function Community() {
                     {t("community.try")}
                   </button>
                 </div>
+                </div>
               </article>
             );
           })}
