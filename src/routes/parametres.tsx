@@ -410,6 +410,14 @@ function Settings() {
         </Row>
       </Section>
 
+      {/* MY TRACKING */}
+      <Section title={t("settings.tracking")}>
+        <ButtonRow onClick={() => nav({ to: "/stats" })} label={t("settings.openStats")} />
+        <ButtonRow onClick={() => nav({ to: "/historique" })} label={t("settings.openHistory")} />
+        <ButtonRow onClick={() => nav({ to: "/planning" })} label={t("settings.openPlanning")} />
+        <ButtonRow onClick={() => nav({ to: "/courses" })} label={t("settings.openShopping")} />
+      </Section>
+
       {/* DATA */}
       <Section title={t("settings.data")}>
         <ButtonRow
