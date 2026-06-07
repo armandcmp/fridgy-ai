@@ -4,19 +4,6 @@ import { z } from "zod";
 const GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
 const MODEL = "google/gemini-3-flash-preview";
 
-const LANG_NAMES: Record<string, string> = {
-  fr: "français",
-  en: "english",
-  es: "español",
-  pt: "português",
-  zh: "中文 (Mandarin)",
-};
-
-function langInstruction(lang?: string): string {
-  const name = LANG_NAMES[lang ?? "fr"] ?? "français";
-  return ` Réponds toujours dans cette langue : ${name}.`;
-}
-
 async function callAI(body: Record<string, unknown>): Promise<string> {
   const key = process.env.LOVABLE_API_KEY;
   if (!key) throw new Error("LOVABLE_API_KEY non configurée");
@@ -69,7 +56,6 @@ export const generateRecipes = createServerFn({ method: "POST" })
     z.object({
       ingredients: z.array(z.string()).min(1),
       program: z.string(),
-      lang: z.string().optional(),
     }),
   )
   .handler(async ({ data }) => {
@@ -78,8 +64,7 @@ export const generateRecipes = createServerFn({ method: "POST" })
         {
           role: "system",
           content:
-            "Tu es un nutritionniste expert. Tu proposes des recettes adaptées à un programme. Réponds UNIQUEMENT en JSON valide, sans markdown." +
-            langInstruction(data.lang),
+            "Tu es un nutritionniste expert. Tu proposes des recettes en français adaptées à un programme. Réponds UNIQUEMENT en JSON valide, sans markdown.",
         },
         {
           role: "user",
@@ -113,15 +98,14 @@ Propose 4 recettes variées et équilibrées utilisant ces ingrédients. Répond
 
 // ----- Extract ingredients from text -----
 export const extractIngredients = createServerFn({ method: "POST" })
-  .inputValidator(z.object({ text: z.string().min(1).max(2000), lang: z.string().optional() }))
+  .inputValidator(z.object({ text: z.string().min(1).max(2000) }))
   .handler(async ({ data }) => {
     const text = await callAI({
       messages: [
         {
           role: "system",
           content:
-            "Tu extrais des ingrédients alimentaires depuis un texte parlé. Tu réponds UNIQUEMENT en JSON valide." +
-            langInstruction(data.lang),
+            "Tu extrais des ingrédients alimentaires depuis un texte parlé en français. Tu réponds UNIQUEMENT en JSON valide.",
         },
         {
           role: "user",
@@ -138,15 +122,14 @@ Réponds avec ce JSON :
 
 // ----- Extract ingredients from image -----
 export const extractFromImage = createServerFn({ method: "POST" })
-  .inputValidator(z.object({ imageBase64: z.string().min(20), lang: z.string().optional() }))
+  .inputValidator(z.object({ imageBase64: z.string().min(20) }))
   .handler(async ({ data }) => {
     const text = await callAI({
       messages: [
         {
           role: "system",
           content:
-            "Tu identifies les ingrédients alimentaires visibles dans une image de frigo ou de placard. Réponds UNIQUEMENT en JSON valide." +
-            langInstruction(data.lang),
+            "Tu identifies les ingrédients alimentaires visibles dans une image de frigo ou de placard. Réponds UNIQUEMENT en JSON valide.",
         },
         {
           role: "user",
@@ -173,7 +156,6 @@ export const generateWeekPlan = createServerFn({ method: "POST" })
     z.object({
       program: z.string(),
       habitualIngredients: z.array(z.string()).default([]),
-      lang: z.string().optional(),
     }),
   )
   .handler(async ({ data }) => {
@@ -182,8 +164,7 @@ export const generateWeekPlan = createServerFn({ method: "POST" })
         {
           role: "system",
           content:
-            "Tu es un nutritionniste expert. Tu planifies des semaines de repas équilibrées. Tu réponds UNIQUEMENT en JSON valide." +
-            langInstruction(data.lang),
+            "Tu es un nutritionniste expert. Tu planifies des semaines de repas équilibrées en français. Tu réponds UNIQUEMENT en JSON valide.",
         },
         {
           role: "user",
@@ -231,7 +212,6 @@ export const generateShoppingList = createServerFn({ method: "POST" })
       recipes: z.array(
         z.object({ titre: z.string(), ingredients: z.array(z.string()) }),
       ),
-      lang: z.string().optional(),
     }),
   )
   .handler(async ({ data }) => {
@@ -240,8 +220,7 @@ export const generateShoppingList = createServerFn({ method: "POST" })
         {
           role: "system",
           content:
-            "Tu consolides des listes d'ingrédients en une liste de courses regroupée par catégorie. Réponds UNIQUEMENT en JSON valide." +
-            langInstruction(data.lang),
+            "Tu consolides des listes d'ingrédients en une liste de courses regroupée par catégorie. Réponds UNIQUEMENT en JSON valide.",
         },
         {
           role: "user",
@@ -263,60 +242,4 @@ Réponds avec ce JSON :
       categories: { nom: string; items: string[] }[];
     }>(text);
     return parsed;
-  });
-
-// ----- Community feed (simulated) -----
-const CommunitySchema = z.object({
-  titre: z.string(),
-  auteur: z.string(),
-  likes: z.number(),
-  calories: z.number(),
-  proteines: z.number(),
-  glucides: z.number(),
-  lipides: z.number(),
-  temps: z.string(),
-  difficulte: z.string(),
-  description: z.string(),
-  program: z.string(),
-});
-
-export const generateCommunityFeed = createServerFn({ method: "POST" })
-  .inputValidator(z.object({ program: z.string(), lang: z.string().optional() }))
-  .handler(async ({ data }) => {
-    const text = await callAI({
-      messages: [
-        {
-          role: "system",
-          content:
-            "Tu simules un feed communautaire de recettes partagées par des utilisateurs. Réponds UNIQUEMENT en JSON valide." +
-            langInstruction(data.lang),
-        },
-        {
-          role: "user",
-          content: `Génère 6 recettes tendance adaptées au programme ${data.program} avec des faux noms d'utilisateurs et un nombre de likes réaliste (entre 12 et 850).
-
-Réponds avec ce JSON :
-{
-  "recettes": [
-    {
-      "titre": "string",
-      "auteur": "string",
-      "likes": number,
-      "calories": number,
-      "proteines": number,
-      "glucides": number,
-      "lipides": number,
-      "temps": "string",
-      "difficulte": "string",
-      "description": "string",
-      "program": "${data.program}"
-    }
-  ]
-}`,
-        },
-      ],
-    });
-    const parsed = extractJSON<{ recettes: unknown[] }>(text);
-    const recettes = (parsed.recettes ?? []).map((r) => CommunitySchema.parse(r));
-    return { recettes };
   });

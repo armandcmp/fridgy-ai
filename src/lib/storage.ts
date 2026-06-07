@@ -1,11 +1,7 @@
 import type {
-  GroupData,
   IngredientMemory,
   MealEntry,
-  NotifSettings,
   Recipe,
-  Units,
-  UsageData,
   User,
   WeekPlanning,
 } from "./types";
@@ -18,13 +14,6 @@ const KEYS = {
   memory: "fridgechef_memory",
   favorites: "fridgechef_favorites",
   planning: "fridgechef_planning",
-  // V3
-  lang: "fridgechef_lang",
-  usage: "fridgechef_usage",
-  premium: "fridgechef_premium",
-  group: "fridgechef_group",
-  notif: "fridgechef_notif",
-  units: "fridgechef_units",
 } as const;
 
 function read<T>(key: string, fallback: T): T {
@@ -44,27 +33,10 @@ function write<T>(key: string, value: T) {
   window.dispatchEvent(new CustomEvent("fridgechef:change", { detail: key }));
 }
 
-function todayKey(): string {
-  return new Date().toISOString().slice(0, 10);
-}
-
-function randomCode(len = 6): string {
-  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  let s = "";
-  for (let i = 0; i < len; i++) {
-    s += alphabet[Math.floor(Math.random() * alphabet.length)];
-  }
-  return s;
-}
-
 export const storage = {
   // User
   getUser: () => read<User | null>(KEYS.user, null),
   setUser: (u: User) => write(KEYS.user, u),
-  updateUser: (patch: Partial<User>) => {
-    const u = storage.getUser();
-    if (u) storage.setUser({ ...u, ...patch });
-  },
 
   // Session ingredients
   getSession: () => read<string[]>(KEYS.session, []),
@@ -86,7 +58,6 @@ export const storage = {
       storage.getHistory().filter((e) => e.id !== id),
     );
   },
-  clearHistory: () => write(KEYS.history, []),
 
   // Memory
   getMemory: () => read<IngredientMemory>(KEYS.memory, { ingredients: [] }),
@@ -128,112 +99,6 @@ export const storage = {
   // Planning
   getPlanning: () => read<WeekPlanning | null>(KEYS.planning, null),
   setPlanning: (p: WeekPlanning) => write(KEYS.planning, p),
-
-  // ===== V3 =====
-
-  // Usage / Freemium
-  getUsage: (): UsageData => {
-    const u = read<UsageData | null>(KEYS.usage, null);
-    const today = todayKey();
-    if (!u || u.date !== today) {
-      return { date: today, recipesGenerated: 0, shoppingListsCreated: 0 };
-    }
-    return u;
-  },
-  incrementUsage: (kind: "recipes" | "shopping") => {
-    const u = storage.getUsage();
-    if (kind === "recipes") u.recipesGenerated += 1;
-    if (kind === "shopping") u.shoppingListsCreated += 1;
-    write(KEYS.usage, u);
-  },
-
-  isPremium: () => read<boolean>(KEYS.premium, false),
-  setPremium: (v: boolean) => write(KEYS.premium, v),
-
-  // Group
-  getGroup: () => read<GroupData | null>(KEYS.group, null),
-  createGroup: (memberName: string): GroupData => {
-    const g: GroupData = {
-      code: randomCode(),
-      role: "owner",
-      members: [memberName],
-      sharedIngredients: storage.getSession(),
-      sharedPlanning: storage.getPlanning(),
-    };
-    write(KEYS.group, g);
-    return g;
-  },
-  joinGroup: (code: string, memberName: string): GroupData | null => {
-    const clean = code.trim().toUpperCase();
-    if (clean.length !== 6) return null;
-    const g: GroupData = {
-      code: clean,
-      role: "member",
-      members: [memberName],
-      sharedIngredients: [],
-      sharedPlanning: null,
-    };
-    write(KEYS.group, g);
-    return g;
-  },
-  leaveGroup: () => {
-    if (typeof window === "undefined") return;
-    localStorage.removeItem(KEYS.group);
-    window.dispatchEvent(new CustomEvent("fridgechef:change", { detail: KEYS.group }));
-  },
-  exportGroup: (): string => {
-    const g = storage.getGroup();
-    if (!g) return "";
-    return JSON.stringify({
-      ...g,
-      sharedIngredients: storage.getSession(),
-      sharedPlanning: storage.getPlanning(),
-    });
-  },
-  importGroup: (raw: string): boolean => {
-    try {
-      const data = JSON.parse(raw) as GroupData;
-      if (!data.code) return false;
-      const cur = storage.getGroup();
-      write(KEYS.group, { ...data, role: cur?.role ?? "member" });
-      if (data.sharedIngredients?.length) storage.setSession(data.sharedIngredients);
-      if (data.sharedPlanning) storage.setPlanning(data.sharedPlanning);
-      return true;
-    } catch {
-      return false;
-    }
-  },
-
-  // Notifications settings
-  getNotif: (): NotifSettings =>
-    read<NotifSettings>(KEYS.notif, {
-      enabled: false,
-      mealReminder: true,
-      mealTime: "12:00",
-      planningReminder: true,
-      streakReminder: true,
-    }),
-  setNotif: (n: NotifSettings) => write(KEYS.notif, n),
-
-  // Units
-  getUnits: (): Units => read<Units>(KEYS.units, "metric"),
-  setUnits: (u: Units) => write(KEYS.units, u),
-
-  // App reset
-  resetAll: () => {
-    if (typeof window === "undefined") return;
-    Object.values(KEYS).forEach((k) => localStorage.removeItem(k));
-    window.dispatchEvent(new CustomEvent("fridgechef:change", { detail: "reset" }));
-  },
-  exportAll: (): string => {
-    const data: Record<string, unknown> = {};
-    Object.entries(KEYS).forEach(([k, key]) => {
-      if (typeof window === "undefined") return;
-      const v = localStorage.getItem(key);
-      data[k] = v ? JSON.parse(v) : null;
-    });
-    return JSON.stringify(data, null, 2);
-  },
 };
 
 export function programColor(program: string): { bg: string; text: string } {
@@ -245,15 +110,6 @@ export function programColor(program: string): { bg: string; text: string } {
   if (p.includes("sport") || p.includes("perf"))
     return { bg: "bg-violet-100", text: "text-violet-700" };
   return { bg: "bg-amber-100", text: "text-amber-700" };
-}
-
-export function programGradient(program: string): [string, string] {
-  const p = program.toLowerCase();
-  if (p.includes("perte")) return ["#38BDF8", "#0284C7"];
-  if (p.includes("masse")) return ["#FB923C", "#C2410C"];
-  if (p.includes("végé") || p.includes("vege")) return ["#34D399", "#047857"];
-  if (p.includes("sport") || p.includes("perf")) return ["#A78BFA", "#6D28D9"];
-  return ["#FBBF24", "#B45309"];
 }
 
 export function frenchDate(iso?: string): string {
