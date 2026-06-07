@@ -7,6 +7,27 @@ export interface User {
   avatarColor?: string;
 }
 
+export interface Account {
+  id: string;
+  prenom: string;
+  email: string;
+  passwordHash: string;
+  program: string | null;
+  dailyKcal: number | null;
+  createdAt: string;
+  isPremium: boolean;
+}
+
+export interface CurrentUser {
+  id: string;
+  prenom: string;
+  email: string | null;
+  program: string | null;
+  dailyKcal: number | null;
+  isPremium: boolean;
+  avatarColor?: string;
+}
+
 export interface Recipe {
   id: string;
   titre: string;

@@ -1,20 +1,16 @@
 import { useMemo, useState } from "react";
 
-export function getRecipeImageUrl(titre: string): string {
-  const q = encodeURIComponent(
-    titre
-      .toLowerCase()
-      .replace(/[àâä]/g, "a")
-      .replace(/[éèêë]/g, "e")
-      .replace(/[îï]/g, "i")
-      .replace(/[ôö]/g, "o")
-      .replace(/[ùûü]/g, "u")
-      .split(/\s+/)
-      .slice(0, 3)
-      .join(" "),
-  );
-  // Unsplash source URL — free, no API key
-  return `https://source.unsplash.com/400x300/?food,${q},meal,cooking`;
+export function getRecipeImageUrl(titre: string, width = 400, height = 300): string {
+  const clean = (titre || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9\s]/g, "")
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 3)
+    .join(",");
+  return `https://source.unsplash.com/${width}x${height}/?${clean},food,dish,meal,cooking`;
 }
 
 export function programGradient(program: string): string {
@@ -25,7 +21,7 @@ export function programGradient(program: string): string {
     return "linear-gradient(135deg, #C2410C, #F97316)";
   if (p.includes("perte") || p.includes("loss"))
     return "linear-gradient(135deg, #166534, #4CAF82)";
-  if (p.includes("maintien") || p.includes("maintain") || p.includes("mantén") || p.includes("manuten") || p.includes("维持"))
+  if (p.includes("maintien") || p.includes("maintain"))
     return "linear-gradient(135deg, #0F766E, #14B8A6)";
   return "linear-gradient(135deg, #166534, #4CAF82)";
 }
@@ -33,19 +29,23 @@ export function programGradient(program: string): string {
 export function RecipeImage({
   titre,
   program,
+  width = 400,
   height = 160,
   rounded = "16px 16px 0 0",
   className,
   overlay = false,
+  vignette = true,
 }: {
   titre: string;
   program: string;
+  width?: number;
   height?: number;
   rounded?: string;
   className?: string;
   overlay?: boolean;
+  vignette?: boolean;
 }) {
-  const url = useMemo(() => getRecipeImageUrl(titre), [titre]);
+  const url = useMemo(() => getRecipeImageUrl(titre, width, Math.max(height, 200)), [titre, width, height]);
   const [errored, setErrored] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const gradient = programGradient(program);
@@ -62,6 +62,13 @@ export function RecipeImage({
         background: gradient,
       }}
     >
+      {!loaded && !errored && (
+        <div
+          aria-hidden
+          className="animate-pulse"
+          style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.06)" }}
+        />
+      )}
       {!errored && (
         <img
           src={url}
@@ -74,11 +81,11 @@ export function RecipeImage({
             height: "100%",
             objectFit: "cover",
             opacity: loaded ? 1 : 0,
-            transition: "opacity 300ms",
+            transition: "opacity 400ms ease",
           }}
         />
       )}
-      {(errored || !loaded) && (
+      {errored && (
         <div
           aria-hidden
           style={{
@@ -87,11 +94,23 @@ export function RecipeImage({
             display: "grid",
             placeItems: "center",
             fontSize: 48,
-            color: "rgba(255,255,255,0.9)",
+            color: "rgba(255,255,255,0.95)",
           }}
         >
           🍽
         </div>
+      )}
+      {vignette && !overlay && (
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            inset: 0,
+            background:
+              "linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.18) 100%)",
+            pointerEvents: "none",
+          }}
+        />
       )}
       {overlay && (
         <div
@@ -100,7 +119,8 @@ export function RecipeImage({
             position: "absolute",
             inset: 0,
             background:
-              "linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.7) 100%)",
+              "linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.75) 100%)",
+            pointerEvents: "none",
           }}
         />
       )}

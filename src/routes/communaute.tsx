@@ -1,7 +1,7 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
-import { Heart, RefreshCw, Loader2 } from "lucide-react";
+import { ArrowLeft, Heart, RefreshCw, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { storage, programColor } from "@/lib/storage";
@@ -64,7 +64,9 @@ function Community() {
       });
       const id = `c-full-${Date.now()}`;
       const all = storage.getRecipes();
-      storage.setRecipes([{ ...full, id, program: r.program }, ...all].slice(0, 20));
+      const newRecipe = { ...full, id, program: r.program };
+      storage.setRecipes([newRecipe, ...all].slice(0, 20));
+      storage.addAllRecipes([newRecipe]);
       nav({ to: "/recette/$id", params: { id } });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Erreur");
@@ -75,15 +77,22 @@ function Community() {
 
   return (
     <div className="px-5 pt-8">
-      <header className="mb-5 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">{t("community.title")}</h1>
+      <header className="mb-5 flex items-center justify-between gap-3">
+        <Link
+          to="/"
+          aria-label={t("common.back")}
+          className="grid h-9 w-9 place-items-center rounded-full bg-card border border-border"
+        >
+          <ArrowLeft size={18} />
+        </Link>
+        <h1 className="flex-1 text-center text-lg font-bold">{t("community.title")}</h1>
         <button
           onClick={load}
           disabled={loading}
-          className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-xs font-semibold text-secondary-foreground disabled:opacity-60"
+          aria-label={t("community.refresh")}
+          className="grid h-9 w-9 place-items-center rounded-full bg-card border border-border disabled:opacity-60"
         >
-          <RefreshCw size={12} className={loading ? "animate-spin" : ""} />
-          {t("community.refresh")}
+          <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
         </button>
       </header>
 

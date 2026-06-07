@@ -75,11 +75,11 @@ function RecipeDetail() {
 
   return (
     <div className="pb-28">
-      <div className="relative text-white" style={{ height: 260 }}>
+      <div className="relative text-white" style={{ height: 280 }}>
         <RecipeImage
           titre={recipe.titre}
           program={recipe.program}
-          height={260}
+          height={280}
           rounded="0"
           overlay
         />

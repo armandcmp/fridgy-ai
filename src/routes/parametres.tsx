@@ -1,14 +1,16 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { ChevronRight, Crown, Copy, Share2 } from "lucide-react";
+import { ChevronRight, Crown, Copy, Share2, LogOut } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { storage } from "@/lib/storage";
+import { auth } from "@/lib/auth";
 import { useLocalReactive } from "@/lib/hooks";
 import { isPremium, setPremium, usePremium } from "@/lib/freemium";
 import { getLanguage, setLanguage, SUPPORTED, type Lang, LANG_NAMES } from "@/lib/i18n";
 import { getGroup, setGroup, clearGroup, randomCode, updateShared, encodeExport, decodeImport } from "@/lib/group";
 import { PaywallModal } from "@/components/PaywallModal";
+import { Avatar } from "@/components/Avatar";
 
 export const Route = createFileRoute("/parametres")({
   component: Settings,
@@ -458,6 +460,40 @@ function Settings() {
       >
         {t("settings.devMode")}
       </button>
+
+      {/* LOGOUT */}
+      {(() => {
+        const sess = auth.getSession();
+        if (!sess || sess.id === "guest") return null;
+        return (
+          <div className="mt-6 px-3">
+            <div className="mb-3 flex items-center gap-3">
+              <Avatar name={sess.prenom} id={sess.id} color={sess.avatarColor} size={40} />
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-semibold">{sess.prenom}</p>
+                {sess.email && (
+                  <p className="truncate text-xs text-muted-foreground">{sess.email}</p>
+                )}
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                if (
+                  confirm(
+                    `${t("auth.logoutConfirm")}\n\n${t("auth.logoutHint")}`,
+                  )
+                ) {
+                  auth.clearSession();
+                  nav({ to: "/onboarding" });
+                }
+              }}
+              className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-destructive/40 py-3 text-sm font-semibold text-destructive"
+            >
+              <LogOut size={15} /> {t("auth.logout")}
+            </button>
+          </div>
+        );
+      })()}
 
       {/* EXPORT MODAL */}
       {showExport && group && (

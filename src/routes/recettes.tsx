@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ChefHat } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Search } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { storage } from "@/lib/storage";
 import { useLocalReactive } from "@/lib/hooks";
@@ -9,33 +10,113 @@ export const Route = createFileRoute("/recettes")({
   component: RecettesScreen,
 });
 
+type Filter = "all" | "bulk" | "cut" | "loss" | "maintain" | "fav";
+
 function RecettesScreen() {
   const { t } = useTranslation();
-  const recipes = useLocalReactive(() => storage.getRecipes());
+  const all = useLocalReactive(() => storage.getAllRecipes());
+  const favs = useLocalReactive(() => storage.getFavorites());
+  const current = useLocalReactive(() => storage.getRecipes());
+  const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState<Filter>("all");
+
+  // Merge: prefer all-recipes store, but include any newer current ones missing
+  const merged = useMemo(() => {
+    const seen = new Set(all.map((r) => r.titre.toLowerCase().trim()));
+    const extra = current.filter((r) => !seen.has(r.titre.toLowerCase().trim()));
+    return [...extra, ...all];
+  }, [all, current]);
+
+  const FILTERS: { id: Filter; label: string }[] = [
+    { id: "all", label: t("recettes.fAll") },
+    { id: "bulk", label: `💪 ${t("program.bulk")}` },
+    { id: "cut", label: `🔥 ${t("program.cut")}` },
+    { id: "loss", label: `⚖️ ${t("program.loss")}` },
+    { id: "maintain", label: `🎯 ${t("program.maintain")}` },
+    { id: "fav", label: `❤️ ${t("recettes.fFav")}` },
+  ];
+
+  const filtered = useMemo(() => {
+    let list = merged;
+    if (filter === "fav") {
+      const favIds = new Set(favs.map((f) => f.id));
+      const favTitles = new Set(favs.map((f) => f.titre.toLowerCase().trim()));
+      list = list.filter((r) => favIds.has(r.id) || favTitles.has(r.titre.toLowerCase().trim()));
+    } else if (filter !== "all") {
+      const key = t(`program.${filter}`).toLowerCase();
+      list = list.filter((r) => r.program?.toLowerCase().includes(key));
+    }
+    if (query.trim()) {
+      const q = query.trim().toLowerCase();
+      list = list.filter((r) => r.titre.toLowerCase().includes(q));
+    }
+    return list;
+  }, [merged, favs, filter, query, t]);
+
   return (
     <div className="px-5 pt-8">
-      <header className="mb-5">
+      <header className="mb-4">
         <h1 className="text-2xl font-bold">{t("recettes.title")}</h1>
         <p className="text-sm text-muted-foreground">
-          {recipes.length > 0 ? t("recettes.count", { count: recipes.length }) : t("recettes.empty")}
+          {merged.length > 0
+            ? t("recettes.count", { count: merged.length })
+            : t("recettes.empty")}
         </p>
       </header>
 
-      {recipes.length === 0 ? (
+      <div className="relative mb-3">
+        <Search
+          size={16}
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+        />
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder={t("recettes.searchPh")}
+          className="w-full bg-card pl-9 pr-3 text-sm outline-none"
+          style={{ height: 44, borderRadius: 12, border: "1px solid var(--border)" }}
+        />
+      </div>
+
+      <div className="scrollbar-hide -mx-5 mb-4 flex gap-2 overflow-x-auto px-5 pb-1">
+        {FILTERS.map((f) => {
+          const active = filter === f.id;
+          return (
+            <button
+              key={f.id}
+              onClick={() => setFilter(f.id)}
+              className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold transition ${
+                active
+                  ? "bg-primary text-primary-foreground"
+                  : "border border-border bg-card text-foreground"
+              }`}
+            >
+              {f.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {merged.length === 0 ? (
         <div className="fc-card p-8 text-center">
-          <ChefHat size={40} className="mx-auto text-muted-foreground" />
-          <p className="mt-4 text-sm text-muted-foreground">{t("recettes.emptyHint")}</p>
+          <div className="text-5xl">🍽</div>
+          <p className="mt-3 text-sm text-muted-foreground">{t("recettes.emptyHint")}</p>
           <Link
             to="/frigo"
+            search={{ mode: "photo" as const }}
             className="mt-5 inline-block rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground"
           >
-            {t("home.scan")}
+            {t("home.scan")} →
           </Link>
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="fc-card p-6 text-center text-sm text-muted-foreground">
+          {t("recettes.noMatch")}
         </div>
       ) : (
         <div className="space-y-3">
-          {recipes.map((r, i) => (
-            <RecipeCard key={r.id} recipe={r} index={i} />
+          {filtered.map((r, i) => (
+            <RecipeCard key={r.id + i} recipe={r} index={i} />
           ))}
         </div>
       )}
