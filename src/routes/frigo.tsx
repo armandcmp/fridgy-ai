@@ -2,23 +2,28 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Camera, Keyboard, Mic, Plus, X, Sparkles, Brain } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { storage } from "@/lib/storage";
 import { useLocalReactive } from "@/lib/hooks";
 import { isSpeechSupported, startVoiceRecognition } from "@/lib/voice";
+import { checkGate, bumpUsage } from "@/lib/freemium";
+import { getLanguage } from "@/lib/i18n";
 import {
   extractFromImage,
   extractIngredients,
   generateRecipes,
 } from "@/lib/ai.functions";
+import { PaywallModal } from "@/components/PaywallModal";
 
 export const Route = createFileRoute("/frigo")({
   component: Frigo,
 });
 
-type Mode = "menu" | "photo" | "manual" | "voice";
+type Mode = "menu" | "manual" | "voice";
 
 function Frigo() {
+  const { t } = useTranslation();
   const nav = useNavigate();
   const user = useLocalReactive(() => storage.getUser());
   const memory = useLocalReactive(() => storage.getMemory());
@@ -28,6 +33,7 @@ function Frigo() {
   const [busy, setBusy] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [recording, setRecording] = useState(false);
+  const [paywall, setPaywall] = useState(false);
   const recogRef = useRef<unknown | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -47,17 +53,16 @@ function Frigo() {
       const set = new Set(prev.map((p) => p.toLowerCase()));
       const next = [...prev];
       for (const v of list) {
-        const t = v.trim();
-        if (t && !set.has(t.toLowerCase())) {
-          next.push(t);
-          set.add(t.toLowerCase());
+        const x = v.trim();
+        if (x && !set.has(x.toLowerCase())) {
+          next.push(x);
+          set.add(x.toLowerCase());
         }
       }
       return next;
     });
   };
-  const removeItem = (i: number) =>
-    setItems((p) => p.filter((_, idx) => idx !== i));
+  const removeItem = (i: number) => setItems((p) => p.filter((_, idx) => idx !== i));
 
   const handlePhoto = async (file: File) => {
     setBusy(true);
@@ -68,9 +73,9 @@ function Frigo() {
         r.onerror = rej;
         r.readAsDataURL(file);
       });
-      const { ingredients } = await extractImg({ data: { imageBase64: b64 } });
+      const { ingredients } = await extractImg({ data: { imageBase64: b64, lang: getLanguage() } });
       addMany(ingredients);
-      toast.success(`${ingredients.length} ingrédients détectés`);
+      toast.success(t("frigo.detected", { count: ingredients.length }));
       setMode("menu");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Erreur");
@@ -81,12 +86,16 @@ function Frigo() {
 
   const toggleRecord = () => {
     if (recording) {
-      try { (recogRef.current as { stop?: () => void } | null)?.stop?.(); } catch { /* */ }
+      try {
+        (recogRef.current as { stop?: () => void } | null)?.stop?.();
+      } catch {
+        /* */
+      }
       setRecording(false);
       return;
     }
     if (!isSpeechSupported()) {
-      toast.error("Dictée non supportée sur ce navigateur. Utilisez Chrome ou Safari.");
+      toast.error(t("frigo.voiceUnsupported"));
       return;
     }
     setRecording(true);
@@ -95,9 +104,11 @@ function Frigo() {
         setRecording(false);
         setBusy(true);
         try {
-          const { ingredients } = await extractTxt({ data: { text: transcript } });
+          const { ingredients } = await extractTxt({
+            data: { text: transcript, lang: getLanguage() },
+          });
           addMany(ingredients);
-          toast.success(`${ingredients.length} ingrédients ajoutés`);
+          toast.success(t("frigo.added", { count: ingredients.length }));
           setMode("menu");
         } catch (e) {
           toast.error(e instanceof Error ? e.message : "Erreur");
@@ -107,17 +118,22 @@ function Frigo() {
       },
       (err) => {
         setRecording(false);
-        toast.error(`Erreur micro : ${err}`);
+        toast.error(t("frigo.micError", { err }));
       },
     );
   };
 
   const generate = async () => {
     if (!user || items.length === 0) return;
+    const gate = checkGate("recipes");
+    if (!gate.allowed) {
+      setPaywall(true);
+      return;
+    }
     setGenerating(true);
     try {
       const { recettes } = await genRecipes({
-        data: { ingredients: items, program: user.program },
+        data: { ingredients: items, program: user.program, lang: getLanguage() },
       });
       const withIds = recettes.map((r, i) => ({
         ...r,
@@ -127,9 +143,10 @@ function Frigo() {
       storage.setRecipes(withIds);
       storage.setSession(items);
       storage.rememberIngredients(items);
+      bumpUsage("recipes");
       nav({ to: "/recettes" });
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Erreur génération");
+      toast.error(e instanceof Error ? e.message : t("recipe.generationError"));
     } finally {
       setGenerating(false);
     }
@@ -140,21 +157,16 @@ function Frigo() {
   return (
     <div className="px-5 pt-8">
       <header className="mb-5">
-        <h1 className="text-2xl font-bold">Mon frigo</h1>
-        <p className="text-sm text-muted-foreground">
-          Ajoutez ce que vous avez, on s'occupe du reste.
-        </p>
+        <h1 className="text-2xl font-bold">{t("frigo.title")}</h1>
+        <p className="text-sm text-muted-foreground">{t("frigo.subtitle")}</p>
       </header>
 
-      {/* Memory chips */}
       {topMem.length > 0 && (
         <section className="fc-card mb-5 p-4">
           <h2 className="inline-flex items-center gap-2 text-sm font-semibold">
-            <Brain size={16} className="text-primary" /> Vos habitudes
+            <Brain size={16} className="text-primary" /> {t("frigo.habits")}
           </h2>
-          <p className="text-xs text-muted-foreground">
-            Ingrédients que vous avez souvent
-          </p>
+          <p className="text-xs text-muted-foreground">{t("frigo.habitsSub")}</p>
           <div className="mt-3 flex flex-wrap gap-2">
             {topMem.map((m) => (
               <button
@@ -167,12 +179,11 @@ function Frigo() {
             ))}
           </div>
           <p className="mt-3 text-[11px] text-muted-foreground">
-            Basé sur vos {memory.ingredients.length} dernières sessions
+            {t("frigo.habitsBasis", { count: memory.ingredients.length })}
           </p>
         </section>
       )}
 
-      {/* Input methods */}
       {mode === "menu" && (
         <div className="grid grid-cols-1 gap-3">
           <button
@@ -184,8 +195,8 @@ function Frigo() {
               <Camera size={20} />
             </div>
             <div>
-              <div className="font-semibold">Prendre une photo</div>
-              <div className="text-xs text-muted-foreground">L'IA reconnaît vos ingrédients</div>
+              <div className="font-semibold">{t("frigo.photo")}</div>
+              <div className="text-xs text-muted-foreground">{t("frigo.photoSub")}</div>
             </div>
           </button>
           <button
@@ -196,8 +207,8 @@ function Frigo() {
               <Keyboard size={20} />
             </div>
             <div>
-              <div className="font-semibold">Saisir à la main</div>
-              <div className="text-xs text-muted-foreground">Tapez vos ingrédients</div>
+              <div className="font-semibold">{t("frigo.manual")}</div>
+              <div className="text-xs text-muted-foreground">{t("frigo.manualSub")}</div>
             </div>
           </button>
           <button
@@ -213,14 +224,12 @@ function Frigo() {
               <Mic size={20} />
             </div>
             <div className="flex-1">
-              <div className="font-semibold">Dicter mes ingrédients</div>
+              <div className="font-semibold">{t("frigo.voice")}</div>
               <div className="text-xs text-muted-foreground">
-                {recording ? "À vous… parlez maintenant" : "Parlez et l'app détecte vos ingrédients"}
+                {recording ? t("frigo.voiceListening") : t("frigo.voiceSub")}
               </div>
             </div>
-            {recording && (
-              <span className="h-3 w-3 rounded-full bg-destructive animate-pulse-rec" />
-            )}
+            {recording && <span className="h-3 w-3 rounded-full bg-destructive animate-pulse-rec" />}
           </button>
         </div>
       )}
@@ -228,9 +237,9 @@ function Frigo() {
       {mode === "manual" && (
         <div className="fc-card animate-fade-up p-4">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold">Saisie manuelle</h3>
+            <h3 className="font-semibold">{t("frigo.manualTitle")}</h3>
             <button onClick={() => setMode("menu")} className="text-xs text-muted-foreground">
-              ← Retour
+              ← {t("common.back")}
             </button>
           </div>
           <form
@@ -245,7 +254,7 @@ function Frigo() {
               autoFocus
               value={manualInput}
               onChange={(e) => setManualInput(e.target.value)}
-              placeholder="ex: tomates, riz, poulet…"
+              placeholder={t("frigo.placeholder")}
               className="flex-1 rounded-full border border-input bg-background px-4 py-2.5 text-sm outline-none focus:border-primary"
             />
             <button className="rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground">
@@ -270,16 +279,13 @@ function Frigo() {
 
       {busy && (
         <div className="mt-4 fc-card animate-fade-up p-4 text-sm text-muted-foreground">
-          ⏳ Analyse en cours…
+          {t("frigo.analyzing")}
         </div>
       )}
 
-      {/* Ingredient list */}
       {items.length > 0 && (
         <section className="mt-6">
-          <h2 className="mb-3 text-sm font-semibold">
-            Mes ingrédients · {items.length}
-          </h2>
+          <h2 className="mb-3 text-sm font-semibold">{t("frigo.myIngredients", { count: items.length })}</h2>
           <div className="flex flex-wrap gap-2">
             {items.map((it, i) => (
               <span
@@ -288,7 +294,7 @@ function Frigo() {
                 style={{ animationDelay: `${i * 30}ms` }}
               >
                 {it}
-                <button onClick={() => removeItem(i)} aria-label="Retirer">
+                <button onClick={() => removeItem(i)} aria-label={t("frigo.remove")}>
                   <X size={14} />
                 </button>
               </span>
@@ -300,10 +306,12 @@ function Frigo() {
             className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3.5 text-sm font-semibold text-primary-foreground disabled:opacity-60"
           >
             <Sparkles size={16} />
-            {generating ? "Génération des recettes…" : "Générer mes recettes"}
+            {generating ? t("recipe.generating") : t("recipe.generate")}
           </button>
         </section>
       )}
+
+      <PaywallModal open={paywall} onClose={() => setPaywall(false)} reason={t("paywall.limitRecipes")} />
     </div>
   );
 }
