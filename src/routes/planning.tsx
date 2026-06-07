@@ -1,12 +1,14 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
-import { Sparkles, Trash2, Plus, ShoppingBasket, X } from "lucide-react";
+import { Sparkles, Trash2, Plus, ShoppingBasket, X, Crown } from "lucide-react";
 import { toast } from "sonner";
 import { storage, programColor, shortDate, startOfWeek, WEEK_DAYS } from "@/lib/storage";
 import { useLocalReactive } from "@/lib/hooks";
 import { generateWeekPlan } from "@/lib/ai.functions";
 import type { Recipe, WeekPlanning } from "@/lib/types";
+import { useGate } from "@/lib/useGate";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/planning")({
   component: Planning,
@@ -37,15 +39,21 @@ function Planning() {
   const [generating, setGenerating] = useState(false);
   const [picker, setPicker] = useState<number | null>(null);
   const genPlan = useServerFn(generateWeekPlan);
+  const gate = useGate("planning");
 
   const generateAll = async () => {
     if (!user) return;
+    if (!gate.allowed) {
+      gate.showPaywall();
+      return;
+    }
     setGenerating(true);
     try {
       const { planning: plan } = await genPlan({
         data: {
           program: user.program,
           habitualIngredients: memory.ingredients.slice(0, 6).map((m) => m.nom),
+          lang: i18n.language,
         },
       });
       const days = WEEK_DAYS.map((jour, i) => {
