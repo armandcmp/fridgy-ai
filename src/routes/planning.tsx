@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
-import { Sparkles, Trash2, Plus, ShoppingBasket, X, Crown } from "lucide-react";
+import { Sparkles, Trash2, Plus, ShoppingBasket, X } from "lucide-react";
 import { toast } from "sonner";
 import { storage, programColor, shortDate, startOfWeek, WEEK_DAYS } from "@/lib/storage";
 import { useLocalReactive } from "@/lib/hooks";
