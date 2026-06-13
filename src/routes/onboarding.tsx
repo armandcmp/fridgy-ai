@@ -126,15 +126,15 @@ function Onboarding() {
         )}
 
         {step === "auth" && (
-          <AuthScreen
-            onAuthed={() => setStep("program")}
-          />
+          <AuthScreen onAuthed={() => setStep("profile")} />
+        )}
+
+        {step === "profile" && (
+          <BodyProfileScreen onDone={() => setStep("program")} />
         )}
 
         {step === "program" && (
-          <ProgramScreen
-            onDone={() => nav({ to: "/" })}
-          />
+          <ProgramScreen onDone={() => nav({ to: "/" })} />
         )}
       </div>
     </div>
