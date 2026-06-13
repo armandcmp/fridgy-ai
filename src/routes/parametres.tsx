@@ -414,6 +414,10 @@ function Settings() {
 
       {/* MY TRACKING */}
       <Section title={t("settings.tracking")}>
+        <ButtonRow
+          onClick={() => nav({ to: "/onboarding", search: { edit: "body" } as never })}
+          label="Modifier mon profil corporel"
+        />
         <ButtonRow onClick={() => nav({ to: "/stats" })} label={t("settings.openStats")} />
         <ButtonRow onClick={() => nav({ to: "/historique" })} label={t("settings.openHistory")} />
         <ButtonRow onClick={() => nav({ to: "/planning" })} label={t("settings.openPlanning")} />
