@@ -167,12 +167,6 @@ function Home() {
         )}
       </section>
 
-      {/* COMMUNAUTE row */}
-      <SectionHeader title={`👥 ${t("home.community")}`} to="/communaute" t={t} />
-      <HorizontalRow>
-        <CommunityPreviewCards />
-      </HorizontalRow>
-
       {/* FAVORIS */}
       <SectionHeader title={`❤️ ${t("home.favorites")}`} to="/recettes" t={t} />
       {favorites.length === 0 ? (
@@ -196,6 +190,15 @@ function Home() {
           </HorizontalRow>
         </>
       )}
+
+      {/* STATS */}
+      <StatsSection />
+
+      {/* COMMUNAUTE row */}
+      <SectionHeader title={`👥 ${t("home.community")}`} to="/communaute" t={t} />
+      <HorizontalRow>
+        <CommunityPreviewCards />
+      </HorizontalRow>
 
       {/* SUIVI rapide */}
       {history.length >= 3 && (
