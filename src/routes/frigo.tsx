@@ -10,6 +10,7 @@ import { isSpeechSupported, startVoiceRecognition } from "@/lib/voice";
 import { checkGate, bumpUsage } from "@/lib/freemium";
 import { getLanguage } from "@/lib/i18n";
 import { getCurrentMeal } from "@/lib/meal";
+import { getBodyProfile } from "@/lib/bodyProfile";
 import {
   extractFromImage,
   extractIngredients,
