@@ -82,6 +82,61 @@ Génère UNIQUEMENT des repas complets et rassasiants (viandes, féculents, lég
   }
 }
 
+const BodyProfileSchema = z
+  .object({
+    age: z.number(),
+    sexe: z.enum(["homme", "femme"]),
+    tailleCm: z.number(),
+    poidsKg: z.number(),
+    poidsObjectifKg: z.number().nullable().optional(),
+    imc: z.number(),
+    imcCategory: z.string(),
+    activityLevel: z.string(),
+    tdee: z.number(),
+  })
+  .optional();
+
+function mealRatio(meal?: string): number {
+  if (meal === "petit-dejeuner") return 0.25;
+  if (meal === "diner") return 0.3;
+  return 0.4;
+}
+
+function proteinPerKg(level?: string): number {
+  switch (level) {
+    case "sedentaire": return 0.8;
+    case "leger": return 1.2;
+    case "modere": return 1.6;
+    case "tres_actif": return 2.0;
+    default: return 1.2;
+  }
+}
+
+function profileInstructions(
+  meal: string | undefined,
+  p: z.infer<typeof BodyProfileSchema>,
+): string {
+  if (!p) return "";
+  const targetKcal = Math.round(p.tdee * mealRatio(meal));
+  const protein = Math.round(proteinPerKg(p.activityLevel) * p.poidsKg);
+  const goal = p.poidsObjectifKg ? `${p.poidsObjectifKg} kg` : "maintien";
+  return `
+Profil de l'utilisateur :
+- Âge : ${p.age} ans
+- Sexe : ${p.sexe}
+- IMC : ${p.imc} (${p.imcCategory})
+- Besoin calorique journalier : ${p.tdee} kcal
+- Objectif de poids : ${goal}
+- Niveau d'activité : ${p.activityLevel}
+
+Adapte les recettes à ce profil :
+- Portions et calories calibrées sur ${p.tdee} kcal/jour.
+- Pour ce repas, vise environ ${targetKcal} kcal par portion.
+- Si IMC > 25 : favorise les recettes à faible densité calorique.
+- Si IMC < 18.5 : augmente les portions et la densité nutritionnelle.
+- Protéines visées : environ ${protein} g par portion.`;
+}
+
 export const generateRecipes = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
@@ -89,6 +144,7 @@ export const generateRecipes = createServerFn({ method: "POST" })
       program: z.string(),
       lang: langField,
       mealType: MealEnum,
+      bodyProfile: BodyProfileSchema,
     }),
   )
   .handler(async ({ data }) => {
@@ -105,6 +161,7 @@ export const generateRecipes = createServerFn({ method: "POST" })
 Available ingredients: ${data.ingredients.join(", ")}
 
 ${mealInstructions(data.mealType)}
+${profileInstructions(data.mealType, data.bodyProfile)}
 
 Propose 4 varied, balanced recipes using these ingredients. Generate recipes typical of ${lang} cuisine preferences when relevant.
 Keep field names exactly as in this JSON schema (keys in French) but write the VALUES in ${lang}:
