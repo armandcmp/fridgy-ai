@@ -154,8 +154,22 @@ function Frigo() {
     setGenerating(true);
     try {
       const mealType = getCurrentMeal();
+      const bp = getBodyProfile();
+      const bodyProfile = bp
+        ? {
+            age: bp.age,
+            sexe: bp.sexe,
+            tailleCm: bp.tailleCm,
+            poidsKg: bp.poidsKg,
+            poidsObjectifKg: bp.poidsObjectifKg,
+            imc: bp.imc,
+            imcCategory: bp.imcCategory,
+            activityLevel: bp.activityLevel,
+            tdee: bp.tdee,
+          }
+        : undefined;
       const { recettes } = await genRecipes({
-        data: { ingredients: items, program: user.program, lang: getLanguage(), mealType },
+        data: { ingredients: items, program: user.program, lang: getLanguage(), mealType, bodyProfile },
       });
       const withIds = recettes.map((r, i) => ({
         ...r,
