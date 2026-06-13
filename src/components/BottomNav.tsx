@@ -8,29 +8,34 @@ import {
   Plus,
   Camera,
   Mic,
-  Keyboard,
-  ArrowLeft,
-  Check,
+  Pencil,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { BottomSheet } from "./BottomSheet";
-import { MEAL_META, setCurrentMeal, type MealType } from "@/lib/meal";
+import { MEAL_META, setCurrentMeal, getCurrentMeal, type MealType } from "@/lib/meal";
+
+function guessMealFromTime(): MealType {
+  const h = new Date().getHours();
+  if (h >= 5 && h < 11) return "petit-dejeuner";
+  if (h >= 11 && h < 16) return "dejeuner";
+  return "diner";
+}
 
 export function BottomNav() {
   const { t } = useTranslation();
   const loc = useLocation();
   const nav = useNavigate();
   const [sheet, setSheet] = useState(false);
-  const [step, setStep] = useState<1 | 2>(1);
-  const [selectedMeal, setSelectedMeal] = useState<MealType | null>(null);
+  const [meal, setMeal] = useState<MealType>(() => guessMealFromTime());
+  const [flash, setFlash] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!sheet) {
-      const id = setTimeout(() => {
-        setStep(1);
-        setSelectedMeal(null);
-      }, 250);
-      return () => clearTimeout(id);
+    if (sheet) {
+      const stored = getCurrentMeal();
+      // If user has no explicit choice yet (default 'dejeuner') still prefer time-based
+      setMeal(stored || guessMealFromTime());
+    } else {
+      setFlash(null);
     }
   }, [sheet]);
 
@@ -41,26 +46,22 @@ export function BottomNav() {
     { to: "/parametres", icon: Settings, label: t("nav.settings") },
   ];
 
-  const pickMeal = (m: MealType) => {
-    setSelectedMeal(m);
-    setCurrentMeal(m);
-    setTimeout(() => setStep(2), 300);
-  };
+  const pickMeal = (m: MealType) => setMeal(m);
 
   const go = (mode: "photo" | "voice" | "manual") => {
-    setSheet(false);
-    nav({ to: "/frigo", search: { mode } });
+    setCurrentMeal(meal);
+    setFlash(mode);
+    setTimeout(() => {
+      setSheet(false);
+      nav({ to: "/frigo", search: { mode } });
+    }, 150);
   };
 
   const path = loc.pathname;
   const isActive = (to: string) =>
     to === "/" ? path === "/" : path.startsWith(to);
 
-  const MEALS: { id: MealType; subKey: string }[] = [
-    { id: "petit-dejeuner", subKey: "meal.breakfastSub" },
-    { id: "dejeuner", subKey: "meal.lunchSub" },
-    { id: "diner", subKey: "meal.dinnerSub" },
-  ];
+  const MEALS: MealType[] = ["petit-dejeuner", "dejeuner", "diner"];
 
   return (
     <>
@@ -75,11 +76,7 @@ export function BottomNav() {
           <li className="flex-1">
             <div className="relative h-full">
               <button
-                onClick={() => {
-                  setStep(1);
-                  setSelectedMeal(null);
-                  setSheet(true);
-                }}
+                onClick={() => setSheet(true)}
                 aria-label={t("nav.add")}
                 className="absolute left-1/2 grid place-items-center text-white transition active:scale-95"
                 style={{
@@ -103,93 +100,83 @@ export function BottomNav() {
       </nav>
 
       <BottomSheet open={sheet} onClose={() => setSheet(false)}>
-        {step === 1 ? (
-          <div className="space-y-3 pb-2">
-            <div className="px-1">
-              <h3 className="text-base font-semibold">{t("sheet.mealTitle")}</h3>
-              <p className="mt-1 text-xs text-muted-foreground">{t("sheet.mealSub")}</p>
+        <div className="space-y-4 pb-2">
+          {/* SECTION 1 — Meal */}
+          <div>
+            <div
+              className="px-1 text-[13px] font-bold uppercase tracking-wide"
+              style={{ color: "#9CA3AF" }}
+            >
+              {t("sheet.mealLabel")}
             </div>
-            <div className="space-y-3 pt-1">
+            <div className="mt-3 flex items-center gap-2">
               {MEALS.map((m) => {
-                const meta = MEAL_META[m.id];
-                const active = selectedMeal === m.id;
+                const meta = MEAL_META[m];
+                const active = meal === m;
                 return (
                   <button
-                    key={m.id}
-                    onClick={() => pickMeal(m.id)}
-                    className="flex w-full items-center gap-3 bg-card px-4 text-left transition active:scale-[0.98]"
+                    key={m}
+                    onClick={() => pickMeal(m)}
+                    className="flex-1 text-sm font-semibold transition active:scale-[0.97]"
                     style={{
-                      minHeight: 80,
-                      borderRadius: 14,
-                      border: active
-                        ? `2px solid ${meta.color}`
-                        : "1px solid var(--border)",
-                      borderLeft: `4px solid ${meta.color}`,
+                      height: 38,
+                      padding: "0 12px",
+                      borderRadius: 99,
+                      background: active ? "#4CAF82" : "#FFFFFF",
+                      color: active ? "#FFFFFF" : "#6B7280",
+                      border: active ? "none" : "1px solid #E5E7EB",
+                      whiteSpace: "nowrap",
                     }}
                   >
-                    <span style={{ fontSize: 32 }}>{meta.emoji}</span>
-                    <span className="flex-1">
-                      <span className="block text-[16px] font-bold">
-                        {t(meta.labelKey)}
-                      </span>
-                      <span className="block text-[13px] text-muted-foreground">
-                        {t(m.subKey)}
-                      </span>
-                    </span>
-                    {active && (
-                      <span
-                        className="grid place-items-center text-white"
-                        style={{
-                          width: 24,
-                          height: 24,
-                          borderRadius: 12,
-                          background: meta.color,
-                        }}
-                      >
-                        <Check size={14} strokeWidth={3} />
-                      </span>
-                    )}
+                    <span style={{ marginRight: 6 }}>{meta.emoji}</span>
+                    {t(meta.shortKey)}
                   </button>
                 );
               })}
             </div>
           </div>
-        ) : (
-          <div className="space-y-3 pb-2">
-            <div className="flex items-center gap-2 px-1">
-              <button
-                onClick={() => {
-                  setSelectedMeal(null);
-                  setStep(1);
-                }}
-                aria-label={t("common.back")}
-                className="grid place-items-center rounded-full text-foreground transition active:scale-95"
-                style={{ width: 32, height: 32, background: "rgba(0,0,0,0.05)" }}
-              >
-                <ArrowLeft size={16} />
-              </button>
-              <h3 className="text-base font-semibold">{t("sheet.addTitle")}</h3>
+
+          <div style={{ height: 1, background: "#F0F0EE", width: "100%" }} />
+
+          {/* SECTION 2 — Input method */}
+          <div>
+            <div
+              className="px-1 text-[13px] font-bold uppercase tracking-wide"
+              style={{ color: "#9CA3AF" }}
+            >
+              {t("sheet.methodLabel")}
             </div>
-            <SheetCard
-              icon={<Camera size={22} />}
-              title={t("sheet.photoTitle")}
-              sub={t("sheet.photoSub")}
-              onClick={() => go("photo")}
-            />
-            <SheetCard
-              icon={<Mic size={22} />}
-              title={t("sheet.voiceTitle")}
-              sub={t("sheet.voiceSub")}
-              onClick={() => go("voice")}
-            />
-            <SheetCard
-              icon={<Keyboard size={22} />}
-              title={t("sheet.manualTitle")}
-              sub={t("sheet.manualSub")}
-              onClick={() => go("manual")}
-            />
+            <div className="mt-3 space-y-3">
+              <MethodCard
+                icon={<Camera size={22} />}
+                iconBg="rgba(76,175,130,0.15)"
+                iconColor="#4CAF82"
+                title={t("sheet.photoTitle")}
+                sub={t("sheet.photoSub")}
+                onClick={() => go("photo")}
+                flashing={flash === "photo"}
+              />
+              <MethodCard
+                icon={<Mic size={22} />}
+                iconBg="rgba(59,130,246,0.15)"
+                iconColor="#3B82F6"
+                title={t("sheet.voiceTitle")}
+                sub={t("sheet.voiceSub")}
+                onClick={() => go("voice")}
+                flashing={flash === "voice"}
+              />
+              <MethodCard
+                icon={<Pencil size={20} />}
+                iconBg="rgba(139,92,246,0.15)"
+                iconColor="#8B5CF6"
+                title={t("sheet.manualTitle")}
+                sub={t("sheet.manualSub")}
+                onClick={() => go("manual")}
+                flashing={flash === "manual"}
+              />
+            </div>
           </div>
-        )}
+        </div>
       </BottomSheet>
     </>
   );
@@ -231,32 +218,52 @@ function Tab({
   );
 }
 
-function SheetCard({
+function MethodCard({
   icon,
+  iconBg,
+  iconColor,
   title,
   sub,
   onClick,
+  flashing,
 }: {
   icon: React.ReactNode;
+  iconBg: string;
+  iconColor: string;
   title: string;
   sub: string;
   onClick: () => void;
+  flashing?: boolean;
 }) {
   return (
     <button
       onClick={onClick}
-      className="flex w-full items-center gap-4 rounded-2xl border border-border bg-card p-4 text-left transition active:scale-[0.98]"
-      style={{ minHeight: 80 }}
+      className="flex w-full items-center text-left transition active:scale-[0.98]"
+      style={{
+        height: 72,
+        gap: 14,
+        padding: "0 14px",
+        borderRadius: 14,
+        background: flashing ? "rgba(76,175,130,0.18)" : "#FFFFFF",
+        border: "1px solid #F0F0EE",
+      }}
     >
       <span
-        className="grid place-items-center text-primary"
-        style={{ width: 48, height: 48, borderRadius: 24, background: "rgba(76,175,130,0.15)" }}
+        className="grid place-items-center"
+        style={{
+          width: 44,
+          height: 44,
+          borderRadius: 22,
+          background: iconBg,
+          color: iconColor,
+          flexShrink: 0,
+        }}
       >
         {icon}
       </span>
-      <span className="flex-1">
-        <span className="block text-[15px] font-semibold">{title}</span>
-        <span className="block text-xs text-muted-foreground">{sub}</span>
+      <span className="flex-1 min-w-0">
+        <span className="block text-[15px] font-bold">{title}</span>
+        <span className="block text-xs text-muted-foreground truncate">{sub}</span>
       </span>
     </button>
   );

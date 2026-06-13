@@ -6,7 +6,6 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { storage } from "@/lib/storage";
 import { useLocalReactive } from "@/lib/hooks";
-import { isSpeechSupported, startVoiceRecognition } from "@/lib/voice";
 import { checkGate, bumpUsage } from "@/lib/freemium";
 import { getLanguage } from "@/lib/i18n";
 import { getCurrentMeal } from "@/lib/meal";
@@ -17,6 +16,7 @@ import {
   generateRecipes,
 } from "@/lib/ai.functions";
 import { PaywallModal } from "@/components/PaywallModal";
+import { VoiceOverlay } from "@/components/VoiceOverlay";
 
 type ModeParam = "photo" | "voice" | "manual";
 
@@ -28,7 +28,7 @@ export const Route = createFileRoute("/frigo")({
   component: Frigo,
 });
 
-type Mode = "menu" | "manual" | "voice";
+type Mode = "menu" | "manual";
 
 function Frigo() {
   const { t } = useTranslation();
@@ -41,9 +41,8 @@ function Frigo() {
   const [manualInput, setManualInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [generating, setGenerating] = useState(false);
-  const [recording, setRecording] = useState(false);
+  const [voiceOpen, setVoiceOpen] = useState(false);
   const [paywall, setPaywall] = useState(false);
-  const recogRef = useRef<unknown | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const extractImg = useServerFn(extractFromImage);
@@ -57,7 +56,7 @@ function Frigo() {
     const m = search.mode;
     if (m === "photo") setTimeout(() => fileRef.current?.click(), 50);
     else if (m === "manual") setMode("manual");
-    else if (m === "voice") { setMode("voice"); setTimeout(() => toggleRecord(), 100); }
+    else if (m === "voice") setVoiceOpen(true);
     nav({ to: "/frigo", search: {}, replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search.mode]);
@@ -105,44 +104,25 @@ function Frigo() {
     }
   };
 
-  const toggleRecord = () => {
-    if (recording) {
-      try {
-        (recogRef.current as { stop?: () => void } | null)?.stop?.();
-      } catch {
-        /* */
-      }
-      setRecording(false);
-      return;
+  const handleVoiceTranscript = async (transcript: string) => {
+    setBusy(true);
+    try {
+      const { ingredients } = await extractTxt({
+        data: { text: transcript, lang: getLanguage() },
+      });
+      addMany(ingredients);
+      toast.success(t("frigo.added", { count: ingredients.length }));
+    } finally {
+      setBusy(false);
     }
-    if (!isSpeechSupported()) {
-      toast.error(t("frigo.voiceUnsupported"));
-      return;
-    }
-    setRecording(true);
-    recogRef.current = startVoiceRecognition(
-      async (transcript) => {
-        setRecording(false);
-        setBusy(true);
-        try {
-          const { ingredients } = await extractTxt({
-            data: { text: transcript, lang: getLanguage() },
-          });
-          addMany(ingredients);
-          toast.success(t("frigo.added", { count: ingredients.length }));
-          setMode("menu");
-        } catch (e) {
-          toast.error(e instanceof Error ? e.message : "Erreur");
-        } finally {
-          setBusy(false);
-        }
-      },
-      (err) => {
-        setRecording(false);
-        toast.error(t("frigo.micError", { err }));
-      },
-    );
   };
+
+  const handleVoiceFallback = (m: "photo" | "manual") => {
+    setVoiceOpen(false);
+    if (m === "photo") setTimeout(() => fileRef.current?.click(), 50);
+    else setMode("manual");
+  };
+
 
   const generate = async () => {
     if (!user || items.length === 0) return;
@@ -260,24 +240,17 @@ function Frigo() {
             </div>
           </button>
           <button
-            onClick={() => { setMode("voice"); toggleRecord(); }}
+            onClick={() => setVoiceOpen(true)}
             disabled={busy}
-            className={`fc-card flex items-center gap-4 p-4 text-left transition active:scale-[0.98] disabled:opacity-60 ${
-              recording ? "ring-2 ring-destructive" : ""
-            }`}
+            className="fc-card flex items-center gap-4 p-4 text-left transition active:scale-[0.98] disabled:opacity-60"
           >
-            <div className={`grid h-11 w-11 place-items-center rounded-xl ${
-              recording ? "bg-destructive/15 text-destructive" : "bg-violet-100 text-violet-700"
-            }`}>
+            <div className="grid h-11 w-11 place-items-center rounded-xl bg-violet-100 text-violet-700">
               <Mic size={20} />
             </div>
             <div className="flex-1">
               <div className="font-semibold">{t("frigo.voice")}</div>
-              <div className="text-xs text-muted-foreground">
-                {recording ? t("frigo.voiceListening") : t("frigo.voiceSub")}
-              </div>
+              <div className="text-xs text-muted-foreground">{t("frigo.voiceSub")}</div>
             </div>
-            {recording && <span className="h-3 w-3 rounded-full bg-destructive animate-pulse-rec" />}
           </button>
         </div>
       )}
@@ -360,6 +333,13 @@ function Frigo() {
       )}
 
       <PaywallModal open={paywall} onClose={() => setPaywall(false)} reason={t("paywall.limitRecipes")} />
+
+      <VoiceOverlay
+        open={voiceOpen}
+        onClose={() => setVoiceOpen(false)}
+        onTranscript={handleVoiceTranscript}
+        onFallback={handleVoiceFallback}
+      />
     </div>
   );
 }
