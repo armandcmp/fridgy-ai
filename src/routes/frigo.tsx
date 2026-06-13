@@ -6,7 +6,6 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { storage } from "@/lib/storage";
 import { useLocalReactive } from "@/lib/hooks";
-import { isSpeechSupported, startVoiceRecognition } from "@/lib/voice";
 import { checkGate, bumpUsage } from "@/lib/freemium";
 import { getLanguage } from "@/lib/i18n";
 import { getCurrentMeal } from "@/lib/meal";
@@ -17,6 +16,7 @@ import {
   generateRecipes,
 } from "@/lib/ai.functions";
 import { PaywallModal } from "@/components/PaywallModal";
+import { VoiceOverlay } from "@/components/VoiceOverlay";
 
 type ModeParam = "photo" | "voice" | "manual";
 
@@ -28,7 +28,7 @@ export const Route = createFileRoute("/frigo")({
   component: Frigo,
 });
 
-type Mode = "menu" | "manual" | "voice";
+type Mode = "menu" | "manual";
 
 function Frigo() {
   const { t } = useTranslation();
@@ -41,9 +41,8 @@ function Frigo() {
   const [manualInput, setManualInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [generating, setGenerating] = useState(false);
-  const [recording, setRecording] = useState(false);
+  const [voiceOpen, setVoiceOpen] = useState(false);
   const [paywall, setPaywall] = useState(false);
-  const recogRef = useRef<unknown | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const extractImg = useServerFn(extractFromImage);
@@ -57,7 +56,7 @@ function Frigo() {
     const m = search.mode;
     if (m === "photo") setTimeout(() => fileRef.current?.click(), 50);
     else if (m === "manual") setMode("manual");
-    else if (m === "voice") { setMode("voice"); setTimeout(() => toggleRecord(), 100); }
+    else if (m === "voice") setVoiceOpen(true);
     nav({ to: "/frigo", search: {}, replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search.mode]);
