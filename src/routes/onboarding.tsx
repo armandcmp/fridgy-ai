@@ -45,19 +45,57 @@ const LANGS: { code: Lang; flag: string; name: string; cta: string }[] = [
 
 type Step = "lang" | "auth" | "profile" | "program";
 
+const ONBOARDING_DONE_KEY = "fridgechef_onboarding_complete";
+
 function Onboarding() {
   const nav = useNavigate();
   const [ready, setReady] = useState(false);
   const [step, setStep] = useState<Step>("lang");
   const [pickedLang, setPickedLang] = useState<Lang | null>(null);
+  const [editMode, setEditMode] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const sess = storage.getSessionUser();
-    if (sess && sess.program) {
+
+    // Edit mode: from Settings to update body profile only
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("edit") === "body") {
+      setEditMode(true);
+      setStep("profile");
+      setReady(true);
+      return;
+    }
+
+    const done = localStorage.getItem(ONBOARDING_DONE_KEY) === "true";
+    let sess = storage.getSessionUser();
+
+    // Auto-restore single saved account when no session
+    if (!sess) {
+      const accs = auth.getAccounts();
+      if (accs.length === 1) {
+        const a = accs[0];
+        auth.setSession({
+          id: a.id,
+          prenom: a.prenom,
+          email: a.email,
+          program: a.program,
+          dailyKcal: a.dailyKcal,
+          isPremium: a.isPremium,
+        });
+        sess = storage.getSessionUser();
+      }
+    }
+
+    if (sess && sess.program && getBodyProfile()) {
+      localStorage.setItem(ONBOARDING_DONE_KEY, "true");
       nav({ to: "/" });
       return;
     }
+    if (done && sess) {
+      nav({ to: "/" });
+      return;
+    }
+
     const stored = localStorage.getItem(LANG_KEY);
     const hasProfile = !!getBodyProfile();
     if (sess && !sess.program) {
@@ -130,11 +168,26 @@ function Onboarding() {
         )}
 
         {step === "profile" && (
-          <BodyProfileScreen onDone={() => setStep("program")} />
+          <BodyProfileScreen
+            onDone={() => {
+              if (editMode) {
+                nav({ to: "/parametres" });
+              } else {
+                setStep("program");
+              }
+            }}
+          />
         )}
 
         {step === "program" && (
-          <ProgramScreen onDone={() => nav({ to: "/" })} />
+          <ProgramScreen
+            onDone={() => {
+              if (typeof window !== "undefined") {
+                localStorage.setItem(ONBOARDING_DONE_KEY, "true");
+              }
+              nav({ to: "/" });
+            }}
+          />
         )}
       </div>
     </div>
@@ -320,7 +373,7 @@ function ProgramScreen({ onDone }: { onDone: () => void }) {
                 {t(`program.${p.slug}Desc`)}
               </div>
             </div>
-            <span className="text-xs text-muted-foreground">{p.kcal} kcal</span>
+            
           </button>
         ))}
       </div>

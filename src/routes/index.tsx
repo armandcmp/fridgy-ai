@@ -18,6 +18,7 @@ function Home() {
   const { t } = useTranslation();
   const nav = useNavigate();
   const [mounted, setMounted] = useState(false);
+  const [splash, setSplash] = useState(true);
   const sess = useLocalReactive(() => storage.getSessionUser());
   const user = useLocalReactive(() => storage.getUser());
   const history = useLocalReactive(() => storage.getHistory());
@@ -27,12 +28,37 @@ function Home() {
   const premium = usePremium();
   const [paywall, setPaywall] = useState(false);
 
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    setMounted(true);
+    const splashTimer = setTimeout(() => setSplash(false), 600);
+    return () => clearTimeout(splashTimer);
+  }, []);
   useEffect(() => {
     if (!mounted) return;
-    if (!sess) {
+    // Auto-restore single saved account when no active session
+    if (!sess && typeof window !== "undefined") {
+      try {
+        const raw = localStorage.getItem("fridgechef_accounts");
+        const accs = raw ? (JSON.parse(raw) as Array<{ id: string; prenom: string; email: string; program: string | null; dailyKcal: number | null; isPremium: boolean }>) : [];
+        if (accs.length === 1) {
+          const a = accs[0];
+          localStorage.setItem(
+            "fridgechef_session_user",
+            JSON.stringify({
+              id: a.id,
+              prenom: a.prenom,
+              email: a.email,
+              program: a.program,
+              dailyKcal: a.dailyKcal,
+              isPremium: a.isPremium,
+            }),
+          );
+          window.dispatchEvent(new CustomEvent("fridgechef:change", { detail: "fridgechef_session_user" }));
+          return;
+        }
+      } catch {}
       nav({ to: "/onboarding" });
-    } else if (!sess.program) {
+    } else if (sess && !sess.program) {
       nav({ to: "/onboarding" });
     }
   }, [mounted, sess, nav]);
@@ -42,7 +68,20 @@ function Home() {
     return history.find((h) => new Date(h.date).toDateString() === k) ?? null;
   }, [history]);
 
-  if (!mounted || !sess || !user) return <div style={{ minHeight: "100vh" }} />;
+  if (!mounted || splash || !sess || !user) {
+    return (
+      <div
+        className="flex min-h-screen items-center justify-center animate-fade-up"
+        style={{ background: "#FFFFFF" }}
+      >
+        <div className="text-center">
+          <div className="text-5xl">🥦</div>
+          <h1 className="mt-3 text-xl font-bold">FridgeChef</h1>
+        </div>
+      </div>
+    );
+  }
+
 
   const pc = programColor(user.program);
   const remaining = Math.max(0, LIMITS.recipes - usage.recipesGenerated);
