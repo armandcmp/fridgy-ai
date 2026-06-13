@@ -147,19 +147,12 @@ export function BottomNav() {
       </BottomSheet>
 
       {/* STEP 2 — Comment saisir ? */}
-      <BottomSheet open={step === "method"} onClose={() => setStep(null)}>
+      <BottomSheet open={step === "method"} onClose={closeSheets}>
         <div className="pb-2">
-          <div className="relative mb-4 flex items-center justify-center">
-            <button
-              onClick={() => setStep("meal")}
-              aria-label={t("common.back")}
-              className="absolute left-0 grid h-8 w-8 place-items-center rounded-full"
-              style={{ background: "#F5F5F4" }}
-            >
-              <ArrowLeft size={18} />
-            </button>
-            <h3 className="text-[18px] font-bold">{t("sheet.methodLabel")}</h3>
-          </div>
+          <h3 className="mb-4 text-center text-[18px] font-bold">
+            {t("sheet.methodLabel")}
+          </h3>
+
           <div className="space-y-3">
             <MethodCard
               icon={<Camera size={22} />}
