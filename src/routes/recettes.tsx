@@ -54,8 +54,6 @@ function RecettesScreen() {
     return list;
   }, [merged, favs, filter, query, t]);
 
-  return (
-    <div className="px-5 pt-8">
   const meal = useLocalReactive(() => getCurrentMeal());
   const mealMeta = MEAL_META[meal];
 
