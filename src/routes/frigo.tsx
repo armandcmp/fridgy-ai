@@ -151,13 +151,15 @@ function Frigo() {
     }
     setGenerating(true);
     try {
+      const mealType = getCurrentMeal();
       const { recettes } = await genRecipes({
-        data: { ingredients: items, program: user.program, lang: getLanguage() },
+        data: { ingredients: items, program: user.program, lang: getLanguage(), mealType },
       });
       const withIds = recettes.map((r, i) => ({
         ...r,
         id: `${Date.now()}-${i}`,
         program: user.program,
+        mealType,
       }));
       storage.setRecipes(withIds);
       storage.setSession(items);
