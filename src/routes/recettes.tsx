@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { storage } from "@/lib/storage";
 import { useLocalReactive } from "@/lib/hooks";
 import { RecipeCard } from "@/components/RecipeCard";
+import { MEAL_META, getCurrentMeal } from "@/lib/meal";
 
 export const Route = createFileRoute("/recettes")({
   component: RecettesScreen,
