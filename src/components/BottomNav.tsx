@@ -9,7 +9,7 @@ import {
   Camera,
   Mic,
   Pencil,
-  ArrowLeft,
+  } from "lucide-react";
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { BottomSheet } from "./BottomSheet";
