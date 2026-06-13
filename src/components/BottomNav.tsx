@@ -9,35 +9,31 @@ import {
   Camera,
   Mic,
   Pencil,
+  ArrowLeft,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { BottomSheet } from "./BottomSheet";
-import { MEAL_META, setCurrentMeal, getCurrentMeal, type MealType } from "@/lib/meal";
+import { MEAL_META, setCurrentMeal, type MealType } from "@/lib/meal";
 
 function guessMealFromTime(): MealType {
   const h = new Date().getHours();
   if (h >= 5 && h < 11) return "petit-dejeuner";
-  if (h >= 11 && h < 16) return "dejeuner";
+  if (h >= 11 && h < 17) return "dejeuner";
   return "diner";
 }
+
+type Step = "meal" | "method" | null;
 
 export function BottomNav() {
   const { t } = useTranslation();
   const loc = useLocation();
   const nav = useNavigate();
-  const [sheet, setSheet] = useState(false);
-  const [meal, setMeal] = useState<MealType>(() => guessMealFromTime());
-  const [flash, setFlash] = useState<string | null>(null);
+  const [step, setStep] = useState<Step>(null);
+  const [suggested, setSuggested] = useState<MealType>(() => guessMealFromTime());
 
   useEffect(() => {
-    if (sheet) {
-      const stored = getCurrentMeal();
-      // If user has no explicit choice yet (default 'dejeuner') still prefer time-based
-      setMeal(stored || guessMealFromTime());
-    } else {
-      setFlash(null);
-    }
-  }, [sheet]);
+    if (step === "meal") setSuggested(guessMealFromTime());
+  }, [step]);
 
   const tabs: { to: string; icon: typeof Home; label: string }[] = [
     { to: "/", icon: Home, label: t("nav.home") },
@@ -46,22 +42,25 @@ export function BottomNav() {
     { to: "/parametres", icon: Settings, label: t("nav.settings") },
   ];
 
-  const pickMeal = (m: MealType) => setMeal(m);
+  const pickMeal = (m: MealType) => {
+    setCurrentMeal(m);
+    setStep("method");
+  };
 
-  const go = (mode: "photo" | "voice" | "manual") => {
-    setCurrentMeal(meal);
-    setFlash(mode);
-    setTimeout(() => {
-      setSheet(false);
-      nav({ to: "/frigo", search: { mode } });
-    }, 150);
+  const pickMethod = (mode: "photo" | "voice" | "manual") => {
+    setStep(null);
+    nav({ to: "/frigo", search: { mode } });
   };
 
   const path = loc.pathname;
   const isActive = (to: string) =>
     to === "/" ? path === "/" : path.startsWith(to);
 
-  const MEALS: MealType[] = ["petit-dejeuner", "dejeuner", "diner"];
+  const MEALS: { m: MealType; color: string; subKey: string }[] = [
+    { m: "petit-dejeuner", color: "#F59E0B", subKey: "meal.breakfastSub" },
+    { m: "dejeuner", color: "#4CAF82", subKey: "meal.lunchSub" },
+    { m: "diner", color: "#3B82F6", subKey: "meal.dinnerSub" },
+  ];
 
   return (
     <>
@@ -76,7 +75,7 @@ export function BottomNav() {
           <li className="flex-1">
             <div className="relative h-full">
               <button
-                onClick={() => setSheet(true)}
+                onClick={() => setStep("meal")}
                 aria-label={t("nav.add")}
                 className="absolute left-1/2 grid place-items-center text-white transition active:scale-95"
                 style={{
@@ -99,82 +98,86 @@ export function BottomNav() {
         </ul>
       </nav>
 
-      <BottomSheet open={sheet} onClose={() => setSheet(false)}>
-        <div className="space-y-4 pb-2">
-          {/* SECTION 1 — Meal */}
-          <div>
-            <div
-              className="px-1 text-[13px] font-bold uppercase tracking-wide"
-              style={{ color: "#9CA3AF" }}
-            >
-              {t("sheet.mealLabel")}
-            </div>
-            <div className="mt-3 flex items-center gap-2">
-              {MEALS.map((m) => {
-                const meta = MEAL_META[m];
-                const active = meal === m;
-                return (
-                  <button
-                    key={m}
-                    onClick={() => pickMeal(m)}
-                    className="flex-1 text-sm font-semibold transition active:scale-[0.97]"
-                    style={{
-                      height: 38,
-                      padding: "0 12px",
-                      borderRadius: 99,
-                      background: active ? "#4CAF82" : "#FFFFFF",
-                      color: active ? "#FFFFFF" : "#6B7280",
-                      border: active ? "none" : "1px solid #E5E7EB",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    <span style={{ marginRight: 6 }}>{meta.emoji}</span>
-                    {t(meta.shortKey)}
-                  </button>
-                );
-              })}
-            </div>
+      {/* STEP 1 — Quel repas ? */}
+      <BottomSheet open={step === "meal"} onClose={() => setStep(null)}>
+        <div className="pb-2">
+          <h3 className="mb-4 text-center text-[18px] font-bold">
+            {t("sheet.mealLabel")}
+          </h3>
+          <div className="space-y-3">
+            {MEALS.map(({ m, color, subKey }) => {
+              const meta = MEAL_META[m];
+              const isSuggested = suggested === m;
+              return (
+                <button
+                  key={m}
+                  onClick={() => pickMeal(m)}
+                  className="flex w-full items-center text-left transition active:scale-[0.98]"
+                  style={{
+                    height: 72,
+                    gap: 14,
+                    padding: "0 14px",
+                    borderRadius: 14,
+                    background: isSuggested ? "rgba(76,175,130,0.08)" : "#FFFFFF",
+                    border: "1px solid #F0F0EE",
+                    borderLeft: `4px solid ${color}`,
+                  }}
+                >
+                  <span style={{ fontSize: 28, lineHeight: 1 }}>{meta.emoji}</span>
+                  <span className="flex-1 min-w-0">
+                    <span className="block text-[15px] font-bold">
+                      {t(meta.labelKey)}
+                    </span>
+                    <span className="block text-xs text-muted-foreground truncate">
+                      {t(subKey)}
+                    </span>
+                  </span>
+                </button>
+              );
+            })}
           </div>
+        </div>
+      </BottomSheet>
 
-          <div style={{ height: 1, background: "#F0F0EE", width: "100%" }} />
-
-          {/* SECTION 2 — Input method */}
-          <div>
-            <div
-              className="px-1 text-[13px] font-bold uppercase tracking-wide"
-              style={{ color: "#9CA3AF" }}
+      {/* STEP 2 — Comment saisir ? */}
+      <BottomSheet open={step === "method"} onClose={() => setStep(null)}>
+        <div className="pb-2">
+          <div className="relative mb-4 flex items-center justify-center">
+            <button
+              onClick={() => setStep("meal")}
+              aria-label={t("common.back")}
+              className="absolute left-0 grid h-8 w-8 place-items-center rounded-full"
+              style={{ background: "#F5F5F4" }}
             >
-              {t("sheet.methodLabel")}
-            </div>
-            <div className="mt-3 space-y-3">
-              <MethodCard
-                icon={<Camera size={22} />}
-                iconBg="rgba(76,175,130,0.15)"
-                iconColor="#4CAF82"
-                title={t("sheet.photoTitle")}
-                sub={t("sheet.photoSub")}
-                onClick={() => go("photo")}
-                flashing={flash === "photo"}
-              />
-              <MethodCard
-                icon={<Mic size={22} />}
-                iconBg="rgba(59,130,246,0.15)"
-                iconColor="#3B82F6"
-                title={t("sheet.voiceTitle")}
-                sub={t("sheet.voiceSub")}
-                onClick={() => go("voice")}
-                flashing={flash === "voice"}
-              />
-              <MethodCard
-                icon={<Pencil size={20} />}
-                iconBg="rgba(139,92,246,0.15)"
-                iconColor="#8B5CF6"
-                title={t("sheet.manualTitle")}
-                sub={t("sheet.manualSub")}
-                onClick={() => go("manual")}
-                flashing={flash === "manual"}
-              />
-            </div>
+              <ArrowLeft size={18} />
+            </button>
+            <h3 className="text-[18px] font-bold">{t("sheet.methodLabel")}</h3>
+          </div>
+          <div className="space-y-3">
+            <MethodCard
+              icon={<Camera size={22} />}
+              iconBg="rgba(76,175,130,0.15)"
+              iconColor="#4CAF82"
+              title={t("sheet.photoTitle")}
+              sub={t("sheet.photoSub")}
+              onClick={() => pickMethod("photo")}
+            />
+            <MethodCard
+              icon={<Mic size={22} />}
+              iconBg="rgba(59,130,246,0.15)"
+              iconColor="#3B82F6"
+              title={t("sheet.voiceTitle")}
+              sub={t("sheet.voiceSub")}
+              onClick={() => pickMethod("voice")}
+            />
+            <MethodCard
+              icon={<Pencil size={20} />}
+              iconBg="rgba(139,92,246,0.15)"
+              iconColor="#8B5CF6"
+              title={t("sheet.manualTitle")}
+              sub={t("sheet.manualSub")}
+              onClick={() => pickMethod("manual")}
+            />
           </div>
         </div>
       </BottomSheet>
@@ -225,7 +228,6 @@ function MethodCard({
   title,
   sub,
   onClick,
-  flashing,
 }: {
   icon: React.ReactNode;
   iconBg: string;
@@ -233,7 +235,6 @@ function MethodCard({
   title: string;
   sub: string;
   onClick: () => void;
-  flashing?: boolean;
 }) {
   return (
     <button
@@ -244,7 +245,7 @@ function MethodCard({
         gap: 14,
         padding: "0 14px",
         borderRadius: 14,
-        background: flashing ? "rgba(76,175,130,0.18)" : "#FFFFFF",
+        background: "#FFFFFF",
         border: "1px solid #F0F0EE",
       }}
     >
