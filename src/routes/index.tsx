@@ -9,6 +9,7 @@ import { MiniRecipeCard } from "@/components/RecipeCard";
 import { RecipeImage } from "@/components/RecipeImage";
 import { PaywallModal } from "@/components/PaywallModal";
 import { Avatar } from "@/components/Avatar";
+import { StatsSection } from "@/components/StatsSection";
 
 export const Route = createFileRoute("/")({
   component: Home,
