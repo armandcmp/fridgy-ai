@@ -155,7 +155,10 @@ const RichRecipeSchema = z.object({
   glucides: z.number(),
   lipides: z.number(),
   fibres: z.number().optional().default(0),
-  indexGlycemique: z.string().optional().default("Moyen"),
+  indexGlycemique: z
+    .enum(["Bas", "Moyen", "Élevé"])
+    .catch("Moyen")
+    .default("Moyen"),
   ingredients: z.array(IngredientItemSchema).default([]),
   etapes: z.array(z.string()).default([]),
   conseil_nutritionnel: z.string().optional().default(""),
