@@ -137,6 +137,175 @@ Adapte les recettes à ce profil :
 - Protéines visées : environ ${protein} g par portion.`;
 }
 
+const IngredientItemSchema = z.object({
+  nom: z.string(),
+  quantite: z.string().default(""),
+  disponible: z.boolean().default(false),
+});
+
+const RichRecipeSchema = z.object({
+  titre: z.string(),
+  description: z.string().default(""),
+  temps: z.string().default("20 min"),
+  difficulte: z.string().default("Facile"),
+  mealType: z.string().optional(),
+  program: z.string().optional(),
+  calories: z.number(),
+  proteines: z.number(),
+  glucides: z.number(),
+  lipides: z.number(),
+  fibres: z.number().optional().default(0),
+  indexGlycemique: z.string().optional().default("Moyen"),
+  ingredients: z.array(IngredientItemSchema).default([]),
+  etapes: z.array(z.string()).default([]),
+  conseil_nutritionnel: z.string().optional().default(""),
+  pourquoi_adapte: z.string().optional().default(""),
+});
+
+type RichRecipe = z.infer<typeof RichRecipeSchema>;
+
+function targetCalories(tdee: number | undefined, meal?: string): number {
+  const base = tdee && tdee > 0 ? tdee : 2000;
+  const ratio = meal === "petit-dejeuner" ? 0.25 : meal === "diner" ? 0.3 : 0.4;
+  return Math.round(base * ratio);
+}
+
+function validateDiversity(recipes: RichRecipe[], target: number): boolean {
+  if (recipes.length < 3) return false;
+  const mains = recipes
+    .slice(0, 3)
+    .map((r) => (r.ingredients[0]?.nom ?? "").toLowerCase().trim())
+    .filter(Boolean);
+  if (new Set(mains).size < 3) return false;
+  return recipes.slice(0, 3).every(
+    (r) => r.calories >= target * 0.8 && r.calories <= target * 1.2,
+  );
+}
+
+function programDirectives(program: string, bp: z.infer<typeof BodyProfileSchema>): string {
+  const tdee = bp?.tdee ?? 2000;
+  const w = bp?.poidsKg ?? 70;
+  const p = program.toLowerCase();
+  if (p.includes("masse") || p.includes("bulk")) {
+    return `Programme Prise de masse :
+→ Vise ${Math.round(tdee * 1.1)} kcal par jour total.
+→ Protéines : ${Math.round(w * 2.0)} g minimum.
+→ Inclure des sources de glucides complexes (riz, pâtes, avoine, légumineuses).
+→ Portions généreuses, ajout de graisses saines (huile, oléagineux, fromage).
+→ Privilégier : riz, pâtes, avoine, œufs, poulet, bœuf, légumineuses, fromage blanc, beurre de cacahuète.`;
+  }
+  if (p.includes("sèche") || p.includes("seche") || p.includes("cut")) {
+    return `Programme Sèche :
+→ Vise ${Math.round(tdee * 0.85)} kcal par jour.
+→ Protéines : ${Math.round(w * 2.2)} g minimum.
+→ Glucides : maximum 100 g par jour.
+→ Légumes, protéines maigres ; éviter sucres rapides et graisses saturées.
+→ Privilégier : blanc de poulet, poisson, œufs, légumes verts, fromage blanc 0 %, riz basmati en petite quantité.`;
+  }
+  if (p.includes("perte") || p.includes("loss")) {
+    return `Programme Perte de poids :
+→ Vise ${Math.round(tdee * 0.8)} kcal par jour.
+→ Index glycémique bas, fibres élevées pour la satiété.
+→ Favoriser aliments volumeux peu caloriques.
+→ Privilégier : légumes, légumineuses, poisson blanc, volaille sans peau, produits laitiers allégés.`;
+  }
+  return `Programme Maintien :
+→ Vise exactement ${tdee} kcal par jour.
+→ Répartition 40 % glucides / 30 % protéines / 30 % lipides.
+→ Recettes variées et équilibrées, qualité nutritionnelle prioritaire.`;
+}
+
+function buildUserPrompt(
+  program: string,
+  mealType: string | undefined,
+  ingredients: string[],
+  bp: z.infer<typeof BodyProfileSchema>,
+  recentTitles: string[],
+  retryHint: string,
+): string {
+  const profile = bp
+    ? `Profil corporel :
+- IMC : ${bp.imc} (${bp.imcCategory})
+- TDEE : ${bp.tdee} kcal/jour
+- Objectif poids : ${bp.poidsObjectifKg ? `${bp.poidsObjectifKg} kg` : "maintien"}
+- Activité : ${bp.activityLevel}
+- Sexe : ${bp.sexe}, Âge : ${bp.age} ans
+- Poids : ${bp.poidsKg} kg`
+    : `Profil corporel : non renseigné (utiliser valeurs standards 2000 kcal/jour).`;
+
+  const recent = recentTitles.length
+    ? `\nIMPORTANT : Ne génère PAS ces recettes qui ont déjà été proposées récemment :
+${recentTitles.slice(0, 6).join(", ")}
+Propose des recettes originales et variées.`
+    : "";
+
+  return `Programme nutritionnel : ${program}
+Type de repas : ${mealType ?? "dejeuner"}
+
+${profile}
+
+Ingrédients disponibles : ${ingredients.join(", ")}
+
+INSTRUCTIONS SPÉCIFIQUES pour ce profil :
+${programDirectives(program, bp)}
+${recent}
+${retryHint}
+
+Génère EXACTEMENT 3 recettes RADICALEMENT DIFFÉRENTES entre elles, adaptées à ${mealType ?? "dejeuner"} et au programme ${program}.
+Chaque recette a un ingrédient principal différent, une famille différente (pas deux salades, pas deux omelettes) et un mode de cuisson différent (cru / cuit / grillé / vapeur / four).
+
+Pour chaque ingrédient, indique "disponible: true" s'il fait partie de la liste de l'utilisateur (correspondance souple, accents/pluriels tolérés), sinon "disponible: false" (à acheter).
+
+Réponds UNIQUEMENT avec ce JSON exact (aucun markdown, aucun texte avant/après) :
+{
+  "recettes": [
+    {
+      "titre": "string",
+      "description": "string (max 100 chars)",
+      "temps": "string (ex: 25 min)",
+      "difficulte": "Facile|Moyen|Difficile",
+      "mealType": "${mealType ?? "dejeuner"}",
+      "program": "${program}",
+      "calories": number,
+      "proteines": number,
+      "glucides": number,
+      "lipides": number,
+      "fibres": number,
+      "indexGlycemique": "Bas|Moyen|Élevé",
+      "ingredients": [
+        { "nom": "string", "quantite": "string", "disponible": true }
+      ],
+      "etapes": ["string"],
+      "conseil_nutritionnel": "string",
+      "pourquoi_adapte": "string (1 courte phrase expliquant pourquoi ce plat est adapté au profil)"
+    }
+  ],
+  "resume_nutritionnel": {
+    "calories_cible": number,
+    "proteines_cible": number,
+    "adaptation_profil": "string"
+  }
+}`;
+}
+
+const SYSTEM_PROMPT = `Tu es un chef cuisinier et nutritionniste expert spécialisé dans la nutrition sportive et le rééquilibrage alimentaire. Tu génères des recettes STRICTEMENT personnalisées en français selon le programme nutritionnel, le profil corporel et le type de repas.
+
+RÈGLES ABSOLUES :
+1. Recettes RADICALEMENT différentes selon le programme :
+   - Prise de masse → surplus calorique, beaucoup de protéines ET glucides, portions généreuses, ingrédients denses.
+   - Sèche → protéines élevées, glucides bas, lipides modérés, faible densité calorique, beaucoup de légumes.
+   - Perte de poids → déficit calorique, fibres élevées, peu de graisses saturées, aliments rassasiants peu caloriques.
+   - Maintien → macros équilibrées 40/30/30 (glucides/protéines/lipides), varié.
+2. Recettes DIFFÉRENTES selon le type de repas :
+   - petit-dejeuner → JAMAIS de viande rouge, jamais de plats du soir, toujours des ingrédients matinaux.
+   - dejeuner → plat complet avec source de protéines + féculents + légumes.
+   - diner → JAMAIS de glucides lourds, privilégier légumes et protéines maigres.
+3. Les 3 recettes doivent être TOUTES DIFFÉRENTES entre elles : ingrédient principal différent, famille de plats différente, mode de cuisson différent.
+4. Calibrer les calories selon le TDEE fourni (petit-dejeuner ×0.25, dejeuner ×0.40, diner ×0.30). Sinon valeurs standards (2000 kcal/jour).
+5. Utiliser EN PRIORITÉ les ingrédients disponibles. Marquer disponible=false pour les ingrédients à acheter.
+
+Tu réponds UNIQUEMENT en JSON valide, sans markdown, sans texte avant ou après.`;
+
 export const generateRecipes = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
@@ -145,48 +314,74 @@ export const generateRecipes = createServerFn({ method: "POST" })
       lang: langField,
       mealType: MealEnum,
       bodyProfile: BodyProfileSchema,
+      recentTitles: z.array(z.string()).optional().default([]),
     }),
   )
   .handler(async ({ data }) => {
-    const lang = langName(data.lang);
-    const text = await callAI({
-      messages: [
-        {
-          role: "system",
-          content: `You are an expert nutritionist for the FridgeChef app. Only 4 programs exist: "Prise de masse" (bulking, max calories & protein), "Sèche" (cutting, reduce fat keep muscle), "Perte de poids" (healthy weight loss deficit), "Maintien" (weight maintenance, balanced eating). Always respond entirely in ${lang}. All recipe names, instructions, ingredient names, tips, and UI text in API responses must be in ${lang}. Reply ONLY with valid JSON, no markdown.`,
-        },
-        {
-          role: "user",
-          content: `Program: ${data.program}
-Available ingredients: ${data.ingredients.join(", ")}
+    const target = targetCalories(data.bodyProfile?.tdee, data.mealType);
 
-${mealInstructions(data.mealType)}
-${profileInstructions(data.mealType, data.bodyProfile)}
-
-Propose 4 varied, balanced recipes using these ingredients. Generate recipes typical of ${lang} cuisine preferences when relevant.
-Keep field names exactly as in this JSON schema (keys in French) but write the VALUES in ${lang}:
-{
-  "recettes": [
-    {
-      "titre": "string",
-      "description": "string (1 short sentence)",
-      "calories": number,
-      "proteines": number,
-      "glucides": number,
-      "lipides": number,
-      "temps": "string (e.g. 25 min)",
-      "difficulte": "string",
-      "ingredients": ["string"],
-      "etapes": ["string"]
+    async function runOnce(retryHint: string): Promise<RichRecipe[]> {
+      const text = await callAI({
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          {
+            role: "user",
+            content: buildUserPrompt(
+              data.program,
+              data.mealType,
+              data.ingredients,
+              data.bodyProfile,
+              data.recentTitles ?? [],
+              retryHint,
+            ),
+          },
+        ],
+      });
+      const parsed = extractJSON<{ recettes: unknown[] }>(text);
+      return (parsed.recettes ?? [])
+        .map((r) => {
+          try {
+            return RichRecipeSchema.parse(r);
+          } catch {
+            return null;
+          }
+        })
+        .filter((r): r is RichRecipe => r !== null);
     }
-  ]
-}`,
-        },
-      ],
-    });
-    const parsed = extractJSON<{ recettes: unknown[] }>(text);
-    const list = (parsed.recettes ?? []).map((r) => RecipeSchema.parse(r));
-    return { recettes: list };
+
+    let list = await runOnce("");
+    if (!validateDiversity(list, target)) {
+      const retryHint = `\nLa génération précédente n'était pas assez variée ou hors cible calorique.
+Vise précisément ~${target} kcal par recette (tolérance ±20 %). Force 3 ingrédients principaux différents et 3 modes de cuisson différents.`;
+      try {
+        const retry = await runOnce(retryHint);
+        if (retry.length >= 3) list = retry;
+      } catch {
+        // keep first attempt
+      }
+    }
+
+    const recettes = list.slice(0, 3).map((r) => ({
+      titre: r.titre,
+      description: r.description,
+      calories: r.calories,
+      proteines: r.proteines,
+      glucides: r.glucides,
+      lipides: r.lipides,
+      fibres: r.fibres,
+      indexGlycemique: r.indexGlycemique,
+      temps: r.temps,
+      difficulte: r.difficulte,
+      ingredients: r.ingredients.map((i) =>
+        i.quantite ? `${i.quantite} ${i.nom}` : i.nom,
+      ),
+      ingredientsDetail: r.ingredients,
+      etapes: r.etapes,
+      conseilNutritionnel: r.conseil_nutritionnel,
+      pourquoiAdapte: r.pourquoi_adapte,
+    }));
+
+    return { recettes };
   });
 
 export const extractIngredients = createServerFn({ method: "POST" })
