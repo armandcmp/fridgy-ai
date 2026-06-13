@@ -168,11 +168,26 @@ function Onboarding() {
         )}
 
         {step === "profile" && (
-          <BodyProfileScreen onDone={() => setStep("program")} />
+          <BodyProfileScreen
+            onDone={() => {
+              if (editMode) {
+                nav({ to: "/parametres" });
+              } else {
+                setStep("program");
+              }
+            }}
+          />
         )}
 
         {step === "program" && (
-          <ProgramScreen onDone={() => nav({ to: "/" })} />
+          <ProgramScreen
+            onDone={() => {
+              if (typeof window !== "undefined") {
+                localStorage.setItem(ONBOARDING_DONE_KEY, "true");
+              }
+              nav({ to: "/" });
+            }}
+          />
         )}
       </div>
     </div>
