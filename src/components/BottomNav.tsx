@@ -48,11 +48,15 @@ export function BottomNav() {
   };
 
   const pickMethod = (mode: "photo" | "voice" | "manual") => {
+    // Clear sheet state BEFORE navigating so nothing can reopen.
     setStep(null);
-    nav({ to: "/frigo", search: { mode } });
+    setTimeout(() => {
+      nav({ to: "/frigo", search: { mode } });
+    }, 50);
   };
 
-  const path = loc.pathname;
+  const closeSheets = () => setStep(null);
+
   const isActive = (to: string) =>
     to === "/" ? path === "/" : path.startsWith(to);
 
