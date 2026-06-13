@@ -57,6 +57,9 @@ export function BottomNav() {
 
   const closeSheets = () => setStep(null);
 
+  const path = loc.pathname;
+
+
   const isActive = (to: string) =>
     to === "/" ? path === "/" : path.startsWith(to);
 
