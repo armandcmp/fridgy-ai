@@ -106,7 +106,7 @@ export function BottomNav() {
       </nav>
 
       {/* STEP 1 — Quel repas ? */}
-      <BottomSheet open={step === "meal"} onClose={() => setStep(null)}>
+      <BottomSheet open={step === "meal"} onClose={closeSheets}>
         <div className="pb-2">
           <h3 className="mb-4 text-center text-[18px] font-bold">
             {t("sheet.mealLabel")}
