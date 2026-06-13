@@ -225,3 +225,20 @@ function RecipeDetail() {
     </div>
   );
 }
+
+function IGBadge({ ig }: { ig: "Bas" | "Moyen" | "Élevé" }) {
+  const map: Record<string, { bg: string; fg: string }> = {
+    Bas: { bg: "rgba(76,175,130,0.15)", fg: "#1F6B4A" },
+    Moyen: { bg: "rgba(245,158,11,0.15)", fg: "#92660A" },
+    "Élevé": { bg: "rgba(239,68,68,0.15)", fg: "#9B1C1C" },
+  };
+  const c = map[ig] ?? map.Moyen;
+  return (
+    <span
+      className="rounded-full px-2.5 py-1 font-semibold"
+      style={{ background: c.bg, color: c.fg }}
+    >
+      IG : {ig}
+    </span>
+  );
+}
