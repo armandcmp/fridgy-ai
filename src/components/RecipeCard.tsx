@@ -1,9 +1,26 @@
 import { Link } from "@tanstack/react-router";
 import { Clock, Flame } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { Recipe } from "@/lib/types";
 import { programColor } from "@/lib/storage";
+import { MEAL_META, type MealType } from "@/lib/meal";
 import { FavoriteHeart } from "./FavoriteHeart";
 import { RecipeImage } from "./RecipeImage";
+
+function MealBadge({ mealType }: { mealType?: MealType }) {
+  const { t } = useTranslation();
+  if (!mealType) return null;
+  const meta = MEAL_META[mealType];
+  return (
+    <span
+      className="inline-flex items-center gap-1 rounded-full bg-white/95 px-2 py-0.5 text-[10px] font-semibold shadow-sm"
+      style={{ color: meta.color }}
+    >
+      <span>{meta.emoji}</span>
+      <span>{t(meta.shortKey)}</span>
+    </span>
+  );
+}
 
 export function RecipeCard({ recipe, index = 0 }: { recipe: Recipe; index?: number }) {
   const pc = programColor(recipe.program);
@@ -15,7 +32,8 @@ export function RecipeCard({ recipe, index = 0 }: { recipe: Recipe; index?: numb
       style={{ animationDelay: `${index * 80}ms`, padding: 0 }}
     >
       <RecipeImage titre={recipe.titre} program={recipe.program} height={180} />
-      <div className="absolute right-3 top-3">
+      <div className="absolute right-3 top-3 flex items-center gap-2">
+        <MealBadge mealType={recipe.mealType} />
         <FavoriteHeart recipe={recipe} variant="light" />
       </div>
       <div className="p-4">
@@ -56,10 +74,13 @@ export function MiniRecipeCard({
     <Link
       to="/recette/$id"
       params={{ id: recipe.id }}
-      className="fc-card block shrink-0 overflow-hidden transition active:scale-[0.97]"
+      className="fc-card relative block shrink-0 overflow-hidden transition active:scale-[0.97]"
       style={{ padding: 0, width }}
     >
       <RecipeImage titre={recipe.titre} program={recipe.program} height={imageHeight} />
+      <div className="absolute right-2 top-2">
+        <MealBadge mealType={recipe.mealType} />
+      </div>
       <div className="p-3">
         <span
           className={`inline-block rounded-full px-2 py-0.5 text-[9px] font-semibold ${pc.bg} ${pc.text}`}

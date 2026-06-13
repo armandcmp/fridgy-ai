@@ -65,12 +65,30 @@ const RecipeSchema = z.object({
 
 const langField = z.string().optional();
 
+const MealEnum = z.enum(["petit-dejeuner", "dejeuner", "diner"]).optional();
+
+function mealInstructions(meal?: string): string {
+  switch (meal) {
+    case "petit-dejeuner":
+      return `Type de repas : petit-dejeuner.
+Génère UNIQUEMENT des recettes matinales (œufs, smoothies, porridge, pancakes, tartines, yaourts, fruits, granola...). Jamais de plats de résistance lourds.`;
+    case "diner":
+      return `Type de repas : diner.
+Génère UNIQUEMENT des repas légers et digestes (soupes, salades, poissons, légumes, omelettes, plats peu caloriques).`;
+    case "dejeuner":
+    default:
+      return `Type de repas : dejeuner.
+Génère UNIQUEMENT des repas complets et rassasiants (viandes, féculents, légumes, salades composées, plats chauds).`;
+  }
+}
+
 export const generateRecipes = createServerFn({ method: "POST" })
   .inputValidator(
     z.object({
       ingredients: z.array(z.string()).min(1),
       program: z.string(),
       lang: langField,
+      mealType: MealEnum,
     }),
   )
   .handler(async ({ data }) => {
@@ -85,6 +103,8 @@ export const generateRecipes = createServerFn({ method: "POST" })
           role: "user",
           content: `Program: ${data.program}
 Available ingredients: ${data.ingredients.join(", ")}
+
+${mealInstructions(data.mealType)}
 
 Propose 4 varied, balanced recipes using these ingredients. Generate recipes typical of ${lang} cuisine preferences when relevant.
 Keep field names exactly as in this JSON schema (keys in French) but write the VALUES in ${lang}:

@@ -41,6 +41,7 @@ export interface Recipe {
   ingredients: string[];
   etapes: string[];
   program: string;
+  mealType?: "petit-dejeuner" | "dejeuner" | "diner";
 }
 
 export interface MealEntry {
