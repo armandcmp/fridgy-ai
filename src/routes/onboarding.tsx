@@ -43,7 +43,7 @@ const LANGS: { code: Lang; flag: string; name: string; cta: string }[] = [
   { code: "zh", flag: "🇨🇳", name: "中文", cta: "继续 →" },
 ];
 
-type Step = "lang" | "auth" | "program";
+type Step = "lang" | "auth" | "profile" | "program";
 
 function Onboarding() {
   const nav = useNavigate();
@@ -53,15 +53,15 @@ function Onboarding() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    // trigger any legacy migration
     const sess = storage.getSessionUser();
     if (sess && sess.program) {
       nav({ to: "/" });
       return;
     }
     const stored = localStorage.getItem(LANG_KEY);
+    const hasProfile = !!getBodyProfile();
     if (sess && !sess.program) {
-      setStep("program");
+      setStep(hasProfile ? "program" : "profile");
     } else if (stored) {
       setStep("auth");
     } else {
