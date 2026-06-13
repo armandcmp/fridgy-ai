@@ -30,8 +30,8 @@ function Home() {
 
   useEffect(() => {
     setMounted(true);
-    const t = setTimeout(() => setSplash(false), 600);
-    return () => clearTimeout(t);
+    const splashTimer = setTimeout(() => setSplash(false), 600);
+    return () => clearTimeout(splashTimer);
   }, []);
   useEffect(() => {
     if (!mounted) return;
