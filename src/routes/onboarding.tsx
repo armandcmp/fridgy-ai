@@ -1,11 +1,26 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { storage } from "@/lib/storage";
 import { auth } from "@/lib/auth";
 import { setLanguage, type Lang, LANG_KEY } from "@/lib/i18n";
+import {
+  type ActivityLevel,
+  type Sexe,
+  ACTIVITY_MULTIPLIERS,
+  cmToFtIn,
+  computeBMR,
+  computeIMC,
+  computeTDEE,
+  ftInToCm,
+  getBodyProfile,
+  imcCategory,
+  kgToLbs,
+  lbsToKg,
+  setBodyProfile,
+} from "@/lib/bodyProfile";
 
 export const Route = createFileRoute("/onboarding")({
   component: Onboarding,
@@ -28,7 +43,7 @@ const LANGS: { code: Lang; flag: string; name: string; cta: string }[] = [
   { code: "zh", flag: "🇨🇳", name: "中文", cta: "继续 →" },
 ];
 
-type Step = "lang" | "auth" | "program";
+type Step = "lang" | "auth" | "profile" | "program";
 
 function Onboarding() {
   const nav = useNavigate();
@@ -38,15 +53,15 @@ function Onboarding() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    // trigger any legacy migration
     const sess = storage.getSessionUser();
     if (sess && sess.program) {
       nav({ to: "/" });
       return;
     }
     const stored = localStorage.getItem(LANG_KEY);
+    const hasProfile = !!getBodyProfile();
     if (sess && !sess.program) {
-      setStep("program");
+      setStep(hasProfile ? "program" : "profile");
     } else if (stored) {
       setStep("auth");
     } else {
@@ -111,15 +126,15 @@ function Onboarding() {
         )}
 
         {step === "auth" && (
-          <AuthScreen
-            onAuthed={() => setStep("program")}
-          />
+          <AuthScreen onAuthed={() => setStep("profile")} />
+        )}
+
+        {step === "profile" && (
+          <BodyProfileScreen onDone={() => setStep("program")} />
         )}
 
         {step === "program" && (
-          <ProgramScreen
-            onDone={() => nav({ to: "/" })}
-          />
+          <ProgramScreen onDone={() => nav({ to: "/" })} />
         )}
       </div>
     </div>
@@ -411,6 +426,473 @@ function PasswordField({
           {error}
         </p>
       )}
+    </div>
+  );
+}
+
+// ============================================================
+// Body Profile Screen
+// ============================================================
+
+const ACTIVITIES: { id: ActivityLevel; emoji: string; labelKey: string; subKey: string }[] = [
+  { id: "sedentaire", emoji: "🛋", labelKey: "body.actSed", subKey: "body.actSedSub" },
+  { id: "leger", emoji: "🚶", labelKey: "body.actLight", subKey: "body.actLightSub" },
+  { id: "modere", emoji: "🏃", labelKey: "body.actMod", subKey: "body.actModSub" },
+  { id: "tres_actif", emoji: "💪", labelKey: "body.actHigh", subKey: "body.actHighSub" },
+];
+
+function BodyProfileScreen({ onDone }: { onDone: () => void }) {
+  const { t } = useTranslation();
+  const existing = useMemo(() => getBodyProfile(), []);
+
+  const [age, setAge] = useState<string>(existing ? String(existing.age) : "");
+  const [sexe, setSexe] = useState<Sexe | null>(existing?.sexe ?? null);
+
+  const [heightUnit, setHeightUnit] = useState<"cm" | "ftin">("cm");
+  const [tailleCm, setTailleCm] = useState<number>(existing?.tailleCm ?? 170);
+
+  const [weightUnit, setWeightUnit] = useState<"kg" | "lbs">("kg");
+  const [poidsKg, setPoidsKg] = useState<number>(existing?.poidsKg ?? 70);
+  const [poidsObjectifKg, setPoidsObjectifKg] = useState<number>(
+    existing?.poidsObjectifKg ?? existing?.poidsKg ?? 70,
+  );
+
+  const [activity, setActivity] = useState<ActivityLevel | null>(
+    existing?.activityLevel ?? null,
+  );
+
+  const imc = computeIMC(poidsKg, tailleCm);
+  const cat = imcCategory(imc);
+
+  const ageNum = Number(age);
+  const ageValid = ageNum >= 10 && ageNum <= 100;
+  const valid = ageValid && !!sexe && !!activity && tailleCm > 0 && poidsKg > 0;
+
+  const bmr = useMemo(
+    () => (valid && sexe ? computeBMR(sexe, poidsKg, tailleCm, ageNum) : 0),
+    [valid, sexe, poidsKg, tailleCm, ageNum],
+  );
+  const tdee = useMemo(
+    () => (valid && activity ? computeTDEE(bmr, activity) : 0),
+    [valid, activity, bmr],
+  );
+
+  const save = () => {
+    if (!valid || !sexe || !activity) return;
+    const _bmr = computeBMR(sexe, poidsKg, tailleCm, ageNum);
+    const _tdee = computeTDEE(_bmr, activity);
+    setBodyProfile({
+      age: ageNum,
+      sexe,
+      tailleCm,
+      poidsKg,
+      poidsObjectifKg: poidsObjectifKg !== poidsKg ? poidsObjectifKg : null,
+      imc,
+      imcCategory: cat.key,
+      activityLevel: activity,
+      activityMultiplier: ACTIVITY_MULTIPLIERS[activity],
+      bmr: _bmr,
+      tdee: _tdee,
+      updatedAt: new Date().toISOString(),
+    });
+    onDone();
+  };
+
+  const skip = () => {
+    setBodyProfile(null);
+    onDone();
+  };
+
+  const ftin = cmToFtIn(tailleCm);
+  const poidsDisplay = weightUnit === "kg" ? poidsKg : kgToLbs(poidsKg);
+  const objDisplay = weightUnit === "kg" ? poidsObjectifKg : kgToLbs(poidsObjectifKg);
+  const wMin = weightUnit === "kg" ? 40 : 88;
+  const wMax = weightUnit === "kg" ? 200 : 440;
+
+  const setWeightFromUnit = (n: number) => {
+    setPoidsKg(weightUnit === "kg" ? n : lbsToKg(n));
+  };
+  const setObjFromUnit = (n: number) => {
+    setPoidsObjectifKg(weightUnit === "kg" ? n : lbsToKg(n));
+  };
+
+  return (
+    <div className="animate-fade-up">
+      {/* Progress */}
+      <div className="mb-5 flex items-center gap-2">
+        <div className="h-1.5 flex-1 rounded-full bg-secondary">
+          <div className="h-full rounded-full bg-primary" style={{ width: "66%" }} />
+        </div>
+        <span className="text-[11px] font-medium text-muted-foreground">
+          {t("body.stepOf", { current: 2, total: 3 })}
+        </span>
+      </div>
+
+      <div className="mb-5">
+        <h2 className="text-xl font-bold">{t("body.title")}</h2>
+        <p className="mt-1 text-sm text-muted-foreground">{t("body.subtitle")}</p>
+      </div>
+
+      {/* SECTION 1 — age + sexe */}
+      <div className="fc-card mb-3 p-4">
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
+              {t("body.age")}
+            </label>
+            <div className="relative">
+              <input
+                type="number"
+                min={10}
+                max={100}
+                value={age}
+                onChange={(e) => setAge(e.target.value.replace(/[^0-9]/g, "").slice(0, 3))}
+                placeholder="25"
+                className="w-full bg-background pr-12 pl-4 text-[15px] outline-none"
+                style={{ height: 48, borderRadius: 12, border: "1.5px solid #E0E0E0" }}
+              />
+              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+                {t("body.years")}
+              </span>
+            </div>
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
+              {t("body.sex")}
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              <SexBtn active={sexe === "homme"} onClick={() => setSexe("homme")}>
+                👨 {t("body.male")}
+              </SexBtn>
+              <SexBtn active={sexe === "femme"} onClick={() => setSexe("femme")}>
+                👩 {t("body.female")}
+              </SexBtn>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* SECTION 2 — taille */}
+      <div className="fc-card mb-3 p-4">
+        <div className="mb-2 flex items-center justify-between">
+          <label className="text-xs font-medium text-muted-foreground">{t("body.height")}</label>
+          <UnitToggle
+            left="cm"
+            right="ft/in"
+            value={heightUnit === "cm" ? "left" : "right"}
+            onChange={(v) => setHeightUnit(v === "left" ? "cm" : "ftin")}
+          />
+        </div>
+
+        {heightUnit === "cm" ? (
+          <>
+            <div className="flex items-center justify-between">
+              <span className="text-lg font-bold">{tailleCm} cm</span>
+            </div>
+            <input
+              type="range"
+              min={140}
+              max={220}
+              value={tailleCm}
+              onChange={(e) => setTailleCm(Number(e.target.value))}
+              className="mt-2 w-full accent-primary"
+            />
+          </>
+        ) : (
+          <div className="flex items-center gap-3">
+            <NumInput
+              value={ftin.ft}
+              min={4}
+              max={7}
+              onChange={(v) => setTailleCm(ftInToCm(v, ftin.inches))}
+              unit="ft"
+            />
+            <NumInput
+              value={ftin.inches}
+              min={0}
+              max={11}
+              onChange={(v) => setTailleCm(ftInToCm(ftin.ft, v))}
+              unit="in"
+            />
+            <span className="text-xs text-muted-foreground">
+              = {tailleCm} cm
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* SECTION 3 — poids actuel */}
+      <div className="fc-card mb-3 p-4">
+        <div className="mb-2 flex items-center justify-between">
+          <label className="text-xs font-medium text-muted-foreground">
+            {t("body.weight")}
+          </label>
+          <UnitToggle
+            left="kg"
+            right="lbs"
+            value={weightUnit === "kg" ? "left" : "right"}
+            onChange={(v) => setWeightUnit(v === "left" ? "kg" : "lbs")}
+          />
+        </div>
+        <span className="text-lg font-bold">
+          {poidsDisplay} {weightUnit}
+        </span>
+        <input
+          type="range"
+          min={wMin}
+          max={wMax}
+          value={poidsDisplay}
+          onChange={(e) => setWeightFromUnit(Number(e.target.value))}
+          className="mt-2 w-full accent-primary"
+        />
+      </div>
+
+      {/* SECTION 5 — IMC */}
+      <ImcCard imc={imc} cat={cat} t={t} />
+
+      {/* SECTION 4 — poids objectif */}
+      <div className="fc-card mb-3 p-4">
+        <div className="mb-2 flex items-center justify-between">
+          <label className="text-xs font-medium text-muted-foreground">
+            {t("body.weightGoal")}
+            <span
+              className="ml-2 rounded-full px-2 py-0.5 text-[10px] font-semibold"
+              style={{ background: "rgba(0,0,0,0.06)", color: "var(--muted-foreground)" }}
+            >
+              {t("body.optional")}
+            </span>
+          </label>
+          <span className="text-[11px] text-muted-foreground">{weightUnit}</span>
+        </div>
+        <span className="text-lg font-bold">
+          {objDisplay} {weightUnit}
+        </span>
+        <input
+          type="range"
+          min={wMin}
+          max={wMax}
+          value={objDisplay}
+          onChange={(e) => setObjFromUnit(Number(e.target.value))}
+          className="mt-2 w-full accent-primary"
+        />
+      </div>
+
+      {/* SECTION 6 — activité */}
+      <div className="fc-card mb-3 p-4">
+        <label className="mb-2 block text-xs font-medium text-muted-foreground">
+          {t("body.activity")}
+        </label>
+        <div className="grid grid-cols-2 gap-2">
+          {ACTIVITIES.map((a) => {
+            const active = activity === a.id;
+            return (
+              <button
+                key={a.id}
+                onClick={() => setActivity(a.id)}
+                className="flex flex-col items-start gap-0.5 px-3 py-2.5 text-left transition active:scale-[0.98]"
+                style={{
+                  borderRadius: 12,
+                  border: active ? "2px solid #4CAF82" : "1.5px solid #E0E0E0",
+                  background: active ? "#4CAF82" : "transparent",
+                  color: active ? "white" : "inherit",
+                }}
+              >
+                <span className="text-sm font-semibold">
+                  {a.emoji} {t(a.labelKey)}
+                </span>
+                <span
+                  className="text-[11px]"
+                  style={{ color: active ? "rgba(255,255,255,0.85)" : "var(--muted-foreground)" }}
+                >
+                  {t(a.subKey)}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* TDEE */}
+      {valid && (
+        <div
+          className="mb-5 rounded-xl p-3 text-sm"
+          style={{ background: "rgba(76,175,130,0.10)", borderLeft: "4px solid #4CAF82" }}
+        >
+          ⚡ {t("body.tdee", { kcal: tdee })}
+        </div>
+      )}
+
+      <button
+        onClick={save}
+        disabled={!valid}
+        className="w-full rounded-full bg-primary py-3 text-sm font-semibold text-primary-foreground disabled:opacity-40"
+      >
+        {t("common.continue")}
+      </button>
+      <button
+        onClick={skip}
+        className="mt-3 block w-full text-center text-xs text-muted-foreground"
+      >
+        {t("body.skip")}
+      </button>
+    </div>
+  );
+}
+
+function SexBtn({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className="text-sm font-semibold transition active:scale-[0.98]"
+      style={{
+        height: 48,
+        borderRadius: 12,
+        border: active ? "2px solid #4CAF82" : "1.5px solid #E0E0E0",
+        background: active ? "#4CAF82" : "transparent",
+        color: active ? "white" : "inherit",
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
+function UnitToggle({
+  left,
+  right,
+  value,
+  onChange,
+}: {
+  left: string;
+  right: string;
+  value: "left" | "right";
+  onChange: (v: "left" | "right") => void;
+}) {
+  return (
+    <div
+      className="flex items-center text-[11px] font-semibold"
+      style={{ background: "rgba(0,0,0,0.05)", borderRadius: 999, padding: 2 }}
+    >
+      {(["left", "right"] as const).map((side) => {
+        const active = value === side;
+        return (
+          <button
+            key={side}
+            onClick={() => onChange(side)}
+            style={{
+              padding: "4px 10px",
+              borderRadius: 999,
+              background: active ? "white" : "transparent",
+              color: active ? "#4CAF82" : "var(--muted-foreground)",
+              boxShadow: active ? "0 1px 4px rgba(0,0,0,0.08)" : undefined,
+            }}
+          >
+            {side === "left" ? left : right}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function NumInput({
+  value,
+  min,
+  max,
+  onChange,
+  unit,
+}: {
+  value: number;
+  min: number;
+  max: number;
+  onChange: (v: number) => void;
+  unit: string;
+}) {
+  return (
+    <div className="relative">
+      <input
+        type="number"
+        min={min}
+        max={max}
+        value={value}
+        onChange={(e) => {
+          const n = Math.max(min, Math.min(max, Number(e.target.value) || min));
+          onChange(n);
+        }}
+        className="w-20 bg-background pl-3 pr-8 text-[15px] outline-none"
+        style={{ height: 44, borderRadius: 10, border: "1.5px solid #E0E0E0" }}
+      />
+      <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+        {unit}
+      </span>
+    </div>
+  );
+}
+
+function ImcCard({
+  imc,
+  cat,
+  t,
+}: {
+  imc: number;
+  cat: { key: "maigreur" | "normal" | "surpoids" | "obesite"; color: string };
+  t: (k: string) => string;
+}) {
+  // position 0..100 for cursor on bar
+  const pct = Math.max(0, Math.min(100, ((imc - 15) / (35 - 15)) * 100));
+  const segs = [
+    { key: "maigreur", color: "#3B82F6" },
+    { key: "normal", color: "#4CAF82" },
+    { key: "surpoids", color: "#F59E0B" },
+    { key: "obesite", color: "#EF4444" },
+  ];
+  return (
+    <div className="fc-card mb-3 p-4">
+      <div className="flex items-end justify-between">
+        <div>
+          <div className="text-xs font-medium text-muted-foreground">{t("body.yourImc")}</div>
+          <div
+            className="text-[28px] font-bold leading-none"
+            style={{ color: cat.color }}
+          >
+            {imc || "—"}
+          </div>
+        </div>
+        <div
+          className="rounded-full px-3 py-1 text-xs font-semibold"
+          style={{ background: cat.color + "22", color: cat.color }}
+        >
+          {t(`body.imc.${cat.key}`)}
+        </div>
+      </div>
+      <div className="relative mt-3 h-2 overflow-hidden rounded-full">
+        <div className="absolute inset-0 flex">
+          {segs.map((s) => (
+            <div key={s.key} className="h-full flex-1" style={{ background: s.color }} />
+          ))}
+        </div>
+        <div
+          className="absolute top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow"
+          style={{ left: `${pct}%`, background: cat.color }}
+        />
+      </div>
+      <div className="mt-1 flex justify-between text-[10px] text-muted-foreground">
+        <span>{t("body.imc.maigreur")}</span>
+        <span>{t("body.imc.normal")}</span>
+        <span>{t("body.imc.surpoids")}</span>
+        <span>{t("body.imc.obesite")}</span>
+      </div>
+      <p className="mt-3 text-xs text-muted-foreground">
+        {t(`body.imc.msg.${cat.key}`)}
+      </p>
     </div>
   );
 }
