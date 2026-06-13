@@ -104,44 +104,25 @@ function Frigo() {
     }
   };
 
-  const toggleRecord = () => {
-    if (recording) {
-      try {
-        (recogRef.current as { stop?: () => void } | null)?.stop?.();
-      } catch {
-        /* */
-      }
-      setRecording(false);
-      return;
+  const handleVoiceTranscript = async (transcript: string) => {
+    setBusy(true);
+    try {
+      const { ingredients } = await extractTxt({
+        data: { text: transcript, lang: getLanguage() },
+      });
+      addMany(ingredients);
+      toast.success(t("frigo.added", { count: ingredients.length }));
+    } finally {
+      setBusy(false);
     }
-    if (!isSpeechSupported()) {
-      toast.error(t("frigo.voiceUnsupported"));
-      return;
-    }
-    setRecording(true);
-    recogRef.current = startVoiceRecognition(
-      async (transcript) => {
-        setRecording(false);
-        setBusy(true);
-        try {
-          const { ingredients } = await extractTxt({
-            data: { text: transcript, lang: getLanguage() },
-          });
-          addMany(ingredients);
-          toast.success(t("frigo.added", { count: ingredients.length }));
-          setMode("menu");
-        } catch (e) {
-          toast.error(e instanceof Error ? e.message : "Erreur");
-        } finally {
-          setBusy(false);
-        }
-      },
-      (err) => {
-        setRecording(false);
-        toast.error(t("frigo.micError", { err }));
-      },
-    );
   };
+
+  const handleVoiceFallback = (m: "photo" | "manual") => {
+    setVoiceOpen(false);
+    if (m === "photo") setTimeout(() => fileRef.current?.click(), 50);
+    else setMode("manual");
+  };
+
 
   const generate = async () => {
     if (!user || items.length === 0) return;
