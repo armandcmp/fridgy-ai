@@ -333,6 +333,13 @@ function Frigo() {
       )}
 
       <PaywallModal open={paywall} onClose={() => setPaywall(false)} reason={t("paywall.limitRecipes")} />
+
+      <VoiceOverlay
+        open={voiceOpen}
+        onClose={() => setVoiceOpen(false)}
+        onTranscript={handleVoiceTranscript}
+        onFallback={handleVoiceFallback}
+      />
     </div>
   );
 }
