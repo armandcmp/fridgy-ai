@@ -66,8 +66,12 @@ export function VoiceOverlay({ open, onClose, onTranscript, onFallback }: VoiceO
       return;
     }
     if (perm === "prompt") {
-      setPhase("ask_permission");
-      return;
+      // Auto-request mic; no extra confirmation step.
+      const ok = await requestMicAccess();
+      if (!ok) {
+        setPhase("denied");
+        return;
+      }
     }
     startListening();
   }
