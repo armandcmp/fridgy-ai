@@ -240,24 +240,17 @@ function Frigo() {
             </div>
           </button>
           <button
-            onClick={() => { setMode("voice"); toggleRecord(); }}
+            onClick={() => setVoiceOpen(true)}
             disabled={busy}
-            className={`fc-card flex items-center gap-4 p-4 text-left transition active:scale-[0.98] disabled:opacity-60 ${
-              recording ? "ring-2 ring-destructive" : ""
-            }`}
+            className="fc-card flex items-center gap-4 p-4 text-left transition active:scale-[0.98] disabled:opacity-60"
           >
-            <div className={`grid h-11 w-11 place-items-center rounded-xl ${
-              recording ? "bg-destructive/15 text-destructive" : "bg-violet-100 text-violet-700"
-            }`}>
+            <div className="grid h-11 w-11 place-items-center rounded-xl bg-violet-100 text-violet-700">
               <Mic size={20} />
             </div>
             <div className="flex-1">
               <div className="font-semibold">{t("frigo.voice")}</div>
-              <div className="text-xs text-muted-foreground">
-                {recording ? t("frigo.voiceListening") : t("frigo.voiceSub")}
-              </div>
+              <div className="text-xs text-muted-foreground">{t("frigo.voiceSub")}</div>
             </div>
-            {recording && <span className="h-3 w-3 rounded-full bg-destructive animate-pulse-rec" />}
           </button>
         </div>
       )}
