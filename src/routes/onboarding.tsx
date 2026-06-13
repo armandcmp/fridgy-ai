@@ -373,7 +373,7 @@ function ProgramScreen({ onDone }: { onDone: () => void }) {
                 {t(`program.${p.slug}Desc`)}
               </div>
             </div>
-            <span className="text-xs text-muted-foreground">{p.kcal} kcal</span>
+            
           </button>
         ))}
       </div>
