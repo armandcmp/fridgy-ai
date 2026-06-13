@@ -28,6 +28,12 @@ export interface CurrentUser {
   avatarColor?: string;
 }
 
+export interface IngredientItem {
+  nom: string;
+  quantite: string;
+  disponible: boolean;
+}
+
 export interface Recipe {
   id: string;
   titre: string;
@@ -36,12 +42,17 @@ export interface Recipe {
   proteines: number;
   glucides: number;
   lipides: number;
+  fibres?: number;
+  indexGlycemique?: "Bas" | "Moyen" | "Élevé";
   temps: string;
   difficulte: string;
   ingredients: string[];
+  ingredientsDetail?: IngredientItem[];
   etapes: string[];
   program: string;
   mealType?: "petit-dejeuner" | "dejeuner" | "diner";
+  conseilNutritionnel?: string;
+  pourquoiAdapte?: string;
 }
 
 export interface MealEntry {

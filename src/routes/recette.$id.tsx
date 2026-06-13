@@ -125,18 +125,75 @@ function RecipeDetail() {
         <h2 className="mb-3 text-sm font-semibold">{t("recipe.macros")}</h2>
         <div className="fc-card p-4">
           <MacroBar p={recipe.proteines} g={recipe.glucides} l={recipe.lipides} />
+          <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px]">
+            {typeof recipe.fibres === "number" && (
+              <span
+                className="rounded-full px-2.5 py-1 font-semibold"
+                style={{ background: "rgba(76,175,130,0.12)", color: "#1F6B4A" }}
+              >
+                🌿 Fibres : {recipe.fibres} g
+              </span>
+            )}
+            {recipe.indexGlycemique && (
+              <IGBadge ig={recipe.indexGlycemique} />
+            )}
+          </div>
         </div>
       </section>
+
+      {recipe.conseilNutritionnel && (
+        <section className="px-5 pt-6">
+          <div
+            className="rounded-2xl p-4"
+            style={{
+              background: "#FFF8E1",
+              border: "1px solid #FCE7A2",
+            }}
+          >
+            <h3 className="text-sm font-semibold" style={{ color: "#92660A" }}>
+              🎯 Adapté à votre profil
+            </h3>
+            <p className="mt-1.5 text-sm" style={{ color: "#5A4408" }}>
+              {recipe.conseilNutritionnel}
+            </p>
+          </div>
+        </section>
+      )}
 
       <section className="px-5 pt-6">
         <h2 className="mb-3 text-sm font-semibold">{t("recipe.ingredients")}</h2>
         <div className="fc-card divide-y divide-border p-1">
-          {recipe.ingredients.map((ing, i) => (
-            <div key={i} className="flex items-center gap-3 px-3 py-2.5 text-sm">
-              <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-              {ing}
-            </div>
-          ))}
+          {recipe.ingredientsDetail && recipe.ingredientsDetail.length > 0
+            ? recipe.ingredientsDetail.map((ing, i) => (
+                <div key={i} className="flex items-center gap-3 px-3 py-2.5 text-sm">
+                  <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  <span className="flex-1">
+                    {ing.quantite ? `${ing.quantite} ` : ""}
+                    {ing.nom}
+                  </span>
+                  {ing.disponible ? (
+                    <span
+                      className="rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                      style={{ background: "rgba(76,175,130,0.15)", color: "#1F6B4A" }}
+                    >
+                      ✓ Dans votre frigo
+                    </span>
+                  ) : (
+                    <span
+                      className="rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                      style={{ background: "rgba(245,158,11,0.15)", color: "#92660A" }}
+                    >
+                      🛒 À acheter
+                    </span>
+                  )}
+                </div>
+              ))
+            : recipe.ingredients.map((ing, i) => (
+                <div key={i} className="flex items-center gap-3 px-3 py-2.5 text-sm">
+                  <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  {ing}
+                </div>
+              ))}
         </div>
       </section>
 
@@ -166,5 +223,22 @@ function RecipeDetail() {
         </button>
       </div>
     </div>
+  );
+}
+
+function IGBadge({ ig }: { ig: "Bas" | "Moyen" | "Élevé" }) {
+  const map: Record<string, { bg: string; fg: string }> = {
+    Bas: { bg: "rgba(76,175,130,0.15)", fg: "#1F6B4A" },
+    Moyen: { bg: "rgba(245,158,11,0.15)", fg: "#92660A" },
+    "Élevé": { bg: "rgba(239,68,68,0.15)", fg: "#9B1C1C" },
+  };
+  const c = map[ig] ?? map.Moyen;
+  return (
+    <span
+      className="rounded-full px-2.5 py-1 font-semibold"
+      style={{ background: c.bg, color: c.fg }}
+    >
+      IG : {ig}
+    </span>
   );
 }

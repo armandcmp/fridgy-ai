@@ -168,8 +168,19 @@ function Frigo() {
             tdee: bp.tdee,
           }
         : undefined;
+      const recentTitles = storage
+        .getAllRecipes()
+        .slice(0, 6)
+        .map((r) => r.titre);
       const { recettes } = await genRecipes({
-        data: { ingredients: items, program: user.program, lang: getLanguage(), mealType, bodyProfile },
+        data: {
+          ingredients: items,
+          program: user.program,
+          lang: getLanguage(),
+          mealType,
+          bodyProfile,
+          recentTitles,
+        },
       });
       const withIds = recettes.map((r, i) => ({
         ...r,
