@@ -46,6 +46,18 @@ export function RecipeCard({ recipe, index = 0 }: { recipe: Recipe; index?: numb
         <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
           {recipe.description}
         </p>
+        {recipe.pourquoiAdapte && (
+          <p
+            className="mt-2 rounded-md px-2.5 py-1.5 text-[12px] italic"
+            style={{
+              background: "#F0FBF5",
+              borderLeft: "3px solid #4CAF82",
+              color: "#1F6B4A",
+            }}
+          >
+            ✓ {recipe.pourquoiAdapte}
+          </p>
+        )}
         <div className="mt-3 flex items-center gap-3 text-xs text-muted-foreground">
           <span className="inline-flex items-center gap-1">
             <Flame size={13} /> {recipe.calories} kcal
