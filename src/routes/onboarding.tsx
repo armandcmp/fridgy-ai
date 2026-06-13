@@ -1,11 +1,26 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { storage } from "@/lib/storage";
 import { auth } from "@/lib/auth";
 import { setLanguage, type Lang, LANG_KEY } from "@/lib/i18n";
+import {
+  type ActivityLevel,
+  type Sexe,
+  ACTIVITY_MULTIPLIERS,
+  cmToFtIn,
+  computeBMR,
+  computeIMC,
+  computeTDEE,
+  ftInToCm,
+  getBodyProfile,
+  imcCategory,
+  kgToLbs,
+  lbsToKg,
+  setBodyProfile,
+} from "@/lib/bodyProfile";
 
 export const Route = createFileRoute("/onboarding")({
   component: Onboarding,
