@@ -64,8 +64,14 @@ export function BottomNav() {
   return (
     <>
       <nav
-        className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card"
-        style={{ paddingBottom: "env(safe-area-inset-bottom)", overflow: "visible" }}
+        className="fixed bottom-0 left-0 right-0 z-50 bg-card"
+        style={{
+          paddingBottom: "env(safe-area-inset-bottom)",
+          overflow: "visible",
+          boxShadow: "0 -2px 12px rgba(0,0,0,0.04)",
+          borderTopLeftRadius: 20,
+          borderTopRightRadius: 20,
+        }}
       >
         <ul className="relative mx-auto flex h-16 max-w-md items-stretch justify-between px-2">
           <Tab tab={tabs[0]} active={isActive(tabs[0].to)} />
@@ -78,16 +84,16 @@ export function BottomNav() {
                 aria-label={t("nav.add")}
                 className="absolute left-1/2 grid place-items-center text-white transition active:scale-95"
                 style={{
-                  top: -16,
+                  top: -18,
                   transform: "translateX(-50%)",
-                  width: 56,
-                  height: 56,
-                  borderRadius: 28,
-                  background: "#4CAF82",
-                  boxShadow: "0 4px 16px rgba(76,175,130,0.45)",
+                  width: 58,
+                  height: 58,
+                  borderRadius: 29,
+                  background: "var(--accent-coral)",
+                  boxShadow: "0 6px 16px rgba(255,107,91,0.45)",
                 }}
               >
-                <Plus size={24} strokeWidth={2.6} />
+                <Plus size={26} strokeWidth={2.8} />
               </button>
             </div>
           </li>
@@ -96,6 +102,7 @@ export function BottomNav() {
           <Tab tab={tabs[3]} active={isActive(tabs[3].to)} />
         </ul>
       </nav>
+
 
       {/* STEP 1 — Quel repas ? */}
       <BottomSheet open={step === "meal"} onClose={closeSheets}>
