@@ -73,10 +73,7 @@ function Home() {
     }
   }, [mounted, sess, nav]);
 
-  const todayMeal = useMemo(() => {
-    const k = new Date().toDateString();
-    return history.find((h) => new Date(h.date).toDateString() === k) ?? null;
-  }, [history]);
+  // Today meal pill removed per user request
 
   if (!mounted || splash || !sess || !user) {
     return (
