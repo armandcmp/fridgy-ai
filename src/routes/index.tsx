@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Crown, ChevronRight, Camera, Sparkles, Clock, Flame, Heart, Plus } from "lucide-react";
+import { Crown, ChevronRight, Sparkles, Clock, Flame, Heart, Plus, ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { storage, programColor, programEmoji } from "@/lib/storage";
 import { useLocalReactive } from "@/lib/hooks";
