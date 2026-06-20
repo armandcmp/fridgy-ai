@@ -351,5 +351,17 @@
   "recettes.searchPh": "Rechercher une recette...",
   "recettes.fAll": "Toutes",
   "recettes.fFav": "Favoris",
-  "recettes.noMatch": "Aucune recette ne correspond"
+  "recettes.noMatch": "Aucune recette ne correspond",
+  "home.subtitle": "Prêt à cuisiner quelque chose d'incroyable ?",
+  "home.heroTitle": "🥬 Que cuisine-t-on aujourd'hui ?",
+  "home.heroSub": "Scanne ton frigo et découvre instantanément des recettes adaptées à tes ingrédients.",
+  "home.heroCta": "📸 Scanner mon frigo",
+  "home.aiTitle": "Suggestion IA",
+  "home.aiBadge": "Powered by AI",
+  "home.aiBody": "Avec les ingrédients de ton frigo, on a trouvé plusieurs recettes adaptées à tes objectifs.",
+  "home.recommended": "Recommandé pour toi",
+  "home.aiRecommended": "Recommandé IA",
+  "home.emptyRecipesTitle": "Aucune recette pour l'instant",
+  "home.emptyRecipesSub": "Scanne ton frigo pour générer tes premières recettes IA.",
+  "home.statsTitle": "Cette semaine"
 }

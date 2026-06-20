@@ -351,5 +351,17 @@
   "recettes.searchPh": "Search for a recipe...",
   "recettes.fAll": "All",
   "recettes.fFav": "Favorites",
-  "recettes.noMatch": "No recipes match"
+  "recettes.noMatch": "No recipes match",
+  "home.subtitle": "Ready to cook something amazing today?",
+  "home.heroTitle": "🥬 What's cooking today?",
+  "home.heroSub": "Scan your fridge and instantly discover recipes tailored to your ingredients.",
+  "home.heroCta": "📸 Scan my fridge",
+  "home.aiTitle": "AI Suggestion",
+  "home.aiBadge": "Powered by AI",
+  "home.aiBody": "Based on what's in your fridge, we found several recipes that match your goals.",
+  "home.recommended": "Recommended for you",
+  "home.aiRecommended": "AI Recommended",
+  "home.emptyRecipesTitle": "No recipes yet",
+  "home.emptyRecipesSub": "Scan your fridge to generate your first AI recipes.",
+  "home.statsTitle": "This week"
 }
