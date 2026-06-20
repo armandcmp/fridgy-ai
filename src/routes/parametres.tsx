@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { ChevronRight, Crown, Copy, Share2, LogOut } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ChevronRight, Crown, Copy, Share2, LogOut, Camera, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { storage } from "@/lib/storage";
@@ -15,6 +15,7 @@ import { Avatar } from "@/components/Avatar";
 export const Route = createFileRoute("/parametres")({
  component: Settings,
 });
+
 
 const PROGRAMS = ["bulk", "cut", "loss", "maintain"] as const;
 const COLORS = ["#4CAF82", "#F59E0B", "#EF4444", "#3B82F6", "#A855F7", "#EC4899"];
