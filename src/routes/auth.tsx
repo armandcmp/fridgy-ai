@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
@@ -17,6 +18,9 @@ function AuthScreen() {
   const [prenom, setPrenom] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
 
   // Already signed in? Skip the screen.
@@ -39,6 +43,9 @@ function AuthScreen() {
     setLoading(true);
     try {
       if (mode === "signup") {
+        if (password !== confirmPassword) {
+          throw new Error("Les mots de passe ne correspondent pas");
+        }
         const { error } = await supabase.auth.signUp({
           email: email.trim(),
           password,
