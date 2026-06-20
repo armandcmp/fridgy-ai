@@ -73,7 +73,7 @@ export class VoiceRecognitionManager {
     this.recognition = r;
     this.transcript = "";
     this.stoppedByUser = false;
-    r.lang = "fr-FR";
+    r.lang = BCP47[getLanguage()] || "en-US";
     r.continuous = true;
     r.interimResults = true;
     r.maxAlternatives = 3;
