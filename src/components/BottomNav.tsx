@@ -6,9 +6,6 @@ import {
   Calendar,
   Settings,
   Plus,
-  Camera,
-  Mic,
-  Pencil,
 } from "lucide-react";
 
 import { useTranslation } from "react-i18next";
