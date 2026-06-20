@@ -187,8 +187,9 @@ function Home() {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <h3 className="text-[15px] font-bold" style={{ color: "#1F2937" }}>
-                  🤖 {t("home.aiTitle")}
+                  {t("home.aiTitle")}
                 </h3>
+
                 <span
                   className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wide"
                   style={{
