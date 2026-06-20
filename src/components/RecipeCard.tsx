@@ -48,16 +48,13 @@ export function RecipeCard({ recipe, index = 0 }: { recipe: Recipe; index?: numb
       <div className="p-4 pt-5">
         <span
           className={`inline-block rounded-full px-2.5 py-1 text-[10px] font-semibold ${pc.bg} ${pc.text}`}
-          style={{ fontFamily: "Fredoka, system-ui, sans-serif" }}
         >
           {recipe.program}
         </span>
-        <h3
-          className="mt-2 text-[17px] font-bold leading-tight text-foreground"
-          style={{ fontFamily: "Fredoka, system-ui, sans-serif" }}
-        >
+        <h3 className="display-title mt-2 text-[20px]">
           {recipe.titre}
         </h3>
+
         <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
           {recipe.description}
         </p>
