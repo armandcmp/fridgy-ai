@@ -68,7 +68,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "FridgeChef génère des recettes équilibrées à partir des ingrédients de votre frigo.",
       },
-      { name: "theme-color", content: "#4CAF82" },
+      { name: "theme-color", content: "#2D8B57" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
