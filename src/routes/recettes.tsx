@@ -106,7 +106,6 @@ function RecettesScreen() {
 
       {merged.length === 0 ? (
         <div className="fc-card p-8 text-center">
-          <div className="text-5xl">🍽</div>
           <p className="mt-3 text-sm text-muted-foreground">{t("recettes.emptyHint")}</p>
           <Link
             to="/frigo"
