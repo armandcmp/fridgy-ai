@@ -624,14 +624,16 @@ function Settings() {
  </div>
  </div>
  <button
- onClick={() => {
+ onClick={async () => {
  if (
  confirm(
  `${t("auth.logoutConfirm")}\n\n${t("auth.logoutHint")}`,
  )
  ) {
+ const { supabase } = await import("@/integrations/supabase/client");
+ await supabase.auth.signOut();
  auth.clearSession();
- nav({ to: "/onboarding" });
+ nav({ to: "/auth" });
  }
  }}
  className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-destructive/40 py-3 text-sm font-semibold text-destructive"
