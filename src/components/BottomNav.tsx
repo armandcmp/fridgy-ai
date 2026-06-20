@@ -6,9 +6,6 @@ import {
   Calendar,
   Settings,
   Plus,
-  Camera,
-  Mic,
-  Pencil,
 } from "lucide-react";
 
 import { useTranslation } from "react-i18next";
@@ -44,14 +41,9 @@ export function BottomNav() {
 
   const pickMeal = (m: MealType) => {
     setCurrentMeal(m);
-    setStep("method");
-  };
-
-  const pickMethod = (mode: "photo" | "voice" | "manual") => {
-    // Clear sheet state BEFORE navigating so nothing can reopen.
     setStep(null);
     setTimeout(() => {
-      nav({ to: "/frigo", search: { mode } });
+      nav({ to: "/frigo" });
     }, 50);
   };
 
@@ -145,42 +137,6 @@ export function BottomNav() {
           </div>
         </div>
       </BottomSheet>
-
-      {/* STEP 2 — Comment saisir ? */}
-      <BottomSheet open={step === "method"} onClose={closeSheets}>
-        <div className="pb-2">
-          <h3 className="mb-4 text-center text-[18px] font-bold">
-            {t("sheet.methodLabel")}
-          </h3>
-
-          <div className="space-y-3">
-            <MethodCard
-              icon={<Camera size={22} />}
-              iconBg="rgba(76,175,130,0.15)"
-              iconColor="#4CAF82"
-              title={t("sheet.photoTitle")}
-              sub={t("sheet.photoSub")}
-              onClick={() => pickMethod("photo")}
-            />
-            <MethodCard
-              icon={<Mic size={22} />}
-              iconBg="rgba(59,130,246,0.15)"
-              iconColor="#3B82F6"
-              title={t("sheet.voiceTitle")}
-              sub={t("sheet.voiceSub")}
-              onClick={() => pickMethod("voice")}
-            />
-            <MethodCard
-              icon={<Pencil size={20} />}
-              iconBg="rgba(139,92,246,0.15)"
-              iconColor="#8B5CF6"
-              title={t("sheet.manualTitle")}
-              sub={t("sheet.manualSub")}
-              onClick={() => pickMethod("manual")}
-            />
-          </div>
-        </div>
-      </BottomSheet>
     </>
   );
 }
@@ -221,51 +177,3 @@ function Tab({
   );
 }
 
-function MethodCard({
-  icon,
-  iconBg,
-  iconColor,
-  title,
-  sub,
-  onClick,
-}: {
-  icon: React.ReactNode;
-  iconBg: string;
-  iconColor: string;
-  title: string;
-  sub: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className="flex w-full items-center text-left transition active:scale-[0.98]"
-      style={{
-        height: 72,
-        gap: 14,
-        padding: "0 14px",
-        borderRadius: 14,
-        background: "#FFFFFF",
-        border: "1px solid #F0F0EE",
-      }}
-    >
-      <span
-        className="grid place-items-center"
-        style={{
-          width: 44,
-          height: 44,
-          borderRadius: 22,
-          background: iconBg,
-          color: iconColor,
-          flexShrink: 0,
-        }}
-      >
-        {icon}
-      </span>
-      <span className="flex-1 min-w-0">
-        <span className="block text-[15px] font-bold">{title}</span>
-        <span className="block text-xs text-muted-foreground truncate">{sub}</span>
-      </span>
-    </button>
-  );
-}
