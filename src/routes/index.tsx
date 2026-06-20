@@ -223,37 +223,7 @@ function Home() {
 
 
 
-        {/* TODAY (compact pill if logged) */}
-        {todayMeal && (
-          <Link
-            to="/historique"
-            className="mb-5 flex items-center gap-3 animate-fade-up"
-            style={{
-              background: "#fff",
-              borderRadius: 18,
-              padding: "12px 14px",
-              boxShadow: "var(--shadow-card)",
-            }}
-          >
-            <div
-              className="grid h-10 w-10 place-items-center rounded-2xl"
-              style={{ background: "rgba(45,139,87,0.12)" }}
-              aria-hidden
-            >
-              <span style={{ width: 16, height: 16, borderRadius: 8, background: "var(--primary)", display: "block" }} />
-            </div>
-
-            <div className="flex-1 min-w-0">
-              <p className="truncate text-[13.5px] font-semibold" style={{ color: "#1F2937" }}>
-                {todayMeal.recette.titre}
-              </p>
-              <p className="text-[11px]" style={{ color: "#6B7280" }}>
-                {todayMeal.recette.calories} kcal · {Math.round(todayMeal.recette.proteines)}g {t("recipe.protein") || "P"}
-              </p>
-            </div>
-            <ChevronRight size={16} style={{ color: "#9CA3AF" }} />
-          </Link>
-        )}
+        {/* Today meal pill intentionally removed */}
 
         {/* RECOMMENDED */}
         <SectionHeader
