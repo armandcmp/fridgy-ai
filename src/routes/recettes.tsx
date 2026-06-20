@@ -95,12 +95,9 @@ function RecettesScreen() {
             <button
               key={f.id}
               onClick={() => setFilter(f.id)}
-              className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold transition ${
-                active
-                  ? "bg-primary text-primary-foreground"
-                  : "border border-border bg-card text-foreground"
-              }`}
+              className={`pill ${active ? "pill-active" : ""}`}
             >
+
               {f.label}
             </button>
           );
