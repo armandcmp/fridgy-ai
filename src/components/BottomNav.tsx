@@ -89,8 +89,8 @@ export function BottomNav() {
                   width: 58,
                   height: 58,
                   borderRadius: 29,
-                  background: "#0F1B17",
-                  boxShadow: "0 6px 16px rgba(15,27,23,0.30)",
+                  background: "var(--primary)",
+                  boxShadow: "0 8px 18px rgba(45,212,168,0.45)",
                 }}
               >
                 <Plus size={26} strokeWidth={2.8} />
