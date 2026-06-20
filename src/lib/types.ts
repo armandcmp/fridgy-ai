@@ -5,6 +5,7 @@ export interface User {
   program: Program;
   dailyKcal: number;
   avatarColor?: string;
+  avatarPhoto?: string;
 }
 
 export interface Account {
@@ -26,6 +27,7 @@ export interface CurrentUser {
   dailyKcal: number | null;
   isPremium: boolean;
   avatarColor?: string;
+  avatarPhoto?: string;
 }
 
 export interface IngredientItem {
