@@ -487,34 +487,99 @@ function Settings() {
  )}
  </Section>
 
- {/* SUBSCRIPTION */}
- <Section title={t("settings.subscription")}>
- <Row
- label={
- <span className="inline-flex items-center gap-1">
- {premium ? (
- <>
- <Crown size={14} className="text-amber-500" /> {t("settings.planActive")}
- </>
- ) : (
- t("settings.planFree")
- )}
- </span>
- }
- >
- {!premium ? (
- <button
- onClick={() => setPaywall(true)}
- className="rounded-full px-3 py-1.5 text-xs font-bold text-white"
- style={{ background: "linear-gradient(135deg, #F59E0B, #D97706)" }}
- >
- {t("settings.upgrade")}
- </button>
- ) : (
- <span className="text-sm font-semibold text-amber-500"></span>
- )}
- </Row>
- </Section>
+        {/* SUBSCRIPTION */}
+        <Section title={t("settings.subscription")}>
+          {premium ? (
+            <div
+              className="rounded-2xl p-[1.5px]"
+              style={{
+                background: "linear-gradient(135deg,#FCD34D,#D97706)",
+              }}
+            >
+              <div
+                className="flex items-center gap-3 rounded-[14px] px-4 py-3.5"
+                style={{ background: "#FFFDF6" }}
+              >
+                <div
+                  className="grid h-11 w-11 place-items-center rounded-2xl text-white"
+                  style={{ background: "linear-gradient(135deg,#F59E0B,#D97706)" }}
+                >
+                  <Crown size={20} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[14px] font-extrabold" style={{ color: "#7C2D12" }}>
+                    {t("settings.planActive")}
+                  </p>
+                  <p className="text-[11.5px] font-medium" style={{ color: "#92704A" }}>
+                    Toutes les fonctionnalités débloquées
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <button
+              onClick={() => setPaywall(true)}
+              className="block w-full overflow-hidden rounded-2xl p-[1.5px] text-left transition active:scale-[0.99]"
+              style={{
+                background: "linear-gradient(135deg,#FCD34D 0%,#F59E0B 50%,#D97706 100%)",
+                boxShadow: "0 12px 30px -14px rgba(217,119,6,0.55)",
+              }}
+            >
+              <div
+                className="rounded-[14px] px-4 py-4"
+                style={{
+                  background:
+                    "linear-gradient(135deg,#FFFDF6 0%,#FFF1D6 100%)",
+                }}
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className="grid h-12 w-12 place-items-center rounded-2xl text-white"
+                    style={{ background: "linear-gradient(135deg,#F59E0B,#D97706)" }}
+                  >
+                    <Crown size={22} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="text-[15px] font-extrabold tracking-tight" style={{ color: "#7C2D12" }}>
+                        Passer à Fridgy Pro
+                      </p>
+                      <span
+                        className="rounded-full px-1.5 py-0.5 text-[9px] font-extrabold text-white"
+                        style={{ background: "linear-gradient(135deg,#F59E0B,#B45309)" }}
+                      >
+                        −33%
+                      </span>
+                    </div>
+                    <p className="text-[11.5px] font-medium" style={{ color: "#92704A" }}>
+                      Vous êtes en {t("settings.planFree").toLowerCase()}
+                    </p>
+                  </div>
+                </div>
+                <ul className="mt-3 grid grid-cols-1 gap-1.5 text-[12.5px]" style={{ color: "#5C3A14" }}>
+                  <li className="flex items-center gap-2">
+                    <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: "#D97706" }} />
+                    Recettes illimitées chaque jour
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: "#D97706" }} />
+                    Planning de la semaine complet
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: "#D97706" }} />
+                    Historique sans limite & sans pub
+                  </li>
+                </ul>
+                <div
+                  className="mt-3 grid place-items-center rounded-full py-2.5 text-[13px] font-extrabold text-white"
+                  style={{ background: "linear-gradient(135deg,#F59E0B,#D97706)" }}
+                >
+                  {t("settings.upgrade")} →
+                </div>
+              </div>
+            </button>
+          )}
+        </Section>
 
  {/* MY TRACKING */}
  <Section title={t("settings.tracking")}>
