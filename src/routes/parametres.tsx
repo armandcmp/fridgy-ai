@@ -578,7 +578,7 @@ function Settings() {
  return (
  <div className="mt-6 px-3">
  <div className="mb-3 flex items-center gap-3">
- <Avatar name={sess.prenom} id={sess.id} color={sess.avatarColor} size={40} />
+ <Avatar name={sess.prenom} id={sess.id} color={sess.avatarColor} photo={sess.avatarPhoto || undefined} size={40} />
  <div className="min-w-0 flex-1">
  <p className="truncate text-sm font-semibold">{sess.prenom}</p>
  {sess.email && (
