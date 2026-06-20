@@ -330,17 +330,6 @@ function BigRecipeCard({
     >
       <div className="relative">
         <RecipeImage titre={recipe.titre} program={recipe.program} height={140} />
-        <div className="absolute left-2.5 top-2.5">
-          <span
-            className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[9.5px] font-bold uppercase tracking-wide backdrop-blur-md"
-            style={{
-              background: "rgba(255,255,255,0.92)",
-              color: "#047857",
-            }}
-          >
-            <Sparkles size={9} strokeWidth={2.6} /> {aiLabel}
-          </span>
-        </div>
       </div>
       <div className="p-3.5">
         <h3
