@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Crown, ChevronRight, Clock, Flame, Heart, Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { storage } from "@/lib/storage";
@@ -22,7 +22,7 @@ function Home() {
   const [splash, setSplash] = useState(true);
   const sess = useLocalReactive(() => storage.getSessionUser());
   const user = useLocalReactive(() => storage.getUser());
-  const history = useLocalReactive(() => storage.getHistory());
+  // history not used on home anymore
   const favorites = useLocalReactive(() => storage.getFavorites());
   const allRecipes = useLocalReactive(() => storage.getAllRecipes());
   const usage = useUsage();
