@@ -1,8 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Crown, ChevronRight, Camera, Sparkles, Clock, Flame, Heart, Plus } from "lucide-react";
+import { Crown, ChevronRight, Sparkles, Clock, Flame, Heart, Plus, ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { storage, programColor, programEmoji } from "@/lib/storage";
+import { storage } from "@/lib/storage";
 import { useLocalReactive } from "@/lib/hooks";
 import { useUsage, usePremium, LIMITS } from "@/lib/freemium";
 import { RecipeImage } from "@/components/RecipeImage";
@@ -92,130 +92,77 @@ function Home() {
     );
   }
 
-  const pc = programColor(user.program);
+  void user;
   const remaining = Math.max(0, LIMITS.recipes - usage.recipesGenerated);
   const recommended = allRecipes.slice(0, 6);
 
   return (
-    <div style={{ background: "#F8FAF8" }} className="min-h-screen pb-2">
-      <div className="px-5 pt-8">
-        {/* GREETING */}
-        <header className="mb-5 flex items-center gap-3 animate-fade-up">
-          <div className="relative">
-            <Avatar name={sess.prenom} id={sess.id} color={sess.avatarColor} size={44} />
-          </div>
-
-          <div className="flex-1 min-w-0">
-            <h1 className="inline-flex items-center gap-1.5 text-[20px] font-bold leading-tight" style={{ color: "#1F2937" }}>
-              {t("home.greeting", { name: sess.prenom })}
-              {premium && (
-                <span
-                  className="inline-grid h-5 w-5 place-items-center rounded-full text-white"
-                  style={{ background: "linear-gradient(135deg, #F59E0B, #D97706)" }}
-                  aria-label="Pro"
-                >
-                  <Crown size={11} />
-                </span>
-              )}
-            </h1>
-            <p className="mt-0.5 text-[13px]" style={{ color: "#6B7280" }}>
-              {t("home.subtitle")}
-            </p>
+    <div style={{ background: "#FFFFFF" }} className="min-h-screen pb-2">
+      <div className="px-5 pt-6">
+        {/* TOP BAR */}
+        <header className="mb-6 flex items-center justify-between animate-fade-up">
+          <Avatar name={sess.prenom} id={sess.id} color={sess.avatarColor} size={40} />
+          <div className="flex items-center gap-2">
+            {premium && (
+              <span
+                className="inline-grid h-7 w-7 place-items-center rounded-full text-white"
+                style={{ background: "#0F1B17" }}
+                aria-label="Pro"
+              >
+                <Crown size={14} />
+              </span>
+            )}
           </div>
         </header>
 
-        {/* HERO CARD */}
-        <section
-          className="hero-glow relative mb-5 overflow-hidden animate-fade-up"
-          style={{
-            background: "var(--gradient-hero)",
-            borderRadius: 24,
-            padding: "22px 20px 20px",
-            boxShadow: "var(--shadow-hero)",
-            color: "#fff",
-          }}
-        >
-          <div className="relative">
-            <h2 className="text-[22px] font-bold leading-tight">{t("home.heroTitle")}</h2>
-            <p className="mt-1.5 text-[13.5px] leading-snug" style={{ color: "rgba(255,255,255,0.92)" }}>
-              {t("home.heroSub")}
-            </p>
+        {/* HERO — big bold title + image + black CTA */}
+        <section className="animate-fade-up mb-8">
+          <div
+            className="relative overflow-hidden mb-6"
+            style={{
+              borderRadius: 28,
+              aspectRatio: "1 / 1",
+              background: "linear-gradient(180deg,#F4F6F5 0%,#E6FAF4 100%)",
+            }}
+          >
+            <img
+              src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=800&q=80"
+              alt=""
+              className="absolute inset-0 h-full w-full object-cover"
+              loading="eager"
+            />
+          </div>
+
+          <h1 className="display-title text-[34px]">
+            {t("home.heroTitle")}
+          </h1>
+          <p className="mt-3 text-[14px] leading-relaxed" style={{ color: "#6B7C72" }}>
+            {t("home.heroSub")}
+          </p>
+
+          <button
+            onClick={() => nav({ to: "/frigo", search: { mode: "photo" as const } })}
+            className="btn-primary mt-5 flex w-full items-center justify-center gap-2"
+          >
+            {t("home.heroCta")}
+            <ArrowRight size={18} strokeWidth={2.4} />
+          </button>
+          {!premium && (
             <button
-              onClick={() => nav({ to: "/frigo", search: { mode: "photo" as const } })}
-              className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-white py-3.5 text-[15px] font-semibold transition active:scale-[0.97]"
-              style={{
-                color: "#10B981",
-                boxShadow: "0 8px 20px -4px rgba(0,0,0,0.18)",
-              }}
+              onClick={() => remaining === 0 && setPaywall(true)}
+              className="mt-3 block w-full text-center text-[12px] font-medium"
+              style={{ color: "#7A8A85" }}
             >
-              <Camera size={18} strokeWidth={2.4} />
-              {t("home.heroCta")}
+              {t("home.usageLeft", { count: remaining })}
             </button>
-            {!premium && (
-              <button
-                onClick={() => remaining === 0 && setPaywall(true)}
-                className="mt-3 block w-full text-center text-[11px] font-medium"
-                style={{ color: "rgba(255,255,255,0.85)" }}
-              >
-                {t("home.usageLeft", { count: remaining })}
-              </button>
-            )}
-          </div>
+          )}
         </section>
 
-        {/* AI SUGGESTION CARD */}
-        <section
-          className="mb-5 animate-fade-up"
-          style={{
-            background: "var(--gradient-ai)",
-            borderRadius: 24,
-            padding: 18,
-            border: "1px solid rgba(16,185,129,0.18)",
-            boxShadow: "var(--shadow-soft)",
-          }}
-        >
-          <div className="flex items-start gap-3">
-            <div
-              className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl"
-              style={{
-                background: "linear-gradient(135deg,#10B981,#34D399)",
-                boxShadow: "0 6px 16px -4px rgba(16,185,129,0.45)",
-              }}
-            >
-              <Sparkles size={20} color="#fff" strokeWidth={2.4} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <h3 className="text-[15px] font-bold" style={{ color: "#1F2937" }}>
-                  {t("home.aiTitle")}
-                </h3>
+        {/* GREETING — subtle, secondary */}
+        <p className="mb-4 text-[14px]" style={{ color: "#7A8A85" }}>
+          {t("home.greeting", { name: sess.prenom })} — {t("home.subtitle")}
+        </p>
 
-                <span
-                  className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wide"
-                  style={{
-                    background: "rgba(16,185,129,0.15)",
-                    color: "#047857",
-                  }}
-                >
-                  <Sparkles size={9} /> {t("home.aiBadge")}
-                </span>
-              </div>
-              <p className="mt-1 text-[12.5px] leading-snug" style={{ color: "#4B5563" }}>
-                {t("home.aiBody")}
-              </p>
-              <span
-                className="mt-2 inline-flex items-center rounded-full px-2.5 py-1 text-[10.5px] font-semibold"
-                style={{
-                  background: `linear-gradient(135deg, ${pcGradient(pc)})`,
-                  color: "#fff",
-                }}
-              >
-                {user.program}
-              </span>
-
-            </div>
-          </div>
-        </section>
 
         {/* TODAY (compact pill if logged) */}
         {todayMeal && (
@@ -316,14 +263,6 @@ function Home() {
   );
 }
 
-function pcGradient(pc: { bg: string; text: string }) {
-  // map shadcn-ish classes to a soft gradient; fallback to brand greens
-  if (pc.bg.includes("green")) return "#22C55E,#10B981";
-  if (pc.bg.includes("blue")) return "#3B82F6,#2563EB";
-  if (pc.bg.includes("amber") || pc.bg.includes("yellow")) return "#F59E0B,#D97706";
-  if (pc.bg.includes("rose") || pc.bg.includes("red")) return "#F43F5E,#E11D48";
-  return "#22C55E,#10B981";
-}
 
 function SectionHeader({
   title,

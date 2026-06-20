@@ -78,9 +78,9 @@ export async function buildRecipeShareImage(
 
   // 5. Macro pills
   const pills = [
-    `🔥 ${recipe.calories} kcal`,
-    `💪 ${Math.round(recipe.proteines)}g`,
-    `🌾 ${Math.round(recipe.glucides)}g`,
+    `${recipe.calories} kcal`,
+    `${Math.round(recipe.proteines)}g P`,
+    `${Math.round(recipe.glucides)}g G`,
   ];
   ctx.font = "600 13px -apple-system, system-ui, sans-serif";
   let px = 20;
