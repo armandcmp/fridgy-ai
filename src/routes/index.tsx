@@ -230,12 +230,13 @@ function Home() {
             }}
           >
             <div
-              className="grid h-10 w-10 place-items-center rounded-2xl text-lg"
-              style={{ background: "rgba(34,197,94,0.12)" }}
+              className="grid h-10 w-10 place-items-center rounded-2xl"
+              style={{ background: "rgba(45,139,87,0.12)" }}
               aria-hidden
             >
-              🍽️
+              <span style={{ width: 16, height: 16, borderRadius: 8, background: "var(--primary)", display: "block" }} />
             </div>
+
             <div className="flex-1 min-w-0">
               <p className="truncate text-[13.5px] font-semibold" style={{ color: "#1F2937" }}>
                 {todayMeal.recette.titre}
