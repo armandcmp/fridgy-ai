@@ -49,53 +49,54 @@
 
 :root {
   --radius: 1.25rem;
-  /* Yuka + Too Good To Go palette */
-  --background: #FAFAF6;
-  --foreground: #1A2B22;
+  /* Clean teal/mint inspired palette */
+  --background: #FFFFFF;
+  --foreground: #0F1B17;
   --card: #FFFFFF;
-  --card-foreground: #1A2B22;
+  --card-foreground: #0F1B17;
   --popover: #FFFFFF;
-  --popover-foreground: #1A2B22;
+  --popover-foreground: #0F1B17;
 
-  --primary: #2D8B57;
-  --primary-foreground: #FFFFFF;
-  --primary-light: #E8F5EC;
-  --primary-dark: #1E6B40;
+  --primary: #2DD4A8;
+  --primary-foreground: #0F1B17;
+  --primary-light: #E6FAF4;
+  --primary-dark: #1FA88A;
 
-  --secondary: #E8F5EC;
-  --secondary-foreground: #1E6B40;
-  --muted: #F2F3EE;
-  --muted-foreground: #6B7C72;
-  --accent: #E8F5EC;
-  --accent-foreground: #1E6B40;
+  --secondary: #F4F6F5;
+  --secondary-foreground: #0F1B17;
+  --muted: #F4F6F5;
+  --muted-foreground: #7A8A85;
+  --accent: #E6FAF4;
+  --accent-foreground: #0F1B17;
 
-  --accent-cream: #FFF8EC;
+  --accent-cream: #FFFFFF;
   --accent-coral: #FF6B5B;
   --accent-gold: #F4A93C;
 
-  --score-excellent: #2D8B57;
+  --score-excellent: #2DD4A8;
   --score-good: #7FB069;
   --score-medium: #F4A93C;
   --score-poor: #E8604C;
 
   --destructive: #E8604C;
   --destructive-foreground: #FFFFFF;
-  --border: #EDEEE8;
-  --input: #EDEEE8;
-  --ring: #2D8B57;
+  --border: #ECEEED;
+  --input: #ECEEED;
+  --ring: #2DD4A8;
 
   --protein: #4F8FD9;
   --carbs: #F4A93C;
   --fat: #E8604C;
   --favorite: #FF6B5B;
 
-  --shadow-card: 0 4px 16px rgba(45,139,87,0.08);
-  --shadow-soft: 0 8px 30px rgba(26,43,34,0.06);
-  --shadow-hero: 0 18px 40px -8px rgba(45,139,87,0.35);
-  --shadow-coral: 0 6px 16px rgba(255,107,91,0.35);
-  --gradient-hero: linear-gradient(135deg,#2D8B57 0%,#3FA56C 55%,#7FB069 100%);
-  --gradient-ai: linear-gradient(135deg,#FFF8EC 0%,#E8F5EC 100%);
+  --shadow-card: 0 2px 12px rgba(15,27,23,0.05);
+  --shadow-soft: 0 8px 24px rgba(15,27,23,0.06);
+  --shadow-hero: 0 12px 28px -6px rgba(45,212,168,0.30);
+  --shadow-coral: 0 6px 16px rgba(255,107,91,0.30);
+  --gradient-hero: linear-gradient(135deg,#2DD4A8 0%,#3CDFB8 100%);
+  --gradient-ai: linear-gradient(135deg,#E6FAF4 0%,#F4F6F5 100%);
 }
+
 
 @layer base {
   * { border-color: var(--color-border); }
