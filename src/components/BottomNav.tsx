@@ -64,8 +64,14 @@ export function BottomNav() {
   return (
     <>
       <nav
-        className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card"
-        style={{ paddingBottom: "env(safe-area-inset-bottom)", overflow: "visible" }}
+        className="fixed bottom-0 left-0 right-0 z-50 bg-card"
+        style={{
+          paddingBottom: "env(safe-area-inset-bottom)",
+          overflow: "visible",
+          boxShadow: "0 -2px 12px rgba(0,0,0,0.04)",
+          borderTopLeftRadius: 20,
+          borderTopRightRadius: 20,
+        }}
       >
         <ul className="relative mx-auto flex h-16 max-w-md items-stretch justify-between px-2">
           <Tab tab={tabs[0]} active={isActive(tabs[0].to)} />
@@ -78,16 +84,16 @@ export function BottomNav() {
                 aria-label={t("nav.add")}
                 className="absolute left-1/2 grid place-items-center text-white transition active:scale-95"
                 style={{
-                  top: -16,
+                  top: -18,
                   transform: "translateX(-50%)",
-                  width: 56,
-                  height: 56,
-                  borderRadius: 28,
-                  background: "#4CAF82",
-                  boxShadow: "0 4px 16px rgba(76,175,130,0.45)",
+                  width: 58,
+                  height: 58,
+                  borderRadius: 29,
+                  background: "var(--accent-coral)",
+                  boxShadow: "0 6px 16px rgba(255,107,91,0.45)",
                 }}
               >
-                <Plus size={24} strokeWidth={2.6} />
+                <Plus size={26} strokeWidth={2.8} />
               </button>
             </div>
           </li>
@@ -96,6 +102,7 @@ export function BottomNav() {
           <Tab tab={tabs[3]} active={isActive(tabs[3].to)} />
         </ul>
       </nav>
+
 
       {/* STEP 1 — Quel repas ? */}
       <BottomSheet open={step === "meal"} onClose={closeSheets}>
@@ -153,27 +160,34 @@ function Tab({
     <li className="flex-1">
       <Link
         to={tab.to as never}
-        className={`relative flex h-full flex-col items-center justify-center gap-0.5 transition-colors ${
-          active ? "text-primary" : "text-muted-foreground"
-        }`}
+        className="relative flex h-full flex-col items-center justify-center gap-1 transition-colors"
       >
-        <Icon size={22} strokeWidth={active ? 2.4 : 2} />
-        <span className="text-[10px] font-medium">{tab.label}</span>
-        {active && (
-          <span
-            aria-hidden
-            style={{
-              position: "absolute",
-              bottom: 4,
-              width: 4,
-              height: 4,
-              borderRadius: 2,
-              background: "#4CAF82",
-            }}
-          />
-        )}
+        <span
+          className="grid place-items-center transition-all"
+          style={{
+            padding: active ? "6px 14px" : "6px",
+            borderRadius: 12,
+            background: active ? "var(--primary-light)" : "transparent",
+            color: active ? "var(--primary)" : "var(--muted-foreground)",
+          }}
+        >
+          <Icon size={20} strokeWidth={active ? 2.4 : 2} />
+        </span>
+        <span
+          className="text-[10px]"
+          style={{
+            color: active ? "var(--primary)" : "var(--muted-foreground)",
+            fontFamily: active
+              ? "Fredoka, system-ui, sans-serif"
+              : "Inter, system-ui, sans-serif",
+            fontWeight: active ? 600 : 500,
+          }}
+        >
+          {tab.label}
+        </span>
       </Link>
     </li>
   );
 }
+
 
