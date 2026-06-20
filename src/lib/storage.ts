@@ -45,6 +45,7 @@ function sessionToUser(s: CurrentUser): User {
  program: s.program ?? "",
  dailyKcal: s.dailyKcal ?? 2000,
  avatarColor: s.avatarColor,
+ avatarPhoto: s.avatarPhoto,
  };
 }
 
@@ -64,6 +65,7 @@ export const storage = {
  dailyKcal: legacy.dailyKcal,
  isPremium: false,
  avatarColor: legacy.avatarColor,
+ avatarPhoto: legacy.avatarPhoto,
  };
  write(KEYS.session, u);
  return u;
@@ -86,6 +88,7 @@ export const storage = {
  dailyKcal: u.dailyKcal,
  isPremium: sess?.isPremium ?? false,
  avatarColor: u.avatarColor,
+ avatarPhoto: u.avatarPhoto,
  };
  write(KEYS.session, next);
  },
@@ -98,6 +101,7 @@ export const storage = {
  program: patch.program ?? sess.program,
  dailyKcal: patch.dailyKcal ?? sess.dailyKcal,
  avatarColor: patch.avatarColor ?? sess.avatarColor,
+ avatarPhoto: patch.avatarPhoto !== undefined ? patch.avatarPhoto : sess.avatarPhoto,
  };
  write(KEYS.session, next);
  // mirror into accounts
