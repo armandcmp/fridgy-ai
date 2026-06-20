@@ -110,10 +110,11 @@ function RecettesScreen() {
           <Link
             to="/frigo"
             search={{ mode: "photo" as const }}
-            className="mt-5 inline-block rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground"
+            className="btn-primary mt-5 inline-block"
           >
             {t("home.scan")} →
           </Link>
+
         </div>
       ) : filtered.length === 0 ? (
         <div className="fc-card p-6 text-center text-sm text-muted-foreground">
