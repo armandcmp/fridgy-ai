@@ -44,14 +44,9 @@ export function BottomNav() {
 
   const pickMeal = (m: MealType) => {
     setCurrentMeal(m);
-    setStep("method");
-  };
-
-  const pickMethod = (mode: "photo" | "voice" | "manual") => {
-    // Clear sheet state BEFORE navigating so nothing can reopen.
     setStep(null);
     setTimeout(() => {
-      nav({ to: "/frigo", search: { mode } });
+      nav({ to: "/frigo" });
     }, 50);
   };
 
