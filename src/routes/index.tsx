@@ -155,6 +155,42 @@ function Home() {
               {t("home.usageLeft", { count: remaining })}
             </button>
           )}
+
+          {!premium && (
+            <button
+              onClick={() => setPaywall(true)}
+              className="mt-4 w-full overflow-hidden rounded-[22px] p-[1.5px] text-left transition active:scale-[0.99]"
+              style={{
+                background:
+                  "linear-gradient(135deg,#FCD34D 0%,#F59E0B 45%,#D97706 100%)",
+                boxShadow: "0 10px 30px -12px rgba(245,158,11,0.55)",
+              }}
+            >
+              <div
+                className="flex items-center gap-3 rounded-[20px] px-4 py-3.5"
+                style={{
+                  background:
+                    "linear-gradient(135deg,#FFFDF6 0%,#FFF6E2 100%)",
+                }}
+              >
+                <div
+                  className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl text-white"
+                  style={{ background: "linear-gradient(135deg,#F59E0B,#D97706)" }}
+                >
+                  <Crown size={20} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[14px] font-extrabold tracking-tight" style={{ color: "#7C2D12" }}>
+                    Évoluer vers Fridgy Pro
+                  </p>
+                  <p className="truncate text-[11.5px] font-medium" style={{ color: "#92704A" }}>
+                    Recettes illimitées · planning · sans pub
+                  </p>
+                </div>
+                <ChevronRight size={18} style={{ color: "#B45309" }} />
+              </div>
+            </button>
+          )}
         </section>
 
 
