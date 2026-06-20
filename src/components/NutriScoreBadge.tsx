@@ -5,8 +5,8 @@ export type ScoreLevel = "excellent" | "good" | "medium" | "poor";
 const CONFIG: Record<ScoreLevel, { color: string; label: string; icon: string }> = {
   excellent: { color: "var(--score-excellent)", label: "Excellent", icon: "A" },
   good:      { color: "var(--score-good)",      label: "Bon",       icon: "B" },
-  medium:    { color: "var(--score-medium)",    label: "Moyen",     icon: "~" },
-  poor:      { color: "var(--score-poor)",      label: "À limiter", icon: "!" },
+  medium:    { color: "var(--score-medium)",    label: "Moyen",     icon: "C" },
+  poor:      { color: "var(--score-poor)",      label: "À limiter", icon: "D" },
 };
 
 /** Derive a score from a recipe. Uses pourquoiAdapte presence + calorie heuristic. */
