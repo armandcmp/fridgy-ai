@@ -130,7 +130,17 @@ export function BottomNav() {
                     borderLeft: `4px solid ${color}`,
                   }}
                 >
-                  <span style={{ fontSize: 28, lineHeight: 1 }}>{meta.emoji}</span>
+                  <span
+                    aria-hidden
+                    style={{
+                      width: 10,
+                      height: 44,
+                      borderRadius: 5,
+                      background: color,
+                      flexShrink: 0,
+                    }}
+                  />
+
                   <span className="flex-1 min-w-0">
                     <span className="block text-[15px] font-bold">
                       {t(meta.labelKey)}
