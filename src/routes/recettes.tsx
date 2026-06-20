@@ -15,18 +15,24 @@ type Filter = "all" | "bulk" | "cut" | "loss" | "maintain" | "fav";
 
 function RecettesScreen() {
   const { t } = useTranslation();
-  const all = useLocalReactive(() => storage.getAllRecipes());
+  const history = useLocalReactive(() => storage.getHistory());
   const favs = useLocalReactive(() => storage.getFavorites());
-  const current = useLocalReactive(() => storage.getRecipes());
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
 
-  // Merge: prefer all-recipes store, but include any newer current ones missing
+  // Only show recipes the user has actually cooked (logged in history).
+  // Deduplicate by title, keeping the most recent entry.
   const merged = useMemo(() => {
-    const seen = new Set(all.map((r) => r.titre.toLowerCase().trim()));
-    const extra = current.filter((r) => !seen.has(r.titre.toLowerCase().trim()));
-    return [...extra, ...all];
-  }, [all, current]);
+    const seen = new Set<string>();
+    const out = [] as typeof history[number]["recette"][];
+    for (const entry of history) {
+      const key = entry.recette.titre.toLowerCase().trim();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push(entry.recette);
+    }
+    return out;
+  }, [history]);
 
   const FILTERS: { id: Filter; label: string }[] = [
     { id: "all", label: t("recettes.fAll") },
