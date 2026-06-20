@@ -222,32 +222,32 @@
   z-index: 0;
 }
 
-/* Buttons */
+/* Buttons — black-led primary CTA, teal as accent */
 .btn-primary {
-  background: var(--primary);
+  background: #0F1B17;
   color: #fff;
-  border-radius: 16px;
-  font-family: "Fredoka", system-ui, sans-serif;
+  border-radius: 18px;
+  font-family: "Inter", system-ui, sans-serif;
   font-weight: 600;
   font-size: 15px;
-  padding: 14px 24px;
-  box-shadow: 0 4px 12px rgba(45,139,87,0.25);
+  padding: 16px 24px;
+  box-shadow: 0 6px 16px rgba(15,27,23,0.18);
   transition: transform .15s ease, background .15s ease;
 }
-.btn-primary:active { transform: scale(0.97); background: var(--primary-dark); }
+.btn-primary:active { transform: scale(0.97); background: #000; }
 
-.btn-coral {
-  background: var(--accent-coral);
-  color: #fff;
-  border-radius: 16px;
-  font-family: "Fredoka", system-ui, sans-serif;
+.btn-accent {
+  background: var(--primary);
+  color: #0F1B17;
+  border-radius: 18px;
+  font-family: "Inter", system-ui, sans-serif;
   font-weight: 600;
   font-size: 15px;
-  padding: 14px 24px;
-  box-shadow: var(--shadow-coral);
+  padding: 16px 24px;
+  box-shadow: 0 6px 16px rgba(45,212,168,0.30);
   transition: transform .15s ease;
 }
-.btn-coral:active { transform: scale(0.97); }
+.btn-accent:active { transform: scale(0.97); }
 
 .label-cap {
   font-family: "Inter", system-ui, sans-serif;
@@ -256,3 +256,30 @@
   text-transform: uppercase;
   letter-spacing: 0.4px;
 }
+
+.display-title {
+  font-family: "Inter", -apple-system, system-ui, sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+  color: #0F1B17;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #F4F6F5;
+  color: #0F1B17;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+.pill-active {
+  background: #0F1B17;
+  color: #FFFFFF;
+}
+
