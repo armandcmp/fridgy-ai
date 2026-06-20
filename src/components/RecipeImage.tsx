@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-
-const API_KEY = import.meta.env.VITE_PEXELS_API_KEY as string | undefined;
+import { fetchUnsplashImage } from "@/lib/unsplash.functions";
 
 function normalize(titre: string): string {
   return (titre || "")
@@ -11,27 +10,20 @@ function normalize(titre: string): string {
     .trim();
 }
 
-async function pexelsSearch(query: string): Promise<string | null> {
-  if (!API_KEY) return null;
+async function unsplashSearch(query: string): Promise<string | null> {
   try {
-    const res = await fetch(
-      `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=1&orientation=landscape`,
-      { headers: { Authorization: API_KEY } }
-    );
-    if (!res.ok) return null;
-    const data = await res.json();
-    if (data?.photos?.length > 0) return data.photos[0].src.medium as string;
+    const res = await fetchUnsplashImage({ data: { query } });
+    return res?.url ?? null;
   } catch {
-    // ignore
+    return null;
   }
-  return null;
 }
 
 export async function fetchRecipeImage(recipeTitre: string): Promise<string | null> {
   const query = normalize(recipeTitre);
   if (!query) return null;
 
-  const cacheKey = `pexels_${query}`;
+  const cacheKey = `unsplash_${query}`;
   try {
     const cached = sessionStorage.getItem(cacheKey);
     if (cached) return cached;
@@ -39,10 +31,10 @@ export async function fetchRecipeImage(recipeTitre: string): Promise<string | nu
     // sessionStorage may be unavailable (SSR)
   }
 
-  let url = await pexelsSearch(`${query} food dish plate`);
+  let url = await unsplashSearch(query);
   if (!url) {
     const first = query.split(" ")[0];
-    if (first) url = await pexelsSearch(`${first} food`);
+    if (first) url = await unsplashSearch(first);
   }
 
   if (url) {
