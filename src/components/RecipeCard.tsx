@@ -15,7 +15,7 @@ function MealBadge({ mealType }: { mealType?: MealType }) {
   return (
     <span
       className="inline-flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-semibold shadow-sm"
-      style={{ color: meta.color, fontFamily: "Fredoka, system-ui, sans-serif" }}
+      style={{ color: meta.color, fontFamily: "Inter, system-ui, sans-serif" }}
     >
       {t(meta.shortKey)}
     </span>
@@ -122,13 +122,13 @@ export function MiniRecipeCard({
       <div className="p-3 pt-4">
         <span
           className={`inline-block rounded-full px-2 py-0.5 text-[9px] font-semibold ${pc.bg} ${pc.text}`}
-          style={{ fontFamily: "Fredoka, system-ui, sans-serif" }}
+          style={{ fontFamily: "Inter, system-ui, sans-serif" }}
         >
           {recipe.program}
         </span>
         <h4
           className="mt-2 line-clamp-2 text-sm font-bold leading-tight"
-          style={{ fontFamily: "Fredoka, system-ui, sans-serif" }}
+          style={{ fontFamily: "Inter, system-ui, sans-serif" }}
         >
           {recipe.titre}
         </h4>
