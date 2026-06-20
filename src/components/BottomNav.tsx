@@ -140,42 +140,6 @@ export function BottomNav() {
           </div>
         </div>
       </BottomSheet>
-
-      {/* STEP 2 — Comment saisir ? */}
-      <BottomSheet open={step === "method"} onClose={closeSheets}>
-        <div className="pb-2">
-          <h3 className="mb-4 text-center text-[18px] font-bold">
-            {t("sheet.methodLabel")}
-          </h3>
-
-          <div className="space-y-3">
-            <MethodCard
-              icon={<Camera size={22} />}
-              iconBg="rgba(76,175,130,0.15)"
-              iconColor="#4CAF82"
-              title={t("sheet.photoTitle")}
-              sub={t("sheet.photoSub")}
-              onClick={() => pickMethod("photo")}
-            />
-            <MethodCard
-              icon={<Mic size={22} />}
-              iconBg="rgba(59,130,246,0.15)"
-              iconColor="#3B82F6"
-              title={t("sheet.voiceTitle")}
-              sub={t("sheet.voiceSub")}
-              onClick={() => pickMethod("voice")}
-            />
-            <MethodCard
-              icon={<Pencil size={20} />}
-              iconBg="rgba(139,92,246,0.15)"
-              iconColor="#8B5CF6"
-              title={t("sheet.manualTitle")}
-              sub={t("sheet.manualSub")}
-              onClick={() => pickMethod("manual")}
-            />
-          </div>
-        </div>
-      </BottomSheet>
     </>
   );
 }
