@@ -55,10 +55,10 @@ export function BottomNav() {
   const isActive = (to: string) =>
     to === "/" ? path === "/" : path.startsWith(to);
 
-  const MEALS: { m: MealType; color: string; subKey: string }[] = [
-    { m: "petit-dejeuner", color: "#F59E0B", subKey: "meal.breakfastSub" },
-    { m: "dejeuner", color: "#4CAF82", subKey: "meal.lunchSub" },
-    { m: "diner", color: "#3B82F6", subKey: "meal.dinnerSub" },
+  const MEALS: { m: MealType; from: string; to: string; accent: string; subKey: string; hour: string }[] = [
+    { m: "petit-dejeuner", from: "#FFF6E5", to: "#FFEAC2", accent: "#F59E0B", subKey: "meal.breakfastSub", hour: "7 – 10h" },
+    { m: "dejeuner",       from: "#E9FBF3", to: "#CFF5E4", accent: "#2DD4A8", subKey: "meal.lunchSub",      hour: "12 – 14h" },
+    { m: "diner",          from: "#EEF2FF", to: "#DDE6FF", accent: "#3B82F6", subKey: "meal.dinnerSub",     hour: "19 – 22h" },
   ];
 
   return (
