@@ -103,17 +103,8 @@ function Home() {
         <header className="mb-5 flex items-center gap-3 animate-fade-up">
           <div className="relative">
             <Avatar name={sess.prenom} id={sess.id} color={sess.avatarColor} size={44} />
-            <span
-              className="absolute -bottom-1 -right-1 grid h-5 w-5 place-items-center rounded-full text-xs"
-              style={{
-                background: "#fff",
-                boxShadow: "0 2px 6px rgba(0,0,0,0.12)",
-              }}
-              aria-hidden
-            >
-              👨‍🍳
-            </span>
           </div>
+
           <div className="flex-1 min-w-0">
             <h1 className="inline-flex items-center gap-1.5 text-[20px] font-bold leading-tight" style={{ color: "#1F2937" }}>
               {t("home.greeting", { name: sess.prenom })}
