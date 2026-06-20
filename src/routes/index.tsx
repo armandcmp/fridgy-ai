@@ -263,14 +263,6 @@ function Home() {
   );
 }
 
-function pcGradient(pc: { bg: string; text: string }) {
-  // map shadcn-ish classes to a soft gradient; fallback to brand greens
-  if (pc.bg.includes("green")) return "#22C55E,#10B981";
-  if (pc.bg.includes("blue")) return "#3B82F6,#2563EB";
-  if (pc.bg.includes("amber") || pc.bg.includes("yellow")) return "#F59E0B,#D97706";
-  if (pc.bg.includes("rose") || pc.bg.includes("red")) return "#F43F5E,#E11D48";
-  return "#22C55E,#10B981";
-}
 
 function SectionHeader({
   title,
