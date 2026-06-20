@@ -18,6 +18,7 @@ import { Route as HistoriqueRouteImport } from './routes/historique'
 import { Route as FrigoRouteImport } from './routes/frigo'
 import { Route as CoursesRouteImport } from './routes/courses'
 import { Route as CommunauteRouteImport } from './routes/communaute'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RecetteIdRouteImport } from './routes/recette.$id'
 
@@ -66,6 +67,11 @@ const CommunauteRoute = CommunauteRouteImport.update({
   path: '/communaute',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -79,6 +85,7 @@ const RecetteIdRoute = RecetteIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/communaute': typeof CommunauteRoute
   '/courses': typeof CoursesRoute
   '/frigo': typeof FrigoRoute
@@ -92,6 +99,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/communaute': typeof CommunauteRoute
   '/courses': typeof CoursesRoute
   '/frigo': typeof FrigoRoute
@@ -106,6 +114,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/communaute': typeof CommunauteRoute
   '/courses': typeof CoursesRoute
   '/frigo': typeof FrigoRoute
@@ -121,6 +130,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/auth'
     | '/communaute'
     | '/courses'
     | '/frigo'
@@ -134,6 +144,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/auth'
     | '/communaute'
     | '/courses'
     | '/frigo'
@@ -147,6 +158,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/auth'
     | '/communaute'
     | '/courses'
     | '/frigo'
@@ -161,6 +173,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthRoute: typeof AuthRoute
   CommunauteRoute: typeof CommunauteRoute
   CoursesRoute: typeof CoursesRoute
   FrigoRoute: typeof FrigoRoute
@@ -238,6 +251,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CommunauteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -257,6 +277,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthRoute: AuthRoute,
   CommunauteRoute: CommunauteRoute,
   CoursesRoute: CoursesRoute,
   FrigoRoute: FrigoRoute,
