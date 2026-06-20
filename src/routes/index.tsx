@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Crown, ChevronRight, Sparkles, Clock, Flame, Heart, Plus } from "lucide-react";
+import { Crown, ChevronRight, Clock, Flame, Heart, Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { storage } from "@/lib/storage";
 import { useLocalReactive } from "@/lib/hooks";
@@ -208,7 +208,7 @@ function Home() {
         ) : (
           <HorizontalRow>
             {recommended.map((r, i) => (
-              <BigRecipeCard key={r.id} recipe={r} index={i} aiLabel={t("home.aiRecommended")} />
+              <BigRecipeCard key={r.id} recipe={r} index={i} />
             ))}
           </HorizontalRow>
         )}
@@ -309,11 +309,9 @@ function HorizontalRow({ children }: { children: React.ReactNode }) {
 function BigRecipeCard({
   recipe,
   index,
-  aiLabel,
 }: {
   recipe: Recipe;
   index: number;
-  aiLabel: string;
 }) {
   return (
     <Link
