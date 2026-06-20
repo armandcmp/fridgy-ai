@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Crown, ChevronRight, Sparkles, Clock, Flame, Heart, Plus } from "lucide-react";
+import { Crown, ChevronRight, Clock, Flame, Heart, Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { storage } from "@/lib/storage";
 import { useLocalReactive } from "@/lib/hooks";
@@ -208,7 +208,7 @@ function Home() {
         ) : (
           <HorizontalRow>
             {recommended.map((r, i) => (
-              <BigRecipeCard key={r.id} recipe={r} index={i} aiLabel={t("home.aiRecommended")} />
+              <BigRecipeCard key={r.id} recipe={r} index={i} />
             ))}
           </HorizontalRow>
         )}
@@ -309,11 +309,9 @@ function HorizontalRow({ children }: { children: React.ReactNode }) {
 function BigRecipeCard({
   recipe,
   index,
-  aiLabel,
 }: {
   recipe: Recipe;
   index: number;
-  aiLabel: string;
 }) {
   return (
     <Link
@@ -330,17 +328,6 @@ function BigRecipeCard({
     >
       <div className="relative">
         <RecipeImage titre={recipe.titre} program={recipe.program} height={140} />
-        <div className="absolute left-2.5 top-2.5">
-          <span
-            className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[9.5px] font-bold uppercase tracking-wide backdrop-blur-md"
-            style={{
-              background: "rgba(255,255,255,0.92)",
-              color: "#047857",
-            }}
-          >
-            <Sparkles size={9} strokeWidth={2.6} /> {aiLabel}
-          </span>
-        </div>
       </div>
       <div className="p-3.5">
         <h3
