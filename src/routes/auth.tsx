@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
@@ -17,6 +18,9 @@ function AuthScreen() {
   const [prenom, setPrenom] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
 
   // Already signed in? Skip the screen.
@@ -39,6 +43,9 @@ function AuthScreen() {
     setLoading(true);
     try {
       if (mode === "signup") {
+        if (password !== confirmPassword) {
+          throw new Error("Les mots de passe ne correspondent pas");
+        }
         const { error } = await supabase.auth.signUp({
           email: email.trim(),
           password,
@@ -136,16 +143,26 @@ function AuthScreen() {
             autoComplete="email"
             required
           />
-          <Field
+          <PasswordField
             label="Mot de passe"
-            type="password"
             value={password}
             onChange={setPassword}
-            placeholder="••••••••"
+            visible={showPassword}
+            onToggle={() => setShowPassword((v) => !v)}
             autoComplete={mode === "signup" ? "new-password" : "current-password"}
-            required
             minLength={6}
           />
+          {mode === "signup" && (
+            <PasswordField
+              label="Confirmer le mot de passe"
+              value={confirmPassword}
+              onChange={setConfirmPassword}
+              visible={showConfirm}
+              onToggle={() => setShowConfirm((v) => !v)}
+              autoComplete="new-password"
+              minLength={6}
+            />
+          )}
 
           <button
             type="submit"
@@ -206,6 +223,51 @@ function Field({
         className="w-full rounded-xl border bg-card px-3 py-2.5 text-[14px] outline-none transition focus:border-primary"
         style={{ borderColor: "var(--border)" }}
       />
+    </label>
+  );
+}
+
+function PasswordField({
+  label,
+  value,
+  onChange,
+  visible,
+  onToggle,
+  autoComplete,
+  minLength,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  visible: boolean;
+  onToggle: () => void;
+  autoComplete?: string;
+  minLength?: number;
+}) {
+  return (
+    <label className="block">
+      <span className="mb-1 block text-[12px] font-semibold text-muted-foreground">{label}</span>
+      <div className="relative">
+        <input
+          type={visible ? "text" : "password"}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="••••••••"
+          autoComplete={autoComplete}
+          required
+          minLength={minLength}
+          className="w-full rounded-xl border bg-card px-3 py-2.5 pr-11 text-[14px] outline-none transition focus:border-primary"
+          style={{ borderColor: "var(--border)" }}
+        />
+        <button
+          type="button"
+          onClick={onToggle}
+          aria-label={visible ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+          className="absolute right-2 top-1/2 -translate-y-1/2 grid h-8 w-8 place-items-center rounded-lg text-muted-foreground transition hover:text-foreground"
+        >
+          {visible ? <EyeOff size={16} /> : <Eye size={16} />}
+        </button>
+      </div>
     </label>
   );
 }
