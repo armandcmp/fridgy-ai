@@ -5,6 +5,7 @@ import {
   createRootRouteWithContext,
   useLocation,
   useRouter,
+  useNavigate,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -14,6 +15,8 @@ import { Toaster } from "sonner";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { BottomNav } from "../components/BottomNav";
+import { supabase } from "@/integrations/supabase/client";
+import { hydrateFromProfile, schedulePushProfile, clearLocalSession } from "@/lib/auth-sync";
 import "../lib/i18n";
 
 function NotFoundComponent() {
@@ -103,7 +106,51 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const loc = useLocation();
-  const hideNav = loc.pathname === "/onboarding";
+  const nav = useNavigate();
+  const hideNav = loc.pathname === "/onboarding" || loc.pathname === "/auth";
+
+  // Auth gate + session sync
+  useEffect(() => {
+    let booted = false;
+
+    const apply = async (hasSession: boolean) => {
+      const path = window.location.pathname;
+      if (hasSession) {
+        const u = await hydrateFromProfile();
+        if (path === "/auth") {
+          nav({ to: u?.program ? "/" : "/onboarding", replace: true });
+        }
+      } else {
+        clearLocalSession();
+        if (path !== "/auth") nav({ to: "/auth", replace: true });
+      }
+    };
+
+    supabase.auth.getSession().then(({ data }) => {
+      booted = true;
+      void apply(!!data.session);
+    });
+
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!booted) return;
+      if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") {
+        void apply(!!session);
+      }
+    });
+
+    return () => sub.subscription.unsubscribe();
+  }, [nav]);
+
+  // Mirror local profile edits to the database
+  useEffect(() => {
+    const onChange = (e: Event) => {
+      const key = (e as CustomEvent<string>).detail;
+      if (key === "fridgechef_session_user") schedulePushProfile();
+    };
+    window.addEventListener("fridgechef:change", onChange);
+    return () => window.removeEventListener("fridgechef:change", onChange);
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <div className="mx-auto min-h-screen max-w-md" style={{ paddingBottom: hideNav ? 0 : 80 }}>
