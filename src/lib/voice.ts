@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { getLanguage } from "./i18n";
+
 export type VoiceState = "idle" | "listening" | "interim" | "processing" | "done" | "error";
 export type VoiceErrorKind =
   | "not_supported"
@@ -8,6 +10,14 @@ export type VoiceErrorKind =
   | "aborted"
   | "start_failed"
   | "unknown";
+
+const BCP47: Record<string, string> = {
+  fr: "fr-FR",
+  en: "en-US",
+  es: "es-ES",
+  pt: "pt-BR",
+  zh: "zh-CN",
+};
 
 export function isSpeechSupported(): boolean {
   if (typeof window === "undefined") return false;
@@ -63,7 +73,7 @@ export class VoiceRecognitionManager {
     this.recognition = r;
     this.transcript = "";
     this.stoppedByUser = false;
-    r.lang = "fr-FR";
+    r.lang = BCP47[getLanguage()] || "en-US";
     r.continuous = true;
     r.interimResults = true;
     r.maxAlternatives = 3;
