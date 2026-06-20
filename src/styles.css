@@ -61,7 +61,11 @@
   --carbs: oklch(0.78 0.16 70);
   --fat: oklch(0.65 0.2 25);
   --favorite: oklch(0.65 0.22 20);
-  --shadow-card: 0 4px 20px rgba(0,0,0,0.08);
+  --shadow-card: 0 4px 20px rgba(0,0,0,0.06);
+  --shadow-soft: 0 8px 30px rgba(17,24,39,0.06);
+  --shadow-hero: 0 18px 40px -8px rgba(34,197,94,0.45);
+  --gradient-hero: linear-gradient(135deg,#22C55E 0%,#34D399 55%,#10B981 100%);
+  --gradient-ai: linear-gradient(135deg,#ECFDF5 0%,#F0FDF4 100%);
 }
 
 @layer base {
