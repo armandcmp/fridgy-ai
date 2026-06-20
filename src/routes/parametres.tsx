@@ -18,12 +18,12 @@ export const Route = createFileRoute("/parametres")({
 
 
 const PROGRAMS = ["bulk", "cut", "loss", "maintain"] as const;
-const COLORS = ["#4CAF82", "#F59E0B", "#EF4444", "#3B82F6", "#A855F7", "#EC4899"];
 
 function Settings() {
  const { t, i18n } = useTranslation();
  const nav = useNavigate();
  const user = useLocalReactive(() => storage.getUser());
+ const sessionUser = useLocalReactive(() => storage.getSessionUser());
  const premium = usePremium();
  const group = useLocalReactive(() => getGroup());
  const [paywall, setPaywall] = useState(false);
@@ -34,6 +34,9 @@ function Settings() {
  if (typeof window === "undefined") return "metric";
  return (localStorage.getItem("fridgechef_units") as "metric" | "imperial") ?? "metric";
  });
+ const photoInputRef = useRef<HTMLInputElement | null>(null);
+ const [mounted, setMounted] = useState(false);
+ useEffect(() => setMounted(true), []);
 
  // Group state
  const [joining, setJoining] = useState(false);
@@ -42,13 +45,49 @@ function Settings() {
  const [showImport, setShowImport] = useState(false);
  const [importCode, setImportCode] = useState("");
 
- if (!user) {
+ if (!mounted || !user) {
  return (
  <div className="px-5 pt-8">
- <p className="text-sm text-muted-foreground">…</p>
+ <header className="mb-5">
+ <h1 className="text-2xl font-bold">{t("settings.title")}</h1>
+ </header>
  </div>
  );
  }
+
+ const onPickPhoto = (file: File) => {
+ if (!file.type.startsWith("image/")) {
+ toast.error("Image invalide");
+ return;
+ }
+ const reader = new FileReader();
+ reader.onload = () => {
+ const src = reader.result as string;
+ const img = new Image();
+ img.onload = () => {
+ const max = 320;
+ const scale = Math.min(1, max / Math.max(img.width, img.height));
+ const w = Math.round(img.width * scale);
+ const h = Math.round(img.height * scale);
+ const canvas = document.createElement("canvas");
+ canvas.width = w;
+ canvas.height = h;
+ const ctx = canvas.getContext("2d");
+ if (!ctx) return;
+ ctx.drawImage(img, 0, 0, w, h);
+ const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+ storage.patchUser({ avatarPhoto: dataUrl });
+ toast.success(t("settings.profileSaved"));
+ };
+ img.src = src;
+ };
+ reader.readAsDataURL(file);
+ };
+
+ const removePhoto = () => {
+ storage.patchUser({ avatarPhoto: "" });
+ };
+
 
  const saveName = () => {
  if (!name.trim()) return;
