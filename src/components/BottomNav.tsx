@@ -55,10 +55,13 @@ export function BottomNav() {
   const isActive = (to: string) =>
     to === "/" ? path === "/" : path.startsWith(to);
 
-  const MEALS: { m: MealType; from: string; to: string; accent: string; subKey: string; hour: string }[] = [
-    { m: "petit-dejeuner", from: "#FFF6E5", to: "#FFEAC2", accent: "#F59E0B", subKey: "meal.breakfastSub", hour: "7 – 10h" },
-    { m: "dejeuner",       from: "#E9FBF3", to: "#CFF5E4", accent: "#2DD4A8", subKey: "meal.lunchSub",      hour: "12 – 14h" },
-    { m: "diner",          from: "#EEF2FF", to: "#DDE6FF", accent: "#3B82F6", subKey: "meal.dinnerSub",     hour: "19 – 22h" },
+  const MEALS: { m: MealType; from: string; to: string; accent: string; subKey: string; hour: string; img: string }[] = [
+    { m: "petit-dejeuner", from: "#FFF6E5", to: "#FFEAC2", accent: "#F59E0B", subKey: "meal.breakfastSub", hour: "7 – 10h",
+      img: "https://images.unsplash.com/photo-1528207776546-365bb710ee93?auto=format&fit=crop&w=400&q=80" },
+    { m: "dejeuner",       from: "#E9FBF3", to: "#CFF5E4", accent: "#2DD4A8", subKey: "meal.lunchSub",      hour: "12 – 14h",
+      img: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=400&q=80" },
+    { m: "diner",          from: "#EEF2FF", to: "#DDE6FF", accent: "#3B82F6", subKey: "meal.dinnerSub",     hour: "19 – 22h",
+      img: "https://images.unsplash.com/photo-1432139509613-5c4255815697?auto=format&fit=crop&w=400&q=80" },
   ];
 
   return (
@@ -115,7 +118,7 @@ export function BottomNav() {
             {t("meal.pickHint") || ""}
           </p>
           <div className="space-y-3">
-            {MEALS.map(({ m, from, to, accent, subKey, hour }) => {
+            {MEALS.map(({ m, from, to, accent, subKey, hour, img }) => {
               const meta = MEAL_META[m];
               const isSuggested = suggested === m;
               return (
@@ -124,7 +127,7 @@ export function BottomNav() {
                   onClick={() => pickMeal(m)}
                   className="relative flex w-full items-center overflow-hidden text-left transition active:scale-[0.98]"
                   style={{
-                    padding: "16px 18px",
+                    padding: "14px 16px",
                     gap: 14,
                     borderRadius: 22,
                     background: `linear-gradient(135deg, ${from} 0%, ${to} 100%)`,
@@ -135,16 +138,22 @@ export function BottomNav() {
                   }}
                 >
                   <span
-                    aria-hidden
+                    className="relative overflow-hidden"
                     style={{
-                      width: 44,
-                      height: 44,
-                      borderRadius: 14,
-                      background: accent,
+                      width: 60,
+                      height: 60,
+                      borderRadius: 16,
                       flexShrink: 0,
-                      boxShadow: `0 4px 10px ${accent}55`,
+                      boxShadow: `0 6px 14px ${accent}44`,
                     }}
-                  />
+                  >
+                    <img
+                      src={img}
+                      alt=""
+                      loading="lazy"
+                      className="absolute inset-0 h-full w-full object-cover"
+                    />
+                  </span>
                   <span className="flex-1 min-w-0">
                     <span className="block text-[16px] font-extrabold tracking-tight" style={{ color: "#0F1B17" }}>
                       {t(meta.labelKey)}
