@@ -160,27 +160,34 @@ function Tab({
     <li className="flex-1">
       <Link
         to={tab.to as never}
-        className={`relative flex h-full flex-col items-center justify-center gap-0.5 transition-colors ${
-          active ? "text-primary" : "text-muted-foreground"
-        }`}
+        className="relative flex h-full flex-col items-center justify-center gap-1 transition-colors"
       >
-        <Icon size={22} strokeWidth={active ? 2.4 : 2} />
-        <span className="text-[10px] font-medium">{tab.label}</span>
-        {active && (
-          <span
-            aria-hidden
-            style={{
-              position: "absolute",
-              bottom: 4,
-              width: 4,
-              height: 4,
-              borderRadius: 2,
-              background: "#4CAF82",
-            }}
-          />
-        )}
+        <span
+          className="grid place-items-center transition-all"
+          style={{
+            padding: active ? "6px 14px" : "6px",
+            borderRadius: 12,
+            background: active ? "var(--primary-light)" : "transparent",
+            color: active ? "var(--primary)" : "var(--muted-foreground)",
+          }}
+        >
+          <Icon size={20} strokeWidth={active ? 2.4 : 2} />
+        </span>
+        <span
+          className="text-[10px]"
+          style={{
+            color: active ? "var(--primary)" : "var(--muted-foreground)",
+            fontFamily: active
+              ? "Fredoka, system-ui, sans-serif"
+              : "Inter, system-ui, sans-serif",
+            fontWeight: active ? 600 : 500,
+          }}
+        >
+          {tab.label}
+        </span>
       </Link>
     </li>
   );
 }
+
 
