@@ -54,16 +54,19 @@ function RecettesScreen() {
     return list;
   }, [merged, favs, filter, query, t]);
 
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const meal = useLocalReactive(() => getCurrentMeal());
   const mealMeta = MEAL_META[meal];
 
   return (
     <div className="px-5 pt-8">
       <header className="mb-4">
-        <h1 className="text-2xl font-bold">
-          <span className="mr-1">{mealMeta.emoji}</span>
-          {t("recettes.title")} · {t(mealMeta.labelKey)}
+        <h1 className="text-[28px] font-bold leading-tight tracking-tight">
+          {t("recettes.title")}
+          {mounted && <span className="text-muted-foreground"> · {t(mealMeta.labelKey)}</span>}
         </h1>
+
         <p className="text-sm text-muted-foreground">
           {merged.length > 0
             ? t("recettes.count", { count: merged.length })
