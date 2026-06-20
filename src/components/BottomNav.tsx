@@ -89,14 +89,15 @@ export function BottomNav() {
                   width: 58,
                   height: 58,
                   borderRadius: 29,
-                  background: "var(--accent-coral)",
-                  boxShadow: "0 6px 16px rgba(255,107,91,0.45)",
+                  background: "var(--primary)",
+                  boxShadow: "0 6px 16px rgba(45,139,87,0.45)",
                 }}
               >
                 <Plus size={26} strokeWidth={2.8} />
               </button>
             </div>
           </li>
+
 
           <Tab tab={tabs[2]} active={isActive(tabs[2].to)} />
           <Tab tab={tabs[3]} active={isActive(tabs[3].to)} />
