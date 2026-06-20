@@ -489,12 +489,13 @@ function EmptyRecipes({
     >
       <div className="flex items-center gap-3">
         <div
-          className="grid h-12 w-12 place-items-center rounded-2xl text-2xl"
+          className="grid h-12 w-12 place-items-center rounded-2xl"
           style={{ background: "linear-gradient(135deg,#ECFDF5,#D1FAE5)" }}
           aria-hidden
         >
-          🍳
+          <span style={{ width: 18, height: 18, borderRadius: 9, background: "var(--primary)", display: "block" }} />
         </div>
+
         <div className="flex-1 min-w-0">
           <p className="text-[14px] font-bold" style={{ color: "#1F2937" }}>
             {title}
