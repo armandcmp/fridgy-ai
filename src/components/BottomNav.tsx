@@ -114,6 +114,7 @@ export function BottomNav() {
           <div className="space-y-3">
             {MEALS.map(({ m, color, subKey }) => {
               const meta = MEAL_META[m];
+              void meta;
               const isSuggested = suggested === m;
               return (
                 <button
