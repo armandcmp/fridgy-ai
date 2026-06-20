@@ -246,8 +246,8 @@ function AuthScreen({ onAuthed }: { onAuthed: () => void }) {
   return (
     <div className="animate-fade-up">
       <div className="mb-6 text-center">
-        <div className="text-5xl">🥦</div>
-        <h1 className="mt-3 text-2xl font-bold">FridgeChef</h1>
+        <h1 className="text-2xl font-bold" style={{ fontFamily: "Fredoka, system-ui, sans-serif" }}>FridgeChef</h1>
+
         <p className="mt-1 text-sm text-muted-foreground">
           {mode === "register" ? t("auth.createTitle") : t("auth.loginTitle")}
         </p>
