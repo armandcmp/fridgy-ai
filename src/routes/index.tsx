@@ -92,7 +92,7 @@ function Home() {
     );
   }
 
-  const pc = programColor(user.program);
+  void user;
   const remaining = Math.max(0, LIMITS.recipes - usage.recipesGenerated);
   const recommended = allRecipes.slice(0, 6);
 
