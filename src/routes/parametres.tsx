@@ -220,6 +220,61 @@ function Settings() {
  <h1 className="text-2xl font-bold">{t("settings.title")}</h1>
  </header>
 
+ {/* PROFILE HEADER CARD */}
+ <div
+ className="mb-6 flex items-center gap-4 rounded-3xl p-5"
+ style={{
+ background: "linear-gradient(135deg, #ffffff 0%, #E6FAF4 100%)",
+ boxShadow: "0 6px 24px -12px rgba(45,212,168,0.35)",
+ border: "1px solid rgba(45,212,168,0.18)",
+ }}
+ >
+ <button
+ type="button"
+ onClick={() => photoInputRef.current?.click()}
+ className="relative grid place-items-center transition active:scale-95"
+ aria-label={t("settings.changePhoto")}
+ >
+ <Avatar
+ name={user.name}
+ id={sessionUser?.id ?? "guest"}
+ size={72}
+ color={user.avatarColor}
+ photo={user.avatarPhoto || undefined}
+ />
+ <span
+ className="absolute -bottom-1 -right-1 grid h-7 w-7 place-items-center rounded-full text-white"
+ style={{
+ background: "var(--primary)",
+ boxShadow: "0 4px 10px rgba(45,212,168,0.45)",
+ border: "2px solid white",
+ }}
+ >
+ <Camera size={13} />
+ </span>
+ </button>
+ <div className="min-w-0 flex-1">
+ <p className="truncate text-base font-bold">{user.name}</p>
+ {sessionUser?.email && (
+ <p className="truncate text-xs text-muted-foreground">{sessionUser.email}</p>
+ )}
+ <p className="mt-1 text-[11px] font-semibold uppercase tracking-wider text-primary">
+ {user.program}
+ </p>
+ </div>
+ <input
+ ref={photoInputRef}
+ type="file"
+ accept="image/*"
+ className="hidden"
+ onChange={(e) => {
+ const f = e.target.files?.[0];
+ if (f) onPickPhoto(f);
+ e.target.value = "";
+ }}
+ />
+ </div>
+
  {/* PROFILE */}
  <Section title={t("settings.profile")}>
  <Row label={t("settings.name")}>
@@ -263,19 +318,28 @@ function Settings() {
  </div>
  </div>
  )}
- <Row label={t("settings.avatarColor")}>
- <div className="flex gap-1.5">
- {COLORS.map((c) => (
+ <Row label={t("settings.profilePhoto")}>
+ <div className="flex items-center gap-2">
  <button
- key={c}
- onClick={() => storage.patchUser({ avatarColor: c })}
- className={`h-6 w-6 rounded-full ${user.avatarColor === c ? "ring-2 ring-offset-2 ring-foreground" : ""}`}
- style={{ background: c }}
- />
- ))}
+ onClick={() => photoInputRef.current?.click()}
+ className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary"
+ >
+ <Camera size={13} />
+ {t("settings.changePhoto")}
+ </button>
+ {user.avatarPhoto && (
+ <button
+ onClick={removePhoto}
+ className="grid h-8 w-8 place-items-center rounded-full bg-muted text-muted-foreground"
+ aria-label={t("settings.removePhoto")}
+ >
+ <Trash2 size={13} />
+ </button>
+ )}
  </div>
  </Row>
  </Section>
+
 
  {/* PREFERENCES */}
  <Section title={t("settings.preferences")}>
