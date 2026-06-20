@@ -85,9 +85,9 @@ function Home() {
         style={{ background: "#F8FAF8" }}
       >
         <div className="text-center">
-          <div className="text-5xl animate-float-soft">🥦</div>
-          <h1 className="mt-3 text-xl font-bold tracking-tight">FridgeChef</h1>
+          <h1 className="text-2xl font-bold tracking-tight" style={{ fontFamily: "Fredoka, system-ui, sans-serif" }}>FridgeChef</h1>
         </div>
+
       </div>
     );
   }
