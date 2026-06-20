@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { storage } from "@/lib/storage";
@@ -54,16 +54,19 @@ function RecettesScreen() {
     return list;
   }, [merged, favs, filter, query, t]);
 
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const meal = useLocalReactive(() => getCurrentMeal());
   const mealMeta = MEAL_META[meal];
 
   return (
     <div className="px-5 pt-8">
       <header className="mb-4">
-        <h1 className="text-2xl font-bold">
-          <span className="mr-1">{mealMeta.emoji}</span>
-          {t("recettes.title")} · {t(mealMeta.labelKey)}
+        <h1 className="text-[28px] font-bold leading-tight tracking-tight">
+          {t("recettes.title")}
+          {mounted && <span className="text-muted-foreground"> · {t(mealMeta.labelKey)}</span>}
         </h1>
+
         <p className="text-sm text-muted-foreground">
           {merged.length > 0
             ? t("recettes.count", { count: merged.length })
@@ -92,12 +95,9 @@ function RecettesScreen() {
             <button
               key={f.id}
               onClick={() => setFilter(f.id)}
-              className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold transition ${
-                active
-                  ? "bg-primary text-primary-foreground"
-                  : "border border-border bg-card text-foreground"
-              }`}
+              className={`pill ${active ? "pill-active" : ""}`}
             >
+
               {f.label}
             </button>
           );
@@ -110,10 +110,11 @@ function RecettesScreen() {
           <Link
             to="/frigo"
             search={{ mode: "photo" as const }}
-            className="mt-5 inline-block rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground"
+            className="btn-primary mt-5 inline-block"
           >
             {t("home.scan")} →
           </Link>
+
         </div>
       ) : filtered.length === 0 ? (
         <div className="fc-card p-6 text-center text-sm text-muted-foreground">

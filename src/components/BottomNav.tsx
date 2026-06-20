@@ -190,7 +190,7 @@ function Tab({
           style={{
             color: active ? "var(--primary)" : "var(--muted-foreground)",
             fontFamily: active
-              ? "Fredoka, system-ui, sans-serif"
+              ? "Inter, system-ui, sans-serif"
               : "Inter, system-ui, sans-serif",
             fontWeight: active ? 600 : 500,
           }}
