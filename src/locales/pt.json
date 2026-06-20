@@ -351,5 +351,17 @@
   "recettes.searchPh": "Buscar uma receita...",
   "recettes.fAll": "Todas",
   "recettes.fFav": "Favoritos",
-  "recettes.noMatch": "Nenhuma receita corresponde"
+  "recettes.noMatch": "Nenhuma receita corresponde",
+  "home.subtitle": "Pronto para cozinhar algo incrível hoje?",
+  "home.heroTitle": "🥬 O que vamos cozinhar hoje?",
+  "home.heroSub": "Escaneie sua geladeira e descubra instantaneamente receitas adaptadas aos seus ingredientes.",
+  "home.heroCta": "📸 Escanear minha geladeira",
+  "home.aiTitle": "Sugestão IA",
+  "home.aiBadge": "Com IA",
+  "home.aiBody": "Com os ingredientes da sua geladeira, encontramos várias receitas adaptadas aos seus objetivos.",
+  "home.recommended": "Recomendado para você",
+  "home.aiRecommended": "Recomendado por IA",
+  "home.emptyRecipesTitle": "Nenhuma receita ainda",
+  "home.emptyRecipesSub": "Escaneie sua geladeira para gerar suas primeiras receitas com IA.",
+  "home.statsTitle": "Esta semana"
 }

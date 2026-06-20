@@ -351,5 +351,17 @@
   "recettes.searchPh": "搜索菜谱...",
   "recettes.fAll": "全部",
   "recettes.fFav": "收藏夹",
-  "recettes.noMatch": "未找到相关菜谱"
+  "recettes.noMatch": "未找到相关菜谱",
+  "home.subtitle": "准备好今天做点美味的吗？",
+  "home.heroTitle": "🥬 今天做什么菜？",
+  "home.heroSub": "扫描你的冰箱，立即发现适合你食材的食谱。",
+  "home.heroCta": "📸 扫描我的冰箱",
+  "home.aiTitle": "AI 建议",
+  "home.aiBadge": "AI 驱动",
+  "home.aiBody": "根据你冰箱里的食材，我们为你找到了多个符合你目标的食谱。",
+  "home.recommended": "为你推荐",
+  "home.aiRecommended": "AI 推荐",
+  "home.emptyRecipesTitle": "暂无食谱",
+  "home.emptyRecipesSub": "扫描你的冰箱以生成你的第一批 AI 食谱。",
+  "home.statsTitle": "本周"
 }

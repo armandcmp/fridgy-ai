@@ -351,5 +351,17 @@
   "recettes.searchPh": "Buscar una receta...",
   "recettes.fAll": "Todas",
   "recettes.fFav": "Favoritos",
-  "recettes.noMatch": "Ninguna receta coincide"
+  "recettes.noMatch": "Ninguna receta coincide",
+  "home.subtitle": "¿Listo para cocinar algo increíble hoy?",
+  "home.heroTitle": "🥬 ¿Qué cocinamos hoy?",
+  "home.heroSub": "Escanea tu nevera y descubre al instante recetas adaptadas a tus ingredientes.",
+  "home.heroCta": "📸 Escanear mi nevera",
+  "home.aiTitle": "Sugerencia IA",
+  "home.aiBadge": "Con IA",
+  "home.aiBody": "Con los ingredientes de tu nevera, encontramos varias recetas adaptadas a tus objetivos.",
+  "home.recommended": "Recomendado para ti",
+  "home.aiRecommended": "Recomendado por IA",
+  "home.emptyRecipesTitle": "Aún no hay recetas",
+  "home.emptyRecipesSub": "Escanea tu nevera para generar tus primeras recetas con IA.",
+  "home.statsTitle": "Esta semana"
 }
