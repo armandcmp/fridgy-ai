@@ -214,44 +214,44 @@ function Frigo() {
 
       {mode === "menu" && (
         <div className="grid grid-cols-1 gap-3">
-          <button
-            onClick={() => fileRef.current?.click()}
-            disabled={busy}
-            className="fc-card flex items-center gap-4 p-4 text-left transition active:scale-[0.98] disabled:opacity-60"
-          >
-            <div className="grid h-11 w-11 place-items-center rounded-xl bg-primary/15 text-primary">
-              <Camera size={20} />
-            </div>
-            <div>
-              <div className="font-semibold">{t("frigo.photo")}</div>
-              <div className="text-xs text-muted-foreground">{t("frigo.photoSub")}</div>
-            </div>
-          </button>
-          <button
-            onClick={() => setMode("manual")}
-            className="fc-card flex items-center gap-4 p-4 text-left transition active:scale-[0.98]"
-          >
-            <div className="grid h-11 w-11 place-items-center rounded-xl bg-sky-100 text-sky-700">
-              <Keyboard size={20} />
-            </div>
-            <div>
-              <div className="font-semibold">{t("frigo.manual")}</div>
-              <div className="text-xs text-muted-foreground">{t("frigo.manualSub")}</div>
-            </div>
-          </button>
-          <button
-            onClick={() => setVoiceOpen(true)}
-            disabled={busy}
-            className="fc-card flex items-center gap-4 p-4 text-left transition active:scale-[0.98] disabled:opacity-60"
-          >
-            <div className="grid h-11 w-11 place-items-center rounded-xl bg-violet-100 text-violet-700">
-              <Mic size={20} />
-            </div>
-            <div className="flex-1">
-              <div className="font-semibold">{t("frigo.voice")}</div>
-              <div className="text-xs text-muted-foreground">{t("frigo.voiceSub")}</div>
-            </div>
-          </button>
+          {[
+            { onClick: () => fileRef.current?.click(), disabled: busy, Icon: Camera, title: t("frigo.photo"), sub: t("frigo.photoSub"), from: "#E9FBF3", to: "#CFF5E4", accent: "#2DD4A8" },
+            { onClick: () => setMode("manual"), disabled: false, Icon: Keyboard, title: t("frigo.manual"), sub: t("frigo.manualSub"), from: "#EEF2FF", to: "#DDE6FF", accent: "#3B82F6" },
+            { onClick: () => setVoiceOpen(true), disabled: busy, Icon: Mic, title: t("frigo.voice"), sub: t("frigo.voiceSub"), from: "#F5EEFF", to: "#E7DAFF", accent: "#8B5CF6" },
+          ].map(({ onClick, disabled, Icon, title, sub, from, to, accent }) => (
+            <button
+              key={title}
+              onClick={onClick}
+              disabled={disabled}
+              className="flex items-center text-left transition active:scale-[0.98] disabled:opacity-60"
+              style={{
+                gap: 16,
+                padding: "18px 18px",
+                borderRadius: 22,
+                background: `linear-gradient(135deg, ${from} 0%, ${to} 100%)`,
+                border: "1.5px solid transparent",
+                boxShadow: "0 2px 10px rgba(15,27,23,0.04)",
+              }}
+            >
+              <div
+                className="grid place-items-center text-white"
+                style={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: 16,
+                  background: accent,
+                  boxShadow: `0 6px 14px ${accent}55`,
+                  flexShrink: 0,
+                }}
+              >
+                <Icon size={22} strokeWidth={2.2} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-[16px] font-extrabold tracking-tight" style={{ color: "#0F1B17" }}>{title}</div>
+                <div className="text-[12px]" style={{ color: "#5A6B62" }}>{sub}</div>
+              </div>
+            </button>
+          ))}
         </div>
       )}
 

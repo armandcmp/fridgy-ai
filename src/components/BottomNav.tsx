@@ -55,10 +55,10 @@ export function BottomNav() {
   const isActive = (to: string) =>
     to === "/" ? path === "/" : path.startsWith(to);
 
-  const MEALS: { m: MealType; color: string; subKey: string }[] = [
-    { m: "petit-dejeuner", color: "#F59E0B", subKey: "meal.breakfastSub" },
-    { m: "dejeuner", color: "#4CAF82", subKey: "meal.lunchSub" },
-    { m: "diner", color: "#3B82F6", subKey: "meal.dinnerSub" },
+  const MEALS: { m: MealType; from: string; to: string; accent: string; subKey: string; hour: string }[] = [
+    { m: "petit-dejeuner", from: "#FFF6E5", to: "#FFEAC2", accent: "#F59E0B", subKey: "meal.breakfastSub", hour: "7 – 10h" },
+    { m: "dejeuner",       from: "#E9FBF3", to: "#CFF5E4", accent: "#2DD4A8", subKey: "meal.lunchSub",      hour: "12 – 14h" },
+    { m: "diner",          from: "#EEF2FF", to: "#DDE6FF", accent: "#3B82F6", subKey: "meal.dinnerSub",     hour: "19 – 22h" },
   ];
 
   return (
@@ -89,8 +89,8 @@ export function BottomNav() {
                   width: 58,
                   height: 58,
                   borderRadius: 29,
-                  background: "#0F1B17",
-                  boxShadow: "0 6px 16px rgba(15,27,23,0.30)",
+                  background: "var(--primary)",
+                  boxShadow: "0 8px 18px rgba(45,212,168,0.45)",
                 }}
               >
                 <Plus size={26} strokeWidth={2.8} />
@@ -108,48 +108,59 @@ export function BottomNav() {
       {/* STEP 1 — Quel repas ? */}
       <BottomSheet open={step === "meal"} onClose={closeSheets}>
         <div className="pb-2">
-          <h3 className="mb-4 text-center text-[18px] font-bold">
+          <h3 className="mb-1 text-center text-[20px] font-extrabold tracking-tight" style={{ color: "#0F1B17" }}>
             {t("sheet.mealLabel")}
           </h3>
+          <p className="mb-5 text-center text-[12.5px]" style={{ color: "#7A8A85" }}>
+            {t("meal.pickHint") || ""}
+          </p>
           <div className="space-y-3">
-            {MEALS.map(({ m, color, subKey }) => {
+            {MEALS.map(({ m, from, to, accent, subKey, hour }) => {
               const meta = MEAL_META[m];
-              void meta;
               const isSuggested = suggested === m;
               return (
                 <button
                   key={m}
                   onClick={() => pickMeal(m)}
-                  className="flex w-full items-center text-left transition active:scale-[0.98]"
+                  className="relative flex w-full items-center overflow-hidden text-left transition active:scale-[0.98]"
                   style={{
-                    height: 72,
+                    padding: "16px 18px",
                     gap: 14,
-                    padding: "0 14px",
-                    borderRadius: 14,
-                    background: isSuggested ? "rgba(76,175,130,0.08)" : "#FFFFFF",
-                    border: "1px solid #F0F0EE",
-                    borderLeft: `4px solid ${color}`,
+                    borderRadius: 22,
+                    background: `linear-gradient(135deg, ${from} 0%, ${to} 100%)`,
+                    border: isSuggested ? `1.5px solid ${accent}` : "1.5px solid transparent",
+                    boxShadow: isSuggested
+                      ? `0 8px 20px ${accent}33`
+                      : "0 2px 8px rgba(15,27,23,0.04)",
                   }}
                 >
                   <span
                     aria-hidden
                     style={{
-                      width: 10,
+                      width: 44,
                       height: 44,
-                      borderRadius: 5,
-                      background: color,
+                      borderRadius: 14,
+                      background: accent,
                       flexShrink: 0,
+                      boxShadow: `0 4px 10px ${accent}55`,
                     }}
                   />
-
                   <span className="flex-1 min-w-0">
-                    <span className="block text-[15px] font-bold">
+                    <span className="block text-[16px] font-extrabold tracking-tight" style={{ color: "#0F1B17" }}>
                       {t(meta.labelKey)}
                     </span>
-                    <span className="block text-xs text-muted-foreground truncate">
-                      {t(subKey)}
+                    <span className="block text-[12px] truncate" style={{ color: "#5A6B62" }}>
+                      {t(subKey)} · {hour}
                     </span>
                   </span>
+                  {isSuggested && (
+                    <span
+                      className="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide"
+                      style={{ background: "#0F1B17", color: "#fff" }}
+                    >
+                      {t("meal.now") || "Maintenant"}
+                    </span>
+                  )}
                 </button>
               );
             })}

@@ -65,7 +65,7 @@ export async function buildRecipeShareImage(
   ctx.fillStyle = "#fff";
   ctx.font = "bold 18px -apple-system, system-ui, sans-serif";
   ctx.textAlign = "left";
-  ctx.fillText("FridgeChef", 20, 32);
+  ctx.fillText("Fridgy", 20, 32);
 
   // 4. Title
   ctx.font = "bold 26px -apple-system, system-ui, sans-serif";
@@ -100,12 +100,12 @@ export async function buildRecipeShareImage(
     ctx.fillStyle = "rgba(255,255,255,0.85)";
     ctx.font = "italic 11px -apple-system, system-ui, sans-serif";
     ctx.textAlign = "right";
-    ctx.fillText("Généré avec FridgeChef", W - 16, H - 14);
+    ctx.fillText("Généré avec Fridgy", W - 16, H - 14);
   } else {
     ctx.fillStyle = "rgba(255,255,255,0.95)";
     ctx.font = "italic 11px -apple-system, system-ui, sans-serif";
     ctx.textAlign = "right";
-    ctx.fillText("FridgeChef", W - 16, H - 14);
+    ctx.fillText("Fridgy", W - 16, H - 14);
   }
 
   return await new Promise<Blob>((res, rej) => {

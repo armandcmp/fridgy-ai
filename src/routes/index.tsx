@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Crown, ChevronRight, Sparkles, Clock, Flame, Heart, Plus, ArrowRight } from "lucide-react";
+import { Crown, ChevronRight, Sparkles, Clock, Flame, Heart, Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { storage } from "@/lib/storage";
 import { useLocalReactive } from "@/lib/hooks";
@@ -85,7 +85,7 @@ function Home() {
         style={{ background: "#F8FAF8" }}
       >
         <div className="text-center">
-          <h1 className="text-2xl font-bold tracking-tight" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>FridgeChef</h1>
+          <h1 className="text-2xl font-bold tracking-tight" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>Fridgy</h1>
         </div>
 
       </div>
@@ -101,12 +101,22 @@ function Home() {
       <div className="px-5 pt-6">
         {/* TOP BAR */}
         <header className="mb-6 flex items-center justify-between animate-fade-up">
-          <Avatar name={sess.prenom} id={sess.id} color={sess.avatarColor} size={40} />
+          <Link to="/parametres" className="flex items-center gap-3 min-w-0">
+            <Avatar name={sess.prenom} id={sess.id} color={sess.avatarColor} size={42} />
+            <div className="min-w-0">
+              <p className="truncate text-[14.5px] font-bold tracking-tight" style={{ color: "#0F1B17" }}>
+                {sess.prenom}
+              </p>
+              <p className="truncate text-[11.5px]" style={{ color: "#7A8A85" }}>
+                {sess.email}
+              </p>
+            </div>
+          </Link>
           <div className="flex items-center gap-2">
             {premium && (
               <span
                 className="inline-grid h-7 w-7 place-items-center rounded-full text-white"
-                style={{ background: "#0F1B17" }}
+                style={{ background: "var(--primary)" }}
                 aria-label="Pro"
               >
                 <Crown size={14} />
@@ -115,42 +125,31 @@ function Home() {
           </div>
         </header>
 
-        {/* HERO — big bold title + image + black CTA */}
+        {/* HERO — title only, refined image */}
         <section className="animate-fade-up mb-8">
           <div
-            className="relative overflow-hidden mb-6"
+            className="relative overflow-hidden mb-5"
             style={{
-              borderRadius: 28,
-              aspectRatio: "1 / 1",
+              borderRadius: 24,
+              aspectRatio: "16 / 10",
               background: "linear-gradient(180deg,#F4F6F5 0%,#E6FAF4 100%)",
             }}
           >
             <img
-              src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=800&q=80"
+              src="https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=1200&q=80"
               alt=""
               className="absolute inset-0 h-full w-full object-cover"
               loading="eager"
             />
           </div>
 
-          <h1 className="display-title text-[34px]">
+          <h1 className="display-title text-[28px]">
             {t("home.heroTitle")}
           </h1>
-          <p className="mt-3 text-[14px] leading-relaxed" style={{ color: "#6B7C72" }}>
-            {t("home.heroSub")}
-          </p>
-
-          <button
-            onClick={() => nav({ to: "/frigo", search: { mode: "photo" as const } })}
-            className="btn-primary mt-5 flex w-full items-center justify-center gap-2"
-          >
-            {t("home.heroCta")}
-            <ArrowRight size={18} strokeWidth={2.4} />
-          </button>
           {!premium && (
             <button
               onClick={() => remaining === 0 && setPaywall(true)}
-              className="mt-3 block w-full text-center text-[12px] font-medium"
+              className="mt-2 block text-[12px] font-medium"
               style={{ color: "#7A8A85" }}
             >
               {t("home.usageLeft", { count: remaining })}
@@ -158,10 +157,6 @@ function Home() {
           )}
         </section>
 
-        {/* GREETING — subtle, secondary */}
-        <p className="mb-4 text-[14px]" style={{ color: "#7A8A85" }}>
-          {t("home.greeting", { name: sess.prenom })} — {t("home.subtitle")}
-        </p>
 
 
         {/* TODAY (compact pill if logged) */}
