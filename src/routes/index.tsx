@@ -210,8 +210,9 @@ function Home() {
                   color: "#fff",
                 }}
               >
-                {programEmoji(user.program)} {user.program}
+                {user.program}
               </span>
+
             </div>
           </div>
         </section>
