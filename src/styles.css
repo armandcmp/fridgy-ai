@@ -131,9 +131,10 @@
 .animate-fade-up { animation: fade-up 300ms ease-out both; }
 
 .fc-card {
-  background: var(--card);
+  background: linear-gradient(160deg, #FFFFFF 0%, #FFFFFF 55%, #E8F5EC 100%);
   border-radius: 20px;
   box-shadow: var(--shadow-card);
+  border: 1px solid rgba(45,139,87,0.06);
 }
 
 .scrollbar-hide::-webkit-scrollbar { display: none; }

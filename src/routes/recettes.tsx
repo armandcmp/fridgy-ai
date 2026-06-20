@@ -30,11 +30,11 @@ function RecettesScreen() {
 
   const FILTERS: { id: Filter; label: string }[] = [
     { id: "all", label: t("recettes.fAll") },
-    { id: "bulk", label: `💪 ${t("program.bulk")}` },
-    { id: "cut", label: `🔥 ${t("program.cut")}` },
-    { id: "loss", label: `⚖️ ${t("program.loss")}` },
-    { id: "maintain", label: `🎯 ${t("program.maintain")}` },
-    { id: "fav", label: `❤️ ${t("recettes.fFav")}` },
+    { id: "bulk", label: t("program.bulk") },
+    { id: "cut", label: t("program.cut") },
+    { id: "loss", label: t("program.loss") },
+    { id: "maintain", label: t("program.maintain") },
+    { id: "fav", label: t("recettes.fFav") },
   ];
 
   const filtered = useMemo(() => {
@@ -106,7 +106,6 @@ function RecettesScreen() {
 
       {merged.length === 0 ? (
         <div className="fc-card p-8 text-center">
-          <div className="text-5xl">🍽</div>
           <p className="mt-3 text-sm text-muted-foreground">{t("recettes.emptyHint")}</p>
           <Link
             to="/frigo"

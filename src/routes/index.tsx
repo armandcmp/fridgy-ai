@@ -85,9 +85,9 @@ function Home() {
         style={{ background: "#F8FAF8" }}
       >
         <div className="text-center">
-          <div className="text-5xl animate-float-soft">🥦</div>
-          <h1 className="mt-3 text-xl font-bold tracking-tight">FridgeChef</h1>
+          <h1 className="text-2xl font-bold tracking-tight" style={{ fontFamily: "Fredoka, system-ui, sans-serif" }}>FridgeChef</h1>
         </div>
+
       </div>
     );
   }
@@ -103,17 +103,8 @@ function Home() {
         <header className="mb-5 flex items-center gap-3 animate-fade-up">
           <div className="relative">
             <Avatar name={sess.prenom} id={sess.id} color={sess.avatarColor} size={44} />
-            <span
-              className="absolute -bottom-1 -right-1 grid h-5 w-5 place-items-center rounded-full text-xs"
-              style={{
-                background: "#fff",
-                boxShadow: "0 2px 6px rgba(0,0,0,0.12)",
-              }}
-              aria-hidden
-            >
-              👨‍🍳
-            </span>
           </div>
+
           <div className="flex-1 min-w-0">
             <h1 className="inline-flex items-center gap-1.5 text-[20px] font-bold leading-tight" style={{ color: "#1F2937" }}>
               {t("home.greeting", { name: sess.prenom })}
@@ -196,8 +187,9 @@ function Home() {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <h3 className="text-[15px] font-bold" style={{ color: "#1F2937" }}>
-                  🤖 {t("home.aiTitle")}
+                  {t("home.aiTitle")}
                 </h3>
+
                 <span
                   className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wide"
                   style={{
@@ -218,8 +210,9 @@ function Home() {
                   color: "#fff",
                 }}
               >
-                {programEmoji(user.program)} {user.program}
+                {user.program}
               </span>
+
             </div>
           </div>
         </section>
@@ -237,12 +230,13 @@ function Home() {
             }}
           >
             <div
-              className="grid h-10 w-10 place-items-center rounded-2xl text-lg"
-              style={{ background: "rgba(34,197,94,0.12)" }}
+              className="grid h-10 w-10 place-items-center rounded-2xl"
+              style={{ background: "rgba(45,139,87,0.12)" }}
               aria-hidden
             >
-              🍽️
+              <span style={{ width: 16, height: 16, borderRadius: 8, background: "var(--primary)", display: "block" }} />
             </div>
+
             <div className="flex-1 min-w-0">
               <p className="truncate text-[13.5px] font-semibold" style={{ color: "#1F2937" }}>
                 {todayMeal.recette.titre}
@@ -495,12 +489,13 @@ function EmptyRecipes({
     >
       <div className="flex items-center gap-3">
         <div
-          className="grid h-12 w-12 place-items-center rounded-2xl text-2xl"
+          className="grid h-12 w-12 place-items-center rounded-2xl"
           style={{ background: "linear-gradient(135deg,#ECFDF5,#D1FAE5)" }}
           aria-hidden
         >
-          🍳
+          <span style={{ width: 18, height: 18, borderRadius: 9, background: "var(--primary)", display: "block" }} />
         </div>
+
         <div className="flex-1 min-w-0">
           <p className="text-[14px] font-bold" style={{ color: "#1F2937" }}>
             {title}

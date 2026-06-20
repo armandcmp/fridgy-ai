@@ -89,14 +89,15 @@ export function BottomNav() {
                   width: 58,
                   height: 58,
                   borderRadius: 29,
-                  background: "var(--accent-coral)",
-                  boxShadow: "0 6px 16px rgba(255,107,91,0.45)",
+                  background: "var(--primary)",
+                  boxShadow: "0 6px 16px rgba(45,139,87,0.45)",
                 }}
               >
                 <Plus size={26} strokeWidth={2.8} />
               </button>
             </div>
           </li>
+
 
           <Tab tab={tabs[2]} active={isActive(tabs[2].to)} />
           <Tab tab={tabs[3]} active={isActive(tabs[3].to)} />
@@ -113,6 +114,7 @@ export function BottomNav() {
           <div className="space-y-3">
             {MEALS.map(({ m, color, subKey }) => {
               const meta = MEAL_META[m];
+              void meta;
               const isSuggested = suggested === m;
               return (
                 <button
@@ -129,7 +131,17 @@ export function BottomNav() {
                     borderLeft: `4px solid ${color}`,
                   }}
                 >
-                  <span style={{ fontSize: 28, lineHeight: 1 }}>{meta.emoji}</span>
+                  <span
+                    aria-hidden
+                    style={{
+                      width: 10,
+                      height: 44,
+                      borderRadius: 5,
+                      background: color,
+                      flexShrink: 0,
+                    }}
+                  />
+
                   <span className="flex-1 min-w-0">
                     <span className="block text-[15px] font-bold">
                       {t(meta.labelKey)}

@@ -17,8 +17,7 @@ function MealBadge({ mealType }: { mealType?: MealType }) {
       className="inline-flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-semibold shadow-sm"
       style={{ color: meta.color, fontFamily: "Fredoka, system-ui, sans-serif" }}
     >
-      <span>{meta.emoji}</span>
-      <span>{t(meta.shortKey)}</span>
+      {t(meta.shortKey)}
     </span>
   );
 }

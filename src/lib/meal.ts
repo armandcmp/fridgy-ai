@@ -8,20 +8,20 @@ export const MEAL_META: Record<
   { emoji: string; color: string; labelKey: string; shortKey: string }
 > = {
   "petit-dejeuner": {
-    emoji: "🌅",
-    color: "#F59E0B",
+    emoji: "",
+    color: "#F4A93C",
     labelKey: "meal.breakfast",
     shortKey: "meal.breakfastShort",
   },
   dejeuner: {
-    emoji: "☀️",
-    color: "#4CAF82",
+    emoji: "",
+    color: "#2D8B57",
     labelKey: "meal.lunch",
     shortKey: "meal.lunchShort",
   },
   diner: {
-    emoji: "🌙",
-    color: "#3B82F6",
+    emoji: "",
+    color: "#4F8FD9",
     labelKey: "meal.dinner",
     shortKey: "meal.dinnerShort",
   },
