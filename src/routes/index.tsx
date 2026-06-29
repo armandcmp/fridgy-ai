@@ -154,9 +154,10 @@ function Home() {
           <img
             src={fridgyLogo.url}
             alt="Fridgy"
-            className="mx-auto mb-4 h-24 w-24 shadow-lg"
+            className="mx-auto mb-4 h-24 w-24 rounded-3xl object-cover shadow-lg"
             style={{ animation: "pulse-ring 1.6s ease-in-out infinite" }}
           />
+
           <h1 className="text-2xl font-bold tracking-tight" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>Fridgy</h1>
         </div>
 
