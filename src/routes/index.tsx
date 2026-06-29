@@ -127,6 +127,8 @@ function Home() {
               </span>
             )}
           </div>
+            <img src={fridgyLogo.url} alt="Fridgy" className="h-10 w-10 rounded-2xl shadow-sm" />
+          </div>
         </header>
 
         {/* HERO — title only, refined image */}
