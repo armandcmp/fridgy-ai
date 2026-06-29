@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Crown, ChevronRight, Clock, Flame, Heart, Plus } from "lucide-react";
+import { Crown, ChevronRight, Clock, Flame, Heart, Plus, Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { storage } from "@/lib/storage";
 import { useLocalReactive } from "@/lib/hooks";
@@ -11,6 +11,74 @@ import { Avatar } from "@/components/Avatar";
 import { StatsSection } from "@/components/StatsSection";
 import type { Recipe } from "@/lib/types";
 import fridgyLogo from "@/assets/fridgy-logo.jpeg.asset.json";
+import { getTrialInfo } from "@/lib/trial";
+
+function UpgradeCard({ onOpen }: { onOpen: () => void }) {
+  const trial = getTrialInfo();
+  const inTrial = trial.active;
+  return (
+    <button
+      onClick={onOpen}
+      className="mt-4 block w-full overflow-hidden rounded-[22px] p-[1.5px] text-left transition active:scale-[0.99]"
+      style={{
+        background: "linear-gradient(135deg,#34D399 0%,#2D8B57 55%,#0F1B17 100%)",
+        boxShadow: "0 12px 30px -14px rgba(15,27,23,0.45)",
+      }}
+    >
+      <div
+        className="rounded-[20px] px-4 py-4"
+        style={{ background: "linear-gradient(135deg,#FFFFFF 0%,#ECFDF5 100%)" }}
+      >
+        <div className="flex items-center gap-3">
+          <div
+            className="grid h-12 w-12 place-items-center rounded-2xl text-white"
+            style={{ background: "linear-gradient(135deg,#2D8B57,#0F1B17)" }}
+          >
+            <Crown size={22} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-[15px] font-extrabold tracking-tight" style={{ color: "#0F1B17" }}>
+              Fridgy Premium
+            </p>
+            <p className="text-[11.5px] font-medium" style={{ color: "#475569" }}>
+              {inTrial
+                ? `Essai gratuit · ${trial.daysLeft} j restant${trial.daysLeft > 1 ? "s" : ""}`
+                : "Recettes illimitées & plus encore"}
+            </p>
+          </div>
+          {inTrial && (
+            <span
+              className="flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-extrabold text-white"
+              style={{ background: "linear-gradient(135deg,#2D8B57,#0F1B17)" }}
+            >
+              <Sparkles size={10} /> −30 % 1er mois
+            </span>
+          )}
+        </div>
+        <ul className="mt-3 grid grid-cols-1 gap-1.5 text-[12.5px]" style={{ color: "#334155" }}>
+          <li className="flex items-center gap-2">
+            <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: "#2D8B57" }} />
+            Recettes illimitées chaque jour
+          </li>
+          <li className="flex items-center gap-2">
+            <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: "#2D8B57" }} />
+            Planning, historique & liste de courses
+          </li>
+          <li className="flex items-center gap-2">
+            <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: "#2D8B57" }} />
+            Génération prioritaire & sans pub
+          </li>
+        </ul>
+        <div
+          className="mt-3 grid place-items-center rounded-full py-2.5 text-[13px] font-extrabold text-white"
+          style={{ background: "linear-gradient(135deg,#2D8B57,#0F1B17)" }}
+        >
+          {inTrial ? "Voir les formules" : "Découvrir les abonnements"} →
+        </div>
+      </div>
+    </button>
+  );
+}
 
 export const Route = createFileRoute("/")({
   component: Home,
