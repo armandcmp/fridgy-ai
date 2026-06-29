@@ -20,12 +20,12 @@ export function PaywallModal({
   const [cycle, setCycle] = useState<Cycle>("monthly");
   const trial = typeof window !== "undefined" ? getTrialInfo() : null;
   const trialActive = !!trial?.active;
-  const discount = trialActive ? 0.3 : 0;
 
-  const monthlyBase = 4.49;
-  const annualBase = 39.99; // ≈ 3,33€/mois
-  const basePrice = cycle === "monthly" ? monthlyBase : annualBase;
-  const firstPrice = basePrice * (1 - (cycle === "monthly" ? discount : 0));
+  const monthlyPrice = 3.89;
+  const annualPrice = 35.88; // 2,99€/mois facturé annuellement
+  const annualMonthly = annualPrice / 12;
+  const annualStrike = monthlyPrice * 12; // 46,68€
+  const savingsPct = Math.round((1 - annualPrice / annualStrike) * 100);
 
   useEffect(() => {
     if (open) requestAnimationFrame(() => setShown(true));
@@ -103,7 +103,7 @@ export function PaywallModal({
               <Sparkles size={14} />
               Essai gratuit — {trial!.daysLeft} jour
               {trial!.daysLeft > 1 ? "s" : ""} restant
-              {trial!.daysLeft > 1 ? "s" : ""}. −30 % sur le 1er mois.
+              {trial!.daysLeft > 1 ? "s" : ""}.
             </div>
           )}
 
@@ -124,7 +124,7 @@ export function PaywallModal({
                 <button
                   key={c}
                   onClick={() => setCycle(c)}
-                  className="rounded-full py-2 text-[12.5px] font-extrabold transition"
+                  className="relative rounded-full py-2 text-[12.5px] font-extrabold transition"
                   style={{
                     background: active
                       ? "linear-gradient(135deg,#F59E0B,#B45309)"
@@ -132,7 +132,7 @@ export function PaywallModal({
                     color: active ? "#FFFFFF" : "#7C2D12",
                   }}
                 >
-                  {c === "monthly" ? "Mensuel" : "Annuel"}
+                  {c === "monthly" ? "Mensuel" : `Annuel · −${savingsPct}%`}
                 </button>
               );
             })}
@@ -156,22 +156,24 @@ export function PaywallModal({
                   </p>
                 </div>
                 <div className="text-right">
-                  {cycle === "monthly" && discount > 0 ? (
+                  {cycle === "monthly" ? (
+                    <p className="text-[22px] font-extrabold" style={{ color: "#B45309" }}>
+                      {fmt(monthlyPrice)}
+                      <span className="text-[12px] font-semibold text-muted-foreground">/mois</span>
+                    </p>
+                  ) : (
                     <>
-                      <p className="text-[22px] font-extrabold leading-none" style={{ color: "#B45309" }}>
-                        {fmt(firstPrice)}
+                      <p className="text-[11px] font-semibold leading-none text-muted-foreground line-through decoration-[1.5px]">
+                        {fmt(annualStrike)}/an
                       </p>
-                      <p className="text-[10.5px] text-muted-foreground">
-                        1<sup>er</sup> mois · puis {fmt(monthlyBase)}/mois
+                      <p className="mt-1 text-[22px] font-extrabold leading-none" style={{ color: "#B45309" }}>
+                        {fmt(annualPrice)}
+                        <span className="text-[12px] font-semibold text-muted-foreground">/an</span>
+                      </p>
+                      <p className="mt-1 text-[10.5px] font-medium text-muted-foreground">
+                        soit {fmt(annualMonthly)}/mois
                       </p>
                     </>
-                  ) : (
-                    <p className="text-[22px] font-extrabold" style={{ color: "#B45309" }}>
-                      {fmt(basePrice)}
-                      <span className="text-[12px] font-semibold text-muted-foreground">
-                        {cycle === "annual" ? "/an" : "/mois"}
-                      </span>
-                    </p>
                   )}
                 </div>
               </div>
@@ -198,7 +200,7 @@ export function PaywallModal({
             {trialActive ? "Continuer avec Fridgy Pro" : "S'abonner à Fridgy Pro"}
           </button>
           <p className="mt-2 text-center text-[11px] text-muted-foreground">
-            {t("paywall.disclaimer")}
+            14 jours d'essai gratuit · Annulez à tout moment
           </p>
         </div>
       </div>
