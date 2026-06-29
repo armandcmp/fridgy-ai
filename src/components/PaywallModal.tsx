@@ -4,6 +4,8 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { getTrialInfo } from "@/lib/trial";
 
+type Cycle = "monthly" | "annual";
+
 export function PaywallModal({
   open,
   onClose,
@@ -15,11 +17,15 @@ export function PaywallModal({
 }) {
   const { t } = useTranslation();
   const [shown, setShown] = useState(false);
+  const [cycle, setCycle] = useState<Cycle>("monthly");
   const trial = typeof window !== "undefined" ? getTrialInfo() : null;
   const trialActive = !!trial?.active;
   const discount = trialActive ? 0.3 : 0;
-  const basePrice = 4.99;
-  const firstMonth = basePrice * (1 - discount);
+
+  const monthlyBase = 4.49;
+  const annualBase = 39.99; // ≈ 3,33€/mois
+  const basePrice = cycle === "monthly" ? monthlyBase : annualBase;
+  const firstPrice = basePrice * (1 - (cycle === "monthly" ? discount : 0));
 
   useEffect(() => {
     if (open) requestAnimationFrame(() => setShown(true));
@@ -44,7 +50,7 @@ export function PaywallModal({
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center p-4"
       style={{
-        background: "rgba(15,27,23,0.55)",
+        background: "rgba(60,30,5,0.55)",
         backdropFilter: "blur(6px)",
         WebkitBackdropFilter: "blur(6px)",
       }}
@@ -63,7 +69,7 @@ export function PaywallModal({
           className="relative grid h-[140px] place-items-center"
           style={{
             background:
-              "linear-gradient(135deg,#34D399 0%,#2D8B57 60%,#0F1B17 100%)",
+              "linear-gradient(135deg,#FCD34D 0%,#F59E0B 55%,#B45309 100%)",
           }}
         >
           <div className="text-center text-white">
@@ -92,7 +98,7 @@ export function PaywallModal({
           {trialActive && (
             <div
               className="mt-3 flex items-center justify-center gap-2 rounded-2xl px-3 py-2 text-[12.5px] font-semibold"
-              style={{ background: "#ECFDF5", color: "#065F46" }}
+              style={{ background: "#FFF7E6", color: "#7C2D12" }}
             >
               <Sparkles size={14} />
               Essai gratuit — {trial!.daysLeft} jour
@@ -107,34 +113,64 @@ export function PaywallModal({
             </p>
           )}
 
+          {/* Cycle toggle */}
           <div
-            className="mt-5 rounded-2xl p-[2px]"
-            style={{ background: "linear-gradient(135deg,#34D399,#2D8B57,#0F1B17)" }}
+            className="mt-4 grid grid-cols-2 gap-1 rounded-full p-1"
+            style={{ background: "#FFF6E2" }}
+          >
+            {(["monthly", "annual"] as Cycle[]).map((c) => {
+              const active = cycle === c;
+              return (
+                <button
+                  key={c}
+                  onClick={() => setCycle(c)}
+                  className="rounded-full py-2 text-[12.5px] font-extrabold transition"
+                  style={{
+                    background: active
+                      ? "linear-gradient(135deg,#F59E0B,#B45309)"
+                      : "transparent",
+                    color: active ? "#FFFFFF" : "#7C2D12",
+                  }}
+                >
+                  {c === "monthly" ? "Mensuel" : "Annuel"}
+                </button>
+              );
+            })}
+          </div>
+
+          <div
+            className="mt-4 rounded-2xl p-[2px]"
+            style={{ background: "linear-gradient(135deg,#FCD34D,#F59E0B,#B45309)" }}
           >
             <div
               className="rounded-[14px] px-4 py-4"
-              style={{ background: "linear-gradient(135deg,#FFFFFF 0%,#ECFDF5 100%)" }}
+              style={{ background: "linear-gradient(135deg,#FFFFFF 0%,#FFF6E2 100%)" }}
             >
               <div className="flex items-baseline justify-between gap-2">
                 <div>
                   <p className="text-[16px] font-extrabold tracking-tight" style={{ color: "#0F1B17" }}>
-                    Fridgy Pro
+                    Fridgy Pro {cycle === "annual" ? "Annuel" : "Mensuel"}
                   </p>
-                  <p className="text-[11.5px] text-muted-foreground">Sans engagement</p>
+                  <p className="text-[11.5px] text-muted-foreground">
+                    {cycle === "annual" ? "Facturé une fois par an" : "Sans engagement"}
+                  </p>
                 </div>
                 <div className="text-right">
-                  {discount > 0 ? (
+                  {cycle === "monthly" && discount > 0 ? (
                     <>
-                      <p className="text-[22px] font-extrabold leading-none" style={{ color: "#2D8B57" }}>
-                        {fmt(firstMonth)}
+                      <p className="text-[22px] font-extrabold leading-none" style={{ color: "#B45309" }}>
+                        {fmt(firstPrice)}
                       </p>
                       <p className="text-[10.5px] text-muted-foreground">
-                        1<sup>er</sup> mois · puis {fmt(basePrice)}/mois
+                        1<sup>er</sup> mois · puis {fmt(monthlyBase)}/mois
                       </p>
                     </>
                   ) : (
-                    <p className="text-[22px] font-extrabold" style={{ color: "#2D8B57" }}>
-                      {fmt(basePrice)}<span className="text-[12px] font-semibold text-muted-foreground">/mois</span>
+                    <p className="text-[22px] font-extrabold" style={{ color: "#B45309" }}>
+                      {fmt(basePrice)}
+                      <span className="text-[12px] font-semibold text-muted-foreground">
+                        {cycle === "annual" ? "/an" : "/mois"}
+                      </span>
                     </p>
                   )}
                 </div>
@@ -146,7 +182,7 @@ export function PaywallModal({
                     className="flex items-center gap-2 text-[12.5px]"
                     style={{ color: "#374151" }}
                   >
-                    <Check size={14} style={{ color: "#2D8B57" }} strokeWidth={3} />
+                    <Check size={14} style={{ color: "#B45309" }} strokeWidth={3} />
                     {f}
                   </li>
                 ))}
@@ -157,7 +193,7 @@ export function PaywallModal({
           <button
             onClick={() => toast(t("paywall.soon"))}
             className="mt-5 w-full rounded-full py-3.5 text-sm font-extrabold text-white shadow-lg transition active:scale-[0.98]"
-            style={{ background: "linear-gradient(135deg,#34D399,#2D8B57,#0F1B17)" }}
+            style={{ background: "linear-gradient(135deg,#F59E0B,#B45309)" }}
           >
             {trialActive ? "Continuer avec Fridgy Pro" : "S'abonner à Fridgy Pro"}
           </button>
