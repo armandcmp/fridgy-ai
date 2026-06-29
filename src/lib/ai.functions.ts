@@ -347,6 +347,7 @@ export const generateRecipes = createServerFn({ method: "POST" })
               data.bodyProfile,
               data.recentTitles ?? [],
               retryHint,
+              langName(data.lang),
             ),
           },
         ],
