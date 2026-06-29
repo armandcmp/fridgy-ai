@@ -66,13 +66,22 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
-      { title: "Fridgy — Cuisinez avec ce que vous avez" },
+      { title: "Fridgy" },
       {
         name: "description",
         content:
           "Fridgy génère des recettes équilibrées à partir des ingrédients de votre frigo.",
       },
       { name: "theme-color", content: "#2D8B57" },
+      { property: "og:title", content: "Fridgy" },
+      { name: "twitter:title", content: "Fridgy" },
+      { name: "description", content: "Cuisinez avec ce que vous avez dans votre frigo !!!" },
+      { property: "og:description", content: "Cuisinez avec ce que vous avez dans votre frigo !!!" },
+      { name: "twitter:description", content: "Cuisinez avec ce que vous avez dans votre frigo !!!" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/lHu4NBQpNJgeLmLAyvNSTRaOiIx1/social-images/social-1782724284161-Image.webp" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/lHu4NBQpNJgeLmLAyvNSTRaOiIx1/social-images/social-1782724284161-Image.webp" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:type", content: "website" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
