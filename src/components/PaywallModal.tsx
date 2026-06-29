@@ -4,8 +4,6 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { getTrialInfo } from "@/lib/trial";
 
-type PlanId = "pro" | "premium";
-
 export function PaywallModal({
   open,
   onClose,
@@ -17,10 +15,11 @@ export function PaywallModal({
 }) {
   const { t } = useTranslation();
   const [shown, setShown] = useState(false);
-  const [selected, setSelected] = useState<PlanId>("premium");
   const trial = typeof window !== "undefined" ? getTrialInfo() : null;
   const trialActive = !!trial?.active;
-  const discount = trialActive ? 0.3 : 0; // -30% first month if subscribing during trial
+  const discount = trialActive ? 0.3 : 0;
+  const basePrice = 4.99;
+  const firstMonth = basePrice * (1 - discount);
 
   useEffect(() => {
     if (open) requestAnimationFrame(() => setShown(true));
@@ -32,45 +31,18 @@ export function PaywallModal({
   const fmt = (n: number) =>
     n.toFixed(2).replace(/\.00$/, "").replace(".", ",") + "€";
 
-  const plans: Array<{
-    id: PlanId;
-    name: string;
-    base: number;
-    sub: string;
-    features: string[];
-    accent: string;
-  }> = [
-    {
-      id: "pro",
-      name: "Fridgy Pro",
-      base: 4.99,
-      sub: "par mois",
-      features: [
-        "3 recettes par jour",
-        "Planning de la semaine",
-        "Historique complet",
-        "Liste de courses illimitée",
-      ],
-      accent: "#2D8B57",
-    },
-    {
-      id: "premium",
-      name: "Fridgy Premium",
-      base: 9.99,
-      sub: "par mois",
-      features: [
-        "Recettes illimitées",
-        "Tout Fridgy Pro inclus",
-        "Génération prioritaire",
-        "Nouvelles fonctionnalités en avant-première",
-      ],
-      accent: "#0F1B17",
-    },
+  const features = [
+    "Recettes illimitées chaque jour",
+    "Planning de la semaine complet",
+    "Historique illimité",
+    "Liste de courses illimitée",
+    "Génération prioritaire",
+    "Sans publicité",
   ];
 
   return (
     <div
-      className="fixed inset-0 z-[100]"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
       style={{
         background: "rgba(15,27,23,0.55)",
         backdropFilter: "blur(6px)",
@@ -80,24 +52,24 @@ export function PaywallModal({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="absolute bottom-0 left-1/2 w-full max-w-md -translate-x-1/2 overflow-y-auto bg-card transition-transform duration-300 ease-out"
+        className="w-full max-w-md overflow-y-auto rounded-[28px] bg-card shadow-2xl transition-all duration-300 ease-out"
         style={{
-          borderRadius: "28px 28px 0 0",
           maxHeight: "92vh",
-          transform: shown ? "translate(-50%, 0)" : "translate(-50%, 100%)",
+          transform: shown ? "scale(1)" : "scale(0.96)",
+          opacity: shown ? 1 : 0,
         }}
       >
         <div
-          className="relative grid h-[130px] place-items-center"
+          className="relative grid h-[140px] place-items-center"
           style={{
             background:
-              "linear-gradient(135deg,#2DD4A8 0%,#2D8B57 60%,#0F1B17 100%)",
+              "linear-gradient(135deg,#34D399 0%,#2D8B57 60%,#0F1B17 100%)",
           }}
         >
           <div className="text-center text-white">
-            <Crown size={36} className="mx-auto drop-shadow" />
-            <p className="mt-1 text-[11px] font-bold uppercase tracking-[0.2em] opacity-90">
-              Fridgy
+            <Crown size={38} className="mx-auto drop-shadow" />
+            <p className="mt-1 text-[11px] font-bold uppercase tracking-[0.22em] opacity-95">
+              Fridgy Pro
             </p>
           </div>
           <button
@@ -110,11 +82,11 @@ export function PaywallModal({
         </div>
 
         <div className="px-5 pb-6 pt-5">
-          <h2 className="text-center text-[22px] font-extrabold tracking-tight">
-            Choisissez votre formule
+          <h2 className="text-center text-[22px] font-extrabold tracking-tight" style={{ color: "#0F1B17" }}>
+            Passez à Fridgy Pro
           </h2>
           <p className="mt-1 text-center text-[13px] text-muted-foreground">
-            Sans engagement — annulez à tout moment
+            Toutes les fonctionnalités, sans limite
           </p>
 
           {trialActive && (
@@ -123,9 +95,9 @@ export function PaywallModal({
               style={{ background: "#ECFDF5", color: "#065F46" }}
             >
               <Sparkles size={14} />
-              Essai gratuit en cours — {trial!.daysLeft} jour
+              Essai gratuit — {trial!.daysLeft} jour
               {trial!.daysLeft > 1 ? "s" : ""} restant
-              {trial!.daysLeft > 1 ? "s" : ""}. Profitez de −30 % sur votre 1er mois.
+              {trial!.daysLeft > 1 ? "s" : ""}. −30 % sur le 1er mois.
             </div>
           )}
 
@@ -135,88 +107,59 @@ export function PaywallModal({
             </p>
           )}
 
-          <div className="mt-5 space-y-2.5">
-            {plans.map((p) => {
-              const active = selected === p.id;
-              const firstMonth = p.base * (1 - discount);
-              return (
-                <button
-                  key={p.id}
-                  onClick={() => setSelected(p.id)}
-                  className="block w-full rounded-2xl p-[2px] text-left transition"
-                  style={{
-                    background: active
-                      ? `linear-gradient(135deg, ${p.accent}, #0F1B17)`
-                      : "transparent",
-                  }}
-                >
-                  <div
-                    className="rounded-[14px] border bg-white px-4 py-3.5"
-                    style={{ borderColor: active ? "transparent" : "#E5E7EB" }}
+          <div
+            className="mt-5 rounded-2xl p-[2px]"
+            style={{ background: "linear-gradient(135deg,#34D399,#2D8B57,#0F1B17)" }}
+          >
+            <div
+              className="rounded-[14px] px-4 py-4"
+              style={{ background: "linear-gradient(135deg,#FFFFFF 0%,#ECFDF5 100%)" }}
+            >
+              <div className="flex items-baseline justify-between gap-2">
+                <div>
+                  <p className="text-[16px] font-extrabold tracking-tight" style={{ color: "#0F1B17" }}>
+                    Fridgy Pro
+                  </p>
+                  <p className="text-[11.5px] text-muted-foreground">Sans engagement</p>
+                </div>
+                <div className="text-right">
+                  {discount > 0 ? (
+                    <>
+                      <p className="text-[22px] font-extrabold leading-none" style={{ color: "#2D8B57" }}>
+                        {fmt(firstMonth)}
+                      </p>
+                      <p className="text-[10.5px] text-muted-foreground">
+                        1<sup>er</sup> mois · puis {fmt(basePrice)}/mois
+                      </p>
+                    </>
+                  ) : (
+                    <p className="text-[22px] font-extrabold" style={{ color: "#2D8B57" }}>
+                      {fmt(basePrice)}<span className="text-[12px] font-semibold text-muted-foreground">/mois</span>
+                    </p>
+                  )}
+                </div>
+              </div>
+              <ul className="mt-3 space-y-1.5">
+                {features.map((f) => (
+                  <li
+                    key={f}
+                    className="flex items-center gap-2 text-[12.5px]"
+                    style={{ color: "#374151" }}
                   >
-                    <div className="flex items-baseline justify-between gap-2">
-                      <div>
-                        <p className="text-[15px] font-extrabold tracking-tight">
-                          {p.name}
-                        </p>
-                        <p className="text-[11px] text-muted-foreground">
-                          {p.sub}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        {discount > 0 ? (
-                          <>
-                            <p
-                              className="text-[20px] font-extrabold leading-none"
-                              style={{ color: active ? p.accent : "#0F1B17" }}
-                            >
-                              {fmt(firstMonth)}
-                            </p>
-                            <p className="text-[10.5px] text-muted-foreground">
-                              1<sup>er</sup> mois · puis {fmt(p.base)}/mois
-                            </p>
-                          </>
-                        ) : (
-                          <p
-                            className="text-[20px] font-extrabold"
-                            style={{ color: active ? p.accent : "#0F1B17" }}
-                          >
-                            {fmt(p.base)}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                    <ul className="mt-2 space-y-1">
-                      {p.features.map((f) => (
-                        <li
-                          key={f}
-                          className="flex items-center gap-2 text-[12.5px]"
-                          style={{ color: "#374151" }}
-                        >
-                          <Check size={14} style={{ color: p.accent }} strokeWidth={3} />
-                          {f}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </button>
-              );
-            })}
+                    <Check size={14} style={{ color: "#2D8B57" }} strokeWidth={3} />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
 
           <button
             onClick={() => toast(t("paywall.soon"))}
             className="mt-5 w-full rounded-full py-3.5 text-sm font-extrabold text-white shadow-lg transition active:scale-[0.98]"
-            style={{
-              background:
-                selected === "premium"
-                  ? "linear-gradient(135deg,#2D8B57,#0F1B17)"
-                  : "linear-gradient(135deg,#34D399,#2D8B57)",
-            }}
+            style={{ background: "linear-gradient(135deg,#34D399,#2D8B57,#0F1B17)" }}
           >
-            {trialActive
-              ? `Continuer avec ${selected === "premium" ? "Premium" : "Pro"}`
-              : `S'abonner à ${selected === "premium" ? "Premium" : "Pro"}`}
+            {trialActive ? "Continuer avec Fridgy Pro" : "S'abonner à Fridgy Pro"}
           </button>
           <p className="mt-2 text-center text-[11px] text-muted-foreground">
             {t("paywall.disclaimer")}
