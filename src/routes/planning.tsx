@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
-import { Sparkles, Trash2, Plus, ShoppingBasket, X } from "lucide-react";
+import { Sparkles, Trash2, Plus, ShoppingBasket, X, Check } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { storage, programColor, shortDate, startOfWeek, WEEK_DAYS } from "@/lib/storage";
@@ -9,6 +9,7 @@ import { useLocalReactive } from "@/lib/hooks";
 import { generateWeekPlan } from "@/lib/ai.functions";
 import { getLanguage } from "@/lib/i18n";
 import type { Recipe, WeekPlanning } from "@/lib/types";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/planning")({
   component: Planning,
@@ -30,6 +31,7 @@ function Planning() {
   const favs = useLocalReactive(() => storage.getFavorites());
   const history = useLocalReactive(() => storage.getHistory());
   const memory = useLocalReactive(() => storage.getMemory());
+  const shopping = useLocalReactive(() => storage.getShoppingList());
 
   const weekStart = useMemo(() => startOfWeek(new Date()), []);
   const weekEnd = useMemo(() => {
@@ -39,6 +41,7 @@ function Planning() {
 
   const [generating, setGenerating] = useState(false);
   const [picker, setPicker] = useState<number | null>(null);
+  const [newItem, setNewItem] = useState("");
   const genPlan = useServerFn(generateWeekPlan);
 
   const generateAll = async () => {
@@ -79,15 +82,13 @@ function Planning() {
     storage.setPlanning(next);
   };
 
-  const goShoppingList = () => {
-    const recipes = planning.days
-      .map((d) => d.recette)
-      .filter((r): r is Recipe => !!r);
-    if (recipes.length === 0) {
-      toast.error(t("planning.firstPlan"));
-      return;
+  const addItem = () => {
+    const ok = storage.addShoppingItem(newItem);
+    if (ok) {
+      setNewItem("");
+    } else if (newItem.trim()) {
+      toast.error("Déjà dans la liste");
     }
-    nav({ to: "/courses", search: { fromPlanning: 1 } as never });
   };
 
   const histRecipes: Recipe[] = useMemo(() => {
@@ -113,81 +114,178 @@ function Planning() {
     return Array.from(map.values()).slice(0, 8);
   }, [history]);
 
+  const remaining = shopping.filter((i) => !i.checked).length;
+
   return (
-    <div className="px-5 pt-8">
-      <header className="mb-5 flex items-start justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold">{t("planning.title")}</h1>
-          <p className="text-sm text-muted-foreground">
-            {t("planning.week", {
-              from: shortDate(weekStart.toISOString()),
-              to: shortDate(weekEnd.toISOString()),
-            })}
-          </p>
-        </div>
-        <button
-          onClick={generateAll}
-          disabled={generating}
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground disabled:opacity-60"
-        >
-          <Sparkles size={14} />
-          {generating ? t("planning.generating") : t("planning.generate")}
-        </button>
+    <div className="px-5 pt-8 pb-24">
+      <header className="mb-5">
+        <h1 className="text-2xl font-bold">{t("planning.title")}</h1>
+        <p className="text-sm text-muted-foreground">
+          {t("planning.week", {
+            from: shortDate(weekStart.toISOString()),
+            to: shortDate(weekEnd.toISOString()),
+          })}
+        </p>
       </header>
 
-      <div className="space-y-3">
-        {planning.days.map((d, i) => {
-          const r = d.recette;
-          const pc = r ? programColor(r.program) : null;
-          const date = new Date(weekStart); date.setDate(weekStart.getDate() + i);
-          return (
-            <div
-              key={d.jour}
-              className="animate-fade-up"
-              style={{ animationDelay: generating ? `${i * 80}ms` : "0ms" }}
-            >
-              <div className="mb-1.5 flex items-baseline justify-between">
-                <h3 className="text-[15px] font-bold">{d.jour}</h3>
-                <span className="text-xs text-muted-foreground">{shortDate(date.toISOString())}</span>
-              </div>
-              {r ? (
-                <div className="fc-card flex items-start gap-3 p-3">
-                  <div className="flex-1">
-                    <span
-                      className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold ${pc!.bg} ${pc!.text}`}
-                    >
-                      {r.program}
-                    </span>
-                    <p className="mt-1 text-sm font-semibold leading-tight">{r.titre}</p>
-                    <p className="text-xs text-muted-foreground">{r.calories} kcal</p>
-                  </div>
-                  <button
-                    onClick={() => updateDay(i, null)}
-                    className="grid h-8 w-8 place-items-center rounded-full text-muted-foreground hover:bg-muted"
-                    aria-label="Retirer"
-                  >
-                    <Trash2 size={15} />
-                  </button>
-                </div>
-              ) : (
-                <button
-                  onClick={() => setPicker(i)}
-                  className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border bg-transparent px-4 py-4 text-sm text-muted-foreground transition hover:border-primary hover:text-primary"
-                >
-                  <Plus size={16} /> {t("planning.add")}
-                </button>
-              )}
-            </div>
-          );
-        })}
-      </div>
+      <Tabs defaultValue="planning" className="w-full">
+        <TabsList className="grid w-full grid-cols-2 h-11 rounded-full bg-muted p-1">
+          <TabsTrigger value="planning" className="rounded-full text-sm">
+            Planning
+          </TabsTrigger>
+          <TabsTrigger value="courses" className="rounded-full text-sm">
+            Ma liste {remaining > 0 ? `(${remaining})` : ""}
+          </TabsTrigger>
+        </TabsList>
 
-      <button
-        onClick={goShoppingList}
-        className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-full bg-secondary py-3.5 text-sm font-semibold text-secondary-foreground"
-      >
-        <ShoppingBasket size={16} /> {t("planning.shoppingWeek")}
-      </button>
+        {/* ============== PLANNING TAB ============== */}
+        <TabsContent value="planning" className="mt-5">
+          <div className="mb-4 flex justify-end">
+            <button
+              onClick={generateAll}
+              disabled={generating}
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground disabled:opacity-60"
+            >
+              <Sparkles size={14} />
+              {generating ? t("planning.generating") : t("planning.generate")}
+            </button>
+          </div>
+
+          <div className="space-y-3">
+            {planning.days.map((d, i) => {
+              const r = d.recette;
+              const pc = r ? programColor(r.program) : null;
+              const date = new Date(weekStart); date.setDate(weekStart.getDate() + i);
+              return (
+                <div
+                  key={d.jour}
+                  className="animate-fade-up"
+                  style={{ animationDelay: generating ? `${i * 80}ms` : "0ms" }}
+                >
+                  <div className="mb-1.5 flex items-baseline justify-between">
+                    <h3 className="text-[15px] font-bold">{d.jour}</h3>
+                    <span className="text-xs text-muted-foreground">{shortDate(date.toISOString())}</span>
+                  </div>
+                  {r ? (
+                    <div className="fc-card flex items-start gap-3 p-3">
+                      <div className="flex-1">
+                        <span
+                          className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold ${pc!.bg} ${pc!.text}`}
+                        >
+                          {r.program}
+                        </span>
+                        <p className="mt-1 text-sm font-semibold leading-tight">{r.titre}</p>
+                        <p className="text-xs text-muted-foreground">{r.calories} kcal</p>
+                      </div>
+                      <button
+                        onClick={() => updateDay(i, null)}
+                        className="grid h-8 w-8 place-items-center rounded-full text-muted-foreground hover:bg-muted"
+                        aria-label="Retirer"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setPicker(i)}
+                      className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border bg-transparent px-4 py-4 text-sm text-muted-foreground transition hover:border-primary hover:text-primary"
+                    >
+                      <Plus size={16} /> {t("planning.add")}
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </TabsContent>
+
+        {/* ============== SHOPPING LIST TAB ============== */}
+        <TabsContent value="courses" className="mt-5">
+          <div className="mb-4 flex items-center gap-2">
+            <input
+              value={newItem}
+              onChange={(e) => setNewItem(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addItem();
+                }
+              }}
+              placeholder="Ajouter un aliment…"
+              className="flex-1 rounded-full border border-border bg-card px-4 py-2.5 text-sm outline-none focus:border-primary"
+            />
+            <button
+              onClick={addItem}
+              className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground active:scale-95"
+              aria-label="Ajouter"
+            >
+              <Plus size={18} />
+            </button>
+          </div>
+
+          {shopping.length === 0 ? (
+            <div className="fc-card p-6 text-center text-sm text-muted-foreground">
+              <ShoppingBasket size={28} className="mx-auto mb-2 text-muted-foreground/50" />
+              Votre liste est vide.
+              <br />
+              Ajoutez des aliments ci-dessus ou depuis une recette.
+            </div>
+          ) : (
+            <>
+              <div className="fc-card divide-y divide-border p-1">
+                {shopping.map((it) => (
+                  <div key={it.id} className="flex items-center gap-3 px-3 py-2.5">
+                    <button
+                      onClick={() => storage.toggleShoppingItem(it.id)}
+                      className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 transition ${
+                        it.checked
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-border bg-transparent"
+                      }`}
+                      aria-label={it.checked ? "Décocher" : "Cocher"}
+                    >
+                      {it.checked && <Check size={14} strokeWidth={3} />}
+                    </button>
+                    <span
+                      className={`flex-1 text-sm ${
+                        it.checked ? "text-muted-foreground line-through" : ""
+                      }`}
+                    >
+                      {it.nom}
+                    </span>
+                    <button
+                      onClick={() => storage.removeShoppingItem(it.id)}
+                      className="grid h-7 w-7 place-items-center rounded-full text-muted-foreground hover:bg-muted"
+                      aria-label="Supprimer"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-4 flex gap-2">
+                {shopping.some((i) => i.checked) && (
+                  <button
+                    onClick={() => storage.clearCheckedShopping()}
+                    className="flex-1 rounded-full border border-border py-2.5 text-xs font-semibold text-muted-foreground"
+                  >
+                    Retirer cochés
+                  </button>
+                )}
+                <button
+                  onClick={() => {
+                    if (confirm("Vider toute la liste ?")) storage.clearShoppingList();
+                  }}
+                  className="flex-1 rounded-full border border-border py-2.5 text-xs font-semibold text-muted-foreground"
+                >
+                  Tout effacer
+                </button>
+              </div>
+            </>
+          )}
+        </TabsContent>
+      </Tabs>
 
       {/* Picker bottom sheet */}
       {picker !== null && (

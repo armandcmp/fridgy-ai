@@ -20,7 +20,15 @@ const KEYS = {
  favorites: "fridgechef_favorites",
  planning: "fridgechef_planning",
  likes: "fridgechef_likes",
+ shoppingList: "fridgechef_shopping_list",
 } as const;
+
+export interface ShoppingItem {
+ id: string;
+ nom: string;
+ checked: boolean;
+ addedAt: string;
+}
 
 function read<T>(key: string, fallback: T): T {
  if (typeof window === "undefined") return fallback;
@@ -213,6 +221,35 @@ export const storage = {
  write(KEYS.likes, l);
  },
 
+ // ====== SHOPPING LIST (manual) ======
+ getShoppingList: (): ShoppingItem[] => read<ShoppingItem[]>(KEYS.shoppingList, []),
+ addShoppingItem: (nom: string): boolean => {
+ const clean = nom.trim();
+ if (!clean) return false;
+ const list = storage.getShoppingList();
+ const exists = list.some((i) => i.nom.toLowerCase() === clean.toLowerCase());
+ if (exists) return false;
+ const next: ShoppingItem = {
+ id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+ nom: clean,
+ checked: false,
+ addedAt: new Date().toISOString(),
+ };
+ write(KEYS.shoppingList, [next, ...list]);
+ return true;
+ },
+ toggleShoppingItem: (id: string) => {
+ const list = storage.getShoppingList();
+ write(KEYS.shoppingList, list.map((i) => (i.id === id ? { ...i, checked: !i.checked } : i)));
+ },
+ removeShoppingItem: (id: string) => {
+ write(KEYS.shoppingList, storage.getShoppingList().filter((i) => i.id !== id));
+ },
+ clearShoppingList: () => write(KEYS.shoppingList, []),
+ clearCheckedShopping: () => {
+ write(KEYS.shoppingList, storage.getShoppingList().filter((i) => !i.checked));
+ },
+
  resetAll: () => {
  if (typeof window === "undefined") return;
  [
@@ -229,7 +266,8 @@ export const storage = {
  "fridgechef_likes",
  "fridgechef_usage",
  "fridgechef_premium",
- "fridgechef_group",
+  "fridgechef_group",
+ "fridgechef_shopping_list",
  ].forEach((k) => localStorage.removeItem(k));
  window.dispatchEvent(new CustomEvent("fridgechef:change", { detail: "*" }));
  },
