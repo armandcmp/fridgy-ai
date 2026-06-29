@@ -38,7 +38,7 @@ function UpgradeCard({ onOpen }: { onOpen: () => void }) {
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-[15px] font-extrabold tracking-tight" style={{ color: "#0F1B17" }}>
-              Fridgy Premium
+              Fridgy Pro
             </p>
             <p className="text-[11.5px] font-medium" style={{ color: "#475569" }}>
               {inTrial
