@@ -51,7 +51,7 @@ function UpgradeCard({ onOpen }: { onOpen: () => void }) {
               className="flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-extrabold text-white"
               style={{ background: "linear-gradient(135deg,#F59E0B,#B45309)" }}
             >
-              <Sparkles size={10} /> −30 % 1er mois
+              <Sparkles size={10} /> Essai gratuit
             </span>
           )}
         </div>
