@@ -178,14 +178,29 @@ function RecipeDetail() {
  >
  Dans votre frigo
  </span>
- ) : (
- <span
- className="rounded-full px-2 py-0.5 text-[10px] font-semibold"
- style={{ background: "rgba(245,158,11,0.15)", color: "#92660A" }}
- >
- À acheter
- </span>
- )}
+                ) : (
+                  <div className="flex items-center gap-1.5">
+                    <span
+                      className="rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                      style={{ background: "rgba(245,158,11,0.15)", color: "#92660A" }}
+                    >
+                      À acheter
+                    </span>
+                    <button
+                      onClick={() => {
+                        const ok = storage.addShoppingItem(ing.nom);
+                        toast.success(
+                          ok ? `« ${ing.nom} » ajouté à la liste` : "Déjà dans la liste",
+                        );
+                      }}
+                      className="grid h-6 w-6 place-items-center rounded-full bg-primary text-primary-foreground active:scale-95"
+                      aria-label="Ajouter à la liste de courses"
+                      title="Ajouter à ma liste de courses"
+                    >
+                      <Plus size={13} strokeWidth={3} />
+                    </button>
+                  </div>
+                )}
  </div>
  ))
  : recipe.ingredients.map((ing, i) => (
