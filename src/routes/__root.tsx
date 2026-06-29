@@ -121,6 +121,15 @@ function RootComponent() {
   const nav = useNavigate();
   const hideNav = loc.pathname === "/onboarding" || loc.pathname === "/auth";
 
+  // Initialize OneSignal Web SDK (client-only)
+  useEffect(() => {
+    import("@/lib/onesignal").then(({ initOneSignal }) => {
+      void initOneSignal();
+    });
+  }, []);
+
+
+
   // Auth gate + session sync
   useEffect(() => {
     let booted = false;
