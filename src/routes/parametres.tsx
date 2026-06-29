@@ -540,11 +540,11 @@ function Settings() {
                   <Crown size={20} />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[14px] font-extrabold tracking-tight" style={{ color: "#7C2D12" }}>
-                    Passer à Fridgy Pro
+                  <p className="text-[14px] font-extrabold tracking-tight" style={{ color: "#0F1B17" }}>
+                    Passer à Fridgy Premium
                   </p>
-                  <p className="truncate text-[11.5px] font-medium" style={{ color: "#92704A" }}>
-                    Vous êtes en {t("settings.planFree").toLowerCase()}
+                  <p className="truncate text-[11.5px] font-medium" style={{ color: "#475569" }}>
+                    Essai gratuit 14 jours · −30 % le 1er mois
                   </p>
                 </div>
                 <ChevronRight size={18} style={{ color: "#B45309" }} />
