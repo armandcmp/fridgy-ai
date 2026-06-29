@@ -13,6 +13,7 @@ import { useEffect, type ReactNode } from "react";
 import { Toaster } from "sonner";
 
 import appCss from "../styles.css?url";
+import fridgyLogo from "../assets/fridgy-logo.jpeg.asset.json";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { BottomNav } from "../components/BottomNav";
 import { supabase } from "@/integrations/supabase/client";
@@ -75,6 +76,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     links: [
       { rel: "stylesheet", href: appCss },
+      { rel: "icon", type: "image/jpeg", href: fridgyLogo.url },
+      { rel: "apple-touch-icon", href: fridgyLogo.url },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {

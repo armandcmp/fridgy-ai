@@ -10,6 +10,7 @@ import { PaywallModal } from "@/components/PaywallModal";
 import { Avatar } from "@/components/Avatar";
 import { StatsSection } from "@/components/StatsSection";
 import type { Recipe } from "@/lib/types";
+import fridgyLogo from "@/assets/fridgy-logo.jpeg.asset.json";
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -81,7 +82,13 @@ function Home() {
         className="flex min-h-screen items-center justify-center animate-fade-up"
         style={{ background: "#F8FAF8" }}
       >
-        <div className="text-center">
+        <div className="text-center animate-fade-up">
+          <img
+            src={fridgyLogo.url}
+            alt="Fridgy"
+            className="mx-auto mb-4 h-24 w-24 rounded-3xl shadow-lg"
+            style={{ animation: "pulse-ring 1.6s ease-in-out infinite" }}
+          />
           <h1 className="text-2xl font-bold tracking-tight" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>Fridgy</h1>
         </div>
 
@@ -119,6 +126,7 @@ function Home() {
                 <Crown size={14} />
               </span>
             )}
+            <img src={fridgyLogo.url} alt="Fridgy" className="h-10 w-10 rounded-2xl shadow-sm" />
           </div>
         </header>
 
