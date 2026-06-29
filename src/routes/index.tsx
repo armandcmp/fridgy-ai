@@ -161,69 +161,7 @@ function Home() {
             </button>
           )}
 
-          {!premium && (
-            <button
-              onClick={() => setPaywall(true)}
-              className="mt-4 block w-full overflow-hidden rounded-[22px] p-[1.5px] text-left transition active:scale-[0.99]"
-              style={{
-                background: "linear-gradient(135deg,#FCD34D 0%,#F59E0B 50%,#D97706 100%)",
-                boxShadow: "0 12px 30px -14px rgba(217,119,6,0.55)",
-              }}
-            >
-              <div
-                className="rounded-[20px] px-4 py-4"
-                style={{
-                  background:
-                    "linear-gradient(135deg,#FFFDF6 0%,#FFF1D6 100%)",
-                }}
-              >
-                <div className="flex items-center gap-3">
-                  <div
-                    className="grid h-12 w-12 place-items-center rounded-2xl text-white"
-                    style={{ background: "linear-gradient(135deg,#F59E0B,#D97706)" }}
-                  >
-                    <Crown size={22} />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <p className="text-[15px] font-extrabold tracking-tight" style={{ color: "#7C2D12" }}>
-                        Évoluer vers Fridgy Pro
-                      </p>
-                      <span
-                        className="rounded-full px-1.5 py-0.5 text-[9px] font-extrabold text-white"
-                        style={{ background: "linear-gradient(135deg,#F59E0B,#B45309)" }}
-                      >
-                        −33%
-                      </span>
-                    </div>
-                    <p className="text-[11.5px] font-medium" style={{ color: "#92704A" }}>
-                      Recettes illimitées · planning · sans pub
-                    </p>
-                  </div>
-                </div>
-                <ul className="mt-3 grid grid-cols-1 gap-1.5 text-[12.5px]" style={{ color: "#5C3A14" }}>
-                  <li className="flex items-center gap-2">
-                    <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: "#D97706" }} />
-                    Recettes illimitées chaque jour
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: "#D97706" }} />
-                    Planning de la semaine complet
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: "#D97706" }} />
-                    Historique sans limite & sans pub
-                  </li>
-                </ul>
-                <div
-                  className="mt-3 grid place-items-center rounded-full py-2.5 text-[13px] font-extrabold text-white"
-                  style={{ background: "linear-gradient(135deg,#F59E0B,#D97706)" }}
-                >
-                  {t("settings.upgrade")} →
-                </div>
-              </div>
-            </button>
-          )}
+          {!premium && <UpgradeCard onOpen={() => setPaywall(true)} />}
         </section>
 
 
