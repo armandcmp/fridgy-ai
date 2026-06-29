@@ -522,32 +522,32 @@ function Settings() {
               className="block w-full overflow-hidden rounded-2xl p-[1.5px] text-left transition active:scale-[0.99]"
               style={{
                 background:
-                  "linear-gradient(135deg,#FCD34D 0%,#F59E0B 45%,#D97706 100%)",
-                boxShadow: "0 10px 30px -12px rgba(245,158,11,0.55)",
+                  "linear-gradient(135deg,#34D399 0%,#2D8B57 55%,#0F1B17 100%)",
+                boxShadow: "0 10px 30px -12px rgba(45,139,87,0.45)",
               }}
             >
               <div
                 className="flex items-center gap-3 rounded-[14px] px-4 py-3.5"
                 style={{
                   background:
-                    "linear-gradient(135deg,#FFFDF6 0%,#FFF6E2 100%)",
+                    "linear-gradient(135deg,#FFFFFF 0%,#ECFDF5 100%)",
                 }}
               >
                 <div
                   className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl text-white"
-                  style={{ background: "linear-gradient(135deg,#F59E0B,#D97706)" }}
+                  style={{ background: "linear-gradient(135deg,#2D8B57,#0F1B17)" }}
                 >
                   <Crown size={20} />
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-[14px] font-extrabold tracking-tight" style={{ color: "#0F1B17" }}>
-                    Passer à Fridgy Premium
+                    Passer à Fridgy Pro
                   </p>
                   <p className="truncate text-[11.5px] font-medium" style={{ color: "#475569" }}>
                     Essai gratuit 14 jours · −30 % le 1er mois
                   </p>
                 </div>
-                <ChevronRight size={18} style={{ color: "#B45309" }} />
+                <ChevronRight size={18} style={{ color: "#2D8B57" }} />
               </div>
             </button>
           )}
