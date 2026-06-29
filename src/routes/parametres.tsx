@@ -544,7 +544,7 @@ function Settings() {
                     Passer à Fridgy Pro
                   </p>
                   <p className="truncate text-[11.5px] font-medium" style={{ color: "#7C5A2A" }}>
-                    Essai gratuit 14 jours · −30 % le 1er mois
+                    Essai gratuit 14 jours · 3,89€/mois ou −23 % à l'année
                   </p>
                 </div>
                 <ChevronRight size={18} style={{ color: "#B45309" }} />
