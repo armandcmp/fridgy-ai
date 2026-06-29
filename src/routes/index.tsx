@@ -126,7 +126,7 @@ function Home() {
                 <Crown size={14} />
               </span>
             )}
-            <img src={fridgyLogo.url} alt="Fridgy" className="h-10 w-10 shadow-sm" />
+            
           </div>
         </header>
 
