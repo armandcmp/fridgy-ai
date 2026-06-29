@@ -20,7 +20,15 @@ const KEYS = {
  favorites: "fridgechef_favorites",
  planning: "fridgechef_planning",
  likes: "fridgechef_likes",
+ shoppingList: "fridgechef_shopping_list",
 } as const;
+
+export interface ShoppingItem {
+ id: string;
+ nom: string;
+ checked: boolean;
+ addedAt: string;
+}
 
 function read<T>(key: string, fallback: T): T {
  if (typeof window === "undefined") return fallback;
