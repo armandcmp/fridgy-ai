@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { ArrowLeft, Clock, Flame, CheckCircle2, Share2 } from "lucide-react";
+import { ArrowLeft, Clock, Flame, CheckCircle2, Share2, Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { storage, programColor } from "@/lib/storage";
