@@ -225,6 +225,7 @@ function buildUserPrompt(
   bp: z.infer<typeof BodyProfileSchema>,
   recentTitles: string[],
   retryHint: string,
+  lang: string,
 ): string {
   const profile = bp
     ? `Profil corporel :
@@ -242,12 +243,14 @@ ${recentTitles.slice(0, 6).join(", ")}
 Propose des recettes originales et variées.`
     : "";
 
-  return `Programme nutritionnel : ${program}
+  return `LANGUE DE SORTIE OBLIGATOIRE : ${lang}. Tous les titres, descriptions, ingrédients, étapes, conseils et champs textuels doivent être rédigés UNIQUEMENT en ${lang}.
+
+Programme nutritionnel : ${program}
 Type de repas : ${mealType ?? "dejeuner"}
 
 ${profile}
 
-Ingrédients disponibles : ${ingredients.join(", ")}
+Ingrédients disponibles chez l'utilisateur : ${ingredients.join(", ")}
 
 INSTRUCTIONS SPÉCIFIQUES pour ce profil :
 ${programDirectives(program, bp)}
@@ -255,9 +258,15 @@ ${recent}
 ${retryHint}
 
 Génère EXACTEMENT 3 recettes RADICALEMENT DIFFÉRENTES entre elles, adaptées à ${mealType ?? "dejeuner"} et au programme ${program}.
-Chaque recette a un ingrédient principal différent, une famille différente (pas deux salades, pas deux omelettes) et un mode de cuisson différent (cru / cuit / grillé / vapeur / four).
 
-Pour chaque ingrédient, indique "disponible: true" s'il fait partie de la liste de l'utilisateur (correspondance souple, accents/pluriels tolérés), sinon "disponible: false" (à acheter).
+RÈGLE D'INGRÉDIENTS (PRIORITÉ ABSOLUE) :
+- Les 2 PREMIÈRES recettes doivent être préparables UNIQUEMENT avec les ingrédients disponibles ci-dessus (plus eau, sel, poivre, huile, épices de base). TOUS leurs ingrédients doivent avoir "disponible": true. AUCUN ingrédient à acheter.
+- La 3ème recette peut introduire 2-4 ingrédients supplémentaires à acheter (marqués "disponible": false) pour proposer une option plus riche.
+- Si la liste disponible est trop pauvre pour 2 recettes complètes, fais au minimum 1 recette 100 % avec les ingrédients disponibles.
+
+Chaque recette a un ingrédient principal différent, une famille différente (pas deux salades, pas deux omelettes) et un mode de cuisson différent.
+
+Pour chaque ingrédient, indique "disponible: true" UNIQUEMENT s'il est présent dans la liste de l'utilisateur (correspondance souple, accents/pluriels tolérés), sinon "disponible: false" (à acheter).
 
 Réponds UNIQUEMENT avec ce JSON exact (aucun markdown, aucun texte avant/après) :
 {
@@ -291,7 +300,8 @@ Réponds UNIQUEMENT avec ce JSON exact (aucun markdown, aucun texte avant/après
 }`;
 }
 
-const SYSTEM_PROMPT = `Tu es un chef cuisinier et nutritionniste expert spécialisé dans la nutrition sportive et le rééquilibrage alimentaire. Tu génères des recettes STRICTEMENT personnalisées en français selon le programme nutritionnel, le profil corporel et le type de repas.
+
+const SYSTEM_PROMPT = `Tu es un chef cuisinier et nutritionniste expert spécialisé dans la nutrition sportive et le rééquilibrage alimentaire. Tu génères des recettes STRICTEMENT personnalisées selon le programme nutritionnel, le profil corporel et le type de repas. Tu rédiges TOUS les champs textuels (titre, description, ingrédients, étapes, conseils) dans la langue de sortie demandée par l'utilisateur.
 
 RÈGLES ABSOLUES :
 1. Recettes RADICALEMENT différentes selon le programme :
@@ -305,9 +315,10 @@ RÈGLES ABSOLUES :
    - diner → JAMAIS de glucides lourds, privilégier légumes et protéines maigres.
 3. Les 3 recettes doivent être TOUTES DIFFÉRENTES entre elles : ingrédient principal différent, famille de plats différente, mode de cuisson différent.
 4. Calibrer les calories selon le TDEE fourni (petit-dejeuner ×0.25, dejeuner ×0.40, diner ×0.30). Sinon valeurs standards (2000 kcal/jour).
-5. Utiliser EN PRIORITÉ les ingrédients disponibles. Marquer disponible=false pour les ingrédients à acheter.
+5. PRIORITÉ INGRÉDIENTS : les 2 premières recettes utilisent UNIQUEMENT les ingrédients disponibles (aucun achat). La 3ème peut inclure quelques ingrédients à acheter.
 
 Tu réponds UNIQUEMENT en JSON valide, sans markdown, sans texte avant ou après.`;
+
 
 export const generateRecipes = createServerFn({ method: "POST" })
   .inputValidator(
@@ -336,6 +347,7 @@ export const generateRecipes = createServerFn({ method: "POST" })
               data.bodyProfile,
               data.recentTitles ?? [],
               retryHint,
+              langName(data.lang),
             ),
           },
         ],
