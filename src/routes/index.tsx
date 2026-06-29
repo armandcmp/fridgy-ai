@@ -82,7 +82,13 @@ function Home() {
         className="flex min-h-screen items-center justify-center animate-fade-up"
         style={{ background: "#F8FAF8" }}
       >
-        <div className="text-center">
+        <div className="text-center animate-fade-up">
+          <img
+            src={fridgyLogo.url}
+            alt="Fridgy"
+            className="mx-auto mb-4 h-24 w-24 rounded-3xl shadow-lg"
+            style={{ animation: "pulse-ring 1.6s ease-in-out infinite" }}
+          />
           <h1 className="text-2xl font-bold tracking-tight" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>Fridgy</h1>
         </div>
 
