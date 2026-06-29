@@ -21,18 +21,18 @@ function UpgradeCard({ onOpen }: { onOpen: () => void }) {
       onClick={onOpen}
       className="mt-4 block w-full overflow-hidden rounded-[22px] p-[1.5px] text-left transition active:scale-[0.99]"
       style={{
-        background: "linear-gradient(135deg,#34D399 0%,#2D8B57 55%,#0F1B17 100%)",
-        boxShadow: "0 12px 30px -14px rgba(15,27,23,0.45)",
+        background: "linear-gradient(135deg,#FCD34D 0%,#F59E0B 55%,#B45309 100%)",
+        boxShadow: "0 12px 30px -14px rgba(180,83,9,0.45)",
       }}
     >
       <div
         className="rounded-[20px] px-4 py-4"
-        style={{ background: "linear-gradient(135deg,#FFFFFF 0%,#ECFDF5 100%)" }}
+        style={{ background: "linear-gradient(135deg,#FFFFFF 0%,#FFF6E2 100%)" }}
       >
         <div className="flex items-center gap-3">
           <div
             className="grid h-12 w-12 place-items-center rounded-2xl text-white"
-            style={{ background: "linear-gradient(135deg,#2D8B57,#0F1B17)" }}
+            style={{ background: "linear-gradient(135deg,#F59E0B,#B45309)" }}
           >
             <Crown size={22} />
           </div>
@@ -40,7 +40,7 @@ function UpgradeCard({ onOpen }: { onOpen: () => void }) {
             <p className="text-[15px] font-extrabold tracking-tight" style={{ color: "#0F1B17" }}>
               Fridgy Pro
             </p>
-            <p className="text-[11.5px] font-medium" style={{ color: "#475569" }}>
+            <p className="text-[11.5px] font-medium" style={{ color: "#7C5A2A" }}>
               {inTrial
                 ? `Essai gratuit · ${trial.daysLeft} j restant${trial.daysLeft > 1 ? "s" : ""}`
                 : "Recettes illimitées & plus encore"}
@@ -49,7 +49,7 @@ function UpgradeCard({ onOpen }: { onOpen: () => void }) {
           {inTrial && (
             <span
               className="flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-extrabold text-white"
-              style={{ background: "linear-gradient(135deg,#2D8B57,#0F1B17)" }}
+              style={{ background: "linear-gradient(135deg,#F59E0B,#B45309)" }}
             >
               <Sparkles size={10} /> −30 % 1er mois
             </span>
@@ -57,23 +57,23 @@ function UpgradeCard({ onOpen }: { onOpen: () => void }) {
         </div>
         <ul className="mt-3 grid grid-cols-1 gap-1.5 text-[12.5px]" style={{ color: "#334155" }}>
           <li className="flex items-center gap-2">
-            <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: "#2D8B57" }} />
+            <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: "#B45309" }} />
             Recettes illimitées chaque jour
           </li>
           <li className="flex items-center gap-2">
-            <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: "#2D8B57" }} />
+            <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: "#B45309" }} />
             Planning, historique & liste de courses
           </li>
           <li className="flex items-center gap-2">
-            <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: "#2D8B57" }} />
+            <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: "#B45309" }} />
             Génération prioritaire & sans pub
           </li>
         </ul>
         <div
           className="mt-3 grid place-items-center rounded-full py-2.5 text-[13px] font-extrabold text-white"
-          style={{ background: "linear-gradient(135deg,#2D8B57,#0F1B17)" }}
+          style={{ background: "linear-gradient(135deg,#F59E0B,#B45309)" }}
         >
-          {inTrial ? "Voir les formules" : "Découvrir les abonnements"} →
+          {inTrial ? "Voir les formules" : "Découvrir l'abonnement"} →
         </div>
       </div>
     </button>
