@@ -266,7 +266,8 @@ export const storage = {
  "fridgechef_likes",
  "fridgechef_usage",
  "fridgechef_premium",
- "fridgechef_group",
+  "fridgechef_group",
+ "fridgechef_shopping_list",
  ].forEach((k) => localStorage.removeItem(k));
  window.dispatchEvent(new CustomEvent("fridgechef:change", { detail: "*" }));
  },
