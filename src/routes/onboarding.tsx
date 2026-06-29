@@ -36,11 +36,11 @@ const PROGRAMS: { slug: Slug; emoji: string; kcal: number }[] = [
 ];
 
 const LANGS: { code: Lang; flag: string; name: string; cta: string }[] = [
- { code: "fr", flag: "", name: "Français", cta: "Continuer →" },
- { code: "en", flag: "", name: "English", cta: "Continue →" },
- { code: "es", flag: "", name: "Español", cta: "Continuar →" },
- { code: "pt", flag: "", name: "Português", cta: "Continuar →" },
- { code: "zh", flag: "", name: "中文", cta: "继续 →" },
+ { code: "fr", flag: "🇫🇷", name: "Français", cta: "Continuer →" },
+ { code: "en", flag: "🇬🇧", name: "English", cta: "Continue →" },
+ { code: "es", flag: "🇪🇸", name: "Español", cta: "Continuar →" },
+ { code: "pt", flag: "🇵🇹", name: "Português", cta: "Continuar →" },
+ { code: "zh", flag: "🇨🇳", name: "中文", cta: "继续 →" },
 ];
 
 type Step = "lang" | "auth" | "profile" | "program";
