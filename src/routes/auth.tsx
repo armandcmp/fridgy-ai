@@ -294,7 +294,7 @@ function AuthScreen() {
         <button
           type="button"
           onClick={google}
-          disabled={loading}
+          disabled={loading || !consentOk}
           className="flex w-full items-center justify-center gap-2 rounded-2xl border bg-card py-3 text-[14px] font-semibold transition active:scale-[0.99] disabled:opacity-60"
           style={{ borderColor: "var(--border)" }}
         >
@@ -304,8 +304,71 @@ function AuthScreen() {
       </div>
 
       <p className="mt-6 text-center text-[11.5px] text-muted-foreground">
-        En continuant, vous acceptez nos conditions d'utilisation.
+        En continuant, vous acceptez nos{" "}
+        <Link to="/terms" className="font-semibold text-primary hover:underline">conditions d'utilisation</Link>{" "}
+        et notre{" "}
+        <Link to="/privacy" className="font-semibold text-primary hover:underline">politique de confidentialité</Link>.
       </p>
+    </div>
+  );
+}
+
+function ConsentBlock({
+  acceptedLegal,
+  setAcceptedLegal,
+  acceptedPerms,
+  setAcceptedPerms,
+}: {
+  acceptedLegal: boolean;
+  setAcceptedLegal: (v: boolean) => void;
+  acceptedPerms: boolean;
+  setAcceptedPerms: (v: boolean) => void;
+}) {
+  return (
+    <div
+      className="mt-2 space-y-2 rounded-2xl border p-3"
+      style={{ borderColor: "var(--border)", background: "var(--muted)" }}
+    >
+      <label className="flex cursor-pointer items-start gap-2.5 text-[12.5px] leading-snug text-foreground">
+        <input
+          type="checkbox"
+          checked={acceptedLegal}
+          onChange={(e) => setAcceptedLegal(e.target.checked)}
+          className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--primary)]"
+          required
+        />
+        <span>
+          J'accepte les{" "}
+          <Link to="/terms" target="_blank" className="font-semibold text-primary underline">
+            conditions d'utilisation
+          </Link>{" "}
+          et la{" "}
+          <Link to="/privacy" target="_blank" className="font-semibold text-primary underline">
+            politique de confidentialité
+          </Link>{" "}
+          (RGPD, abonnements, essai gratuit 14 jours, résiliation à tout moment).
+        </span>
+      </label>
+      <label className="flex cursor-pointer items-start gap-2.5 text-[12.5px] leading-snug text-foreground">
+        <input
+          type="checkbox"
+          checked={acceptedPerms}
+          onChange={(e) => setAcceptedPerms(e.target.checked)}
+          className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--primary)]"
+          required
+        />
+        <span className="flex flex-wrap items-center gap-1">
+          Je comprends que Fridgy demandera l'accès à la{" "}
+          <span className="inline-flex items-center gap-1 font-semibold">
+            <Camera size={12} /> caméra
+          </span>{" "}
+          (scan du frigo) et au{" "}
+          <span className="inline-flex items-center gap-1 font-semibold">
+            <Mic size={12} /> microphone
+          </span>{" "}
+          (dictée vocale) uniquement lorsque je les utilise. Aucun enregistrement n'est conservé.
+        </span>
+      </label>
     </div>
   );
 }
