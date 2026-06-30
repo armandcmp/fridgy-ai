@@ -22,15 +22,16 @@ export const Route = createFileRoute("/api/transcribe")({
           );
         }
 
-        const file = form.get("file");
+        const fileEntry = form.get("file");
         const language = (form.get("language") as string | null) ?? undefined;
 
-        if (!(file instanceof File) && !(file instanceof Blob)) {
+        if (!fileEntry || typeof fileEntry === "string") {
           return new Response(
             JSON.stringify({ error: "Missing 'file' field" }),
             { status: 400, headers: { "Content-Type": "application/json" } },
           );
         }
+        const file = fileEntry as unknown as File;
 
         if ((file as Blob).size < 2048) {
           return new Response(

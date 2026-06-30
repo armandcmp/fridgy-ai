@@ -22,6 +22,7 @@ import { Route as CommunauteRouteImport } from './routes/communaute'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RecetteIdRouteImport } from './routes/recette.$id'
+import { Route as ApiTranscribeRouteImport } from './routes/api/transcribe'
 
 const StatsRoute = StatsRouteImport.update({
   id: '/stats',
@@ -88,6 +89,11 @@ const RecetteIdRoute = RecetteIdRouteImport.update({
   path: '/recette/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiTranscribeRoute = ApiTranscribeRouteImport.update({
+  id: '/api/transcribe',
+  path: '/api/transcribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -102,6 +108,7 @@ export interface FileRoutesByFullPath {
   '/recettes': typeof RecettesRoute
   '/reset-password': typeof ResetPasswordRoute
   '/stats': typeof StatsRoute
+  '/api/transcribe': typeof ApiTranscribeRoute
   '/recette/$id': typeof RecetteIdRoute
 }
 export interface FileRoutesByTo {
@@ -117,6 +124,7 @@ export interface FileRoutesByTo {
   '/recettes': typeof RecettesRoute
   '/reset-password': typeof ResetPasswordRoute
   '/stats': typeof StatsRoute
+  '/api/transcribe': typeof ApiTranscribeRoute
   '/recette/$id': typeof RecetteIdRoute
 }
 export interface FileRoutesById {
@@ -133,6 +141,7 @@ export interface FileRoutesById {
   '/recettes': typeof RecettesRoute
   '/reset-password': typeof ResetPasswordRoute
   '/stats': typeof StatsRoute
+  '/api/transcribe': typeof ApiTranscribeRoute
   '/recette/$id': typeof RecetteIdRoute
 }
 export interface FileRouteTypes {
@@ -150,6 +159,7 @@ export interface FileRouteTypes {
     | '/recettes'
     | '/reset-password'
     | '/stats'
+    | '/api/transcribe'
     | '/recette/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -165,6 +175,7 @@ export interface FileRouteTypes {
     | '/recettes'
     | '/reset-password'
     | '/stats'
+    | '/api/transcribe'
     | '/recette/$id'
   id:
     | '__root__'
@@ -180,6 +191,7 @@ export interface FileRouteTypes {
     | '/recettes'
     | '/reset-password'
     | '/stats'
+    | '/api/transcribe'
     | '/recette/$id'
   fileRoutesById: FileRoutesById
 }
@@ -196,6 +208,7 @@ export interface RootRouteChildren {
   RecettesRoute: typeof RecettesRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   StatsRoute: typeof StatsRoute
+  ApiTranscribeRoute: typeof ApiTranscribeRoute
   RecetteIdRoute: typeof RecetteIdRoute
 }
 
@@ -292,6 +305,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RecetteIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/transcribe': {
+      id: '/api/transcribe'
+      path: '/api/transcribe'
+      fullPath: '/api/transcribe'
+      preLoaderRoute: typeof ApiTranscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -308,6 +328,7 @@ const rootRouteChildren: RootRouteChildren = {
   RecettesRoute: RecettesRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   StatsRoute: StatsRoute,
+  ApiTranscribeRoute: ApiTranscribeRoute,
   RecetteIdRoute: RecetteIdRoute,
 }
 export const routeTree = rootRouteImport
