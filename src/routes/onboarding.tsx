@@ -110,11 +110,11 @@ function Onboarding() {
 
  if (!ready) return <div style={{ minHeight: "100vh" }} />;
 
- const confirmLang = () => {
- if (!pickedLang) return;
- setLanguage(pickedLang);
- setStep("auth");
- };
+  const confirmLang = () => {
+    if (!pickedLang) return;
+    setLanguage(pickedLang);
+    setStep("notif");
+  };
 
  return (
  <div className="min-h-screen bg-background px-6 py-10">
