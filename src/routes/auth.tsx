@@ -94,6 +94,23 @@ function AuthScreen() {
     nav({ to: u?.program ? "/" : "/onboarding", replace: true });
   };
 
+  const sendReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!forgotEmail.trim()) return;
+    setForgotLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail.trim(), {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setForgotLoading(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Email envoyé ! Vérifiez votre boîte de réception.");
+    setForgotOpen(false);
+    setForgotEmail("");
+  };
+
   return (
     <div className="px-5 pb-20 pt-12">
       <div className="mb-8 text-center">
