@@ -392,18 +392,8 @@ function Settings() {
  />
  </Section>
 
- {/* ABOUT */}
- <Section title={t("settings.about")}>
- <Row label={t("settings.version")}>
- <span className="text-sm text-muted-foreground">3.0.0</span>
- </Row>
- <ButtonRow onClick={() => toast(t("paywall.soon"))} label={t("settings.rate")} />
- <a href="mailto:contact@fridgechef.app" className="block">
- <ButtonRow onClick={() => undefined} label={t("settings.contact")} />
- </a>
- </Section>
 
- <p className="mt-4 text-center text-[11px] text-muted-foreground">{t("settings.legal")}</p>
+
 
  <button
  onClick={togglePremium}
