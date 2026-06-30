@@ -180,6 +180,7 @@ function RootComponent() {
       </div>
       {!hideNav && <BottomNav />}
       <Toaster position="top-center" richColors />
+      <LaunchSplash />
     </QueryClientProvider>
   );
 }
