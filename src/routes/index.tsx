@@ -187,6 +187,7 @@ function Home() {
             </div>
           </Link>
           <div className="flex items-center gap-2">
+            <GroupButton />
             {premium && (
               <span
                 className="inline-grid h-7 w-7 place-items-center rounded-full text-white"
@@ -196,7 +197,6 @@ function Home() {
                 <Crown size={14} />
               </span>
             )}
-            
           </div>
         </header>
 
