@@ -163,9 +163,13 @@ function Onboarding() {
  </div>
  )}
 
- {step === "auth" && (
- <AuthScreen onAuthed={() => setStep("profile")} />
- )}
+        {step === "notif" && (
+          <NotifScreen onDone={() => setStep("auth")} />
+        )}
+
+        {step === "auth" && (
+          <AuthScreen onAuthed={() => setStep("profile")} />
+        )}
 
  {step === "profile" && (
  <BodyProfileScreen
