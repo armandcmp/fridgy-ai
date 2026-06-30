@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Mic, X } from "lucide-react";
+import { Mic, X, Loader2, Check } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
   VoiceRecognitionManager,
@@ -11,7 +11,6 @@ import {
 
 type Phase =
   | "checking"
-  | "ask_permission"
   | "denied"
   | "unsupported"
   | "listening"
@@ -28,32 +27,36 @@ export interface VoiceOverlayProps {
   onFallback: (mode: "photo" | "manual") => void;
 }
 
-const isIOS =
-  typeof navigator !== "undefined" && /iPad|iPhone|iPod/.test(navigator.userAgent);
-
 export function VoiceOverlay({ open, onClose, onTranscript, onFallback }: VoiceOverlayProps) {
   const { t } = useTranslation();
   const [phase, setPhase] = useState<Phase>("checking");
-  const [interim, setInterim] = useState("");
-  const [rawTranscript, setRawTranscript] = useState("");
+  const [elapsed, setElapsed] = useState(0);
   const mgrRef = useRef<VoiceRecognitionManager | null>(null);
+  const startTsRef = useRef<number>(0);
 
   useEffect(() => {
     if (!open) {
       mgrRef.current?.abort();
       mgrRef.current = null;
-      setInterim("");
-      setRawTranscript("");
       setPhase("checking");
+      setElapsed(0);
       return;
     }
-    bootstrap();
+    void bootstrap();
     return () => {
       mgrRef.current?.abort();
       mgrRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
+
+  // elapsed timer
+  useEffect(() => {
+    if (phase !== "listening") return;
+    startTsRef.current = Date.now();
+    const id = setInterval(() => setElapsed(Math.floor((Date.now() - startTsRef.current) / 1000)), 250);
+    return () => clearInterval(id);
+  }, [phase]);
 
   async function bootstrap() {
     if (!isSpeechSupported()) {
@@ -66,7 +69,6 @@ export function VoiceOverlay({ open, onClose, onTranscript, onFallback }: VoiceO
       return;
     }
     if (perm === "prompt") {
-      // Auto-request mic; no extra confirmation step.
       const ok = await requestMicAccess();
       if (!ok) {
         setPhase("denied");
@@ -77,22 +79,19 @@ export function VoiceOverlay({ open, onClose, onTranscript, onFallback }: VoiceO
   }
 
   function startListening() {
-    setInterim("");
-    setRawTranscript("");
     setPhase("listening");
+    setElapsed(0);
     const mgr = new VoiceRecognitionManager({
-      onState: (s, payload) => {
+      onState: (s) => {
         if (s === "listening") setPhase("listening");
-        else if (s === "interim" && payload) setInterim(payload);
         else if (s === "processing") setPhase("processing");
       },
       onResult: async (transcript) => {
-        setRawTranscript(transcript);
         setPhase("processing");
         try {
           await onTranscript(transcript);
           setPhase("done");
-          setTimeout(onClose, 400);
+          setTimeout(onClose, 450);
         } catch {
           setPhase("error_api");
         }
@@ -106,218 +105,205 @@ export function VoiceOverlay({ open, onClose, onTranscript, onFallback }: VoiceO
       },
     });
     mgrRef.current = mgr;
-    mgr.start();
-  }
-
-  async function handleAskPermission() {
-    const ok = await requestMicAccess();
-    if (!ok) {
-      setPhase("denied");
-      return;
-    }
-    startListening();
+    void mgr.start();
   }
 
   function stopAndProcess() {
-    mgrRef.current?.stop();
+    void mgrRef.current?.stop();
   }
 
   if (!open) return null;
 
-  const circleBg =
-    phase === "processing"
-      ? "#EF4444"
-      : phase === "error_no_speech" || phase === "error_network" || phase === "error_api"
-        ? "#F59E0B"
-        : phase === "denied" || phase === "unsupported"
-          ? "#EF4444"
-          : "#4CAF82";
+  const fmt = (s: number) => `${String(Math.floor(s / 60)).padStart(1, "0")}:${String(s % 60).padStart(2, "0")}`;
 
-  const showPulse = phase === "listening";
-
-  const statusText =
-    phase === "listening"
-      ? t("voice.speak")
-      : phase === "processing"
-        ? t("voice.processing")
-        : phase === "done"
-          ? t("voice.success")
-          : phase === "denied"
-            ? t("voice.deniedTitle")
-            : phase === "unsupported"
-              ? t("voice.unsupportedTitle")
-              : phase === "error_no_speech"
-                ? t("voice.noSpeechTitle")
-                : phase === "error_network"
-                  ? t("voice.networkTitle")
-                  : phase === "error_api"
-                    ? t("voice.apiTitle")
-                    : t("voice.askTitle");
+  const isError = phase === "error_no_speech" || phase === "error_network" || phase === "error_api" || phase === "denied" || phase === "unsupported";
 
   return (
     <div
-      className="fixed inset-0 z-[200] flex flex-col items-center justify-center px-6 text-white"
-      style={{ background: "rgba(26,26,26,0.95)", animation: "fadeIn 200ms ease-out" }}
+      className="fixed inset-0 z-[200] flex items-end justify-center sm:items-center"
+      style={{ background: "rgba(15,27,23,0.35)", backdropFilter: "blur(4px)", animation: "fadeIn 160ms ease-out" }}
+      onClick={onClose}
     >
-      <button
-        onClick={onClose}
-        aria-label={t("voice.cancel")}
-        className="absolute right-5 top-5 grid h-10 w-10 place-items-center rounded-full"
-        style={{ background: "rgba(255,255,255,0.1)" }}
-      >
-        <X size={20} />
-      </button>
-
       <div
-        className={`grid place-items-center ${showPulse ? "animate-pulse-ring" : ""}`}
+        onClick={(e) => e.stopPropagation()}
+        className="mx-3 mb-3 w-full max-w-sm overflow-hidden bg-white shadow-2xl sm:mb-0"
         style={{
-          width: 120,
-          height: 120,
-          borderRadius: 60,
-          background: circleBg,
-          transition: "background 200ms ease",
+          borderRadius: 24,
+          paddingBottom: "calc(env(safe-area-inset-bottom) + 16px)",
+          animation: "slideUp 220ms cubic-bezier(0.2,0.8,0.2,1)",
         }}
       >
-        <Mic size={48} color="#fff" />
-      </div>
-
-      <div className="mt-6 text-center text-lg font-semibold">{statusText}</div>
-
-      {(phase === "listening" || phase === "ask_permission") && (
-        <p className="mt-3 max-w-xs text-center text-sm" style={{ color: "rgba(255,255,255,0.7)" }}>
-          {phase === "ask_permission" ? t("voice.askSub") : t("voice.hint")}
-        </p>
-      )}
-
-      {phase === "listening" && interim && (
-        <p className="mt-3 max-w-xs text-center text-sm italic" style={{ color: "rgba(255,255,255,0.9)" }}>
-          « {interim} »
-        </p>
-      )}
-
-      {phase === "listening" && isIOS && (
-        <p className="mt-2 text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>
-          {t("voice.iosHint")}
-        </p>
-      )}
-
-      {/* Actions per phase */}
-      <div className="mt-8 flex w-full max-w-xs flex-col gap-3">
-        {phase === "ask_permission" && (
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 pt-4">
+          <div className="text-[13px] font-semibold" style={{ color: "#5A6B62" }}>
+            {phase === "listening"
+              ? t("voice.speak")
+              : phase === "processing"
+                ? t("voice.processing")
+                : phase === "done"
+                  ? t("voice.success")
+                  : phase === "denied"
+                    ? t("voice.deniedTitle")
+                    : phase === "unsupported"
+                      ? t("voice.unsupportedTitle")
+                      : phase === "error_no_speech"
+                        ? t("voice.noSpeechTitle")
+                        : phase === "error_network"
+                          ? t("voice.networkTitle")
+                          : phase === "error_api"
+                            ? t("voice.apiTitle")
+                            : t("voice.processing")}
+          </div>
           <button
-            onClick={handleAskPermission}
-            className="rounded-full bg-white py-3 text-sm font-semibold text-black"
+            onClick={onClose}
+            aria-label={t("voice.cancel")}
+            className="grid h-8 w-8 place-items-center rounded-full text-muted-foreground hover:bg-secondary"
           >
-            {t("voice.askCta")}
+            <X size={16} />
           </button>
-        )}
+        </div>
 
-        {phase === "listening" && (
-          <button
-            onClick={stopAndProcess}
-            className="rounded-full border border-white py-3 text-sm font-semibold text-white"
-          >
-            {t("voice.stop")}
-          </button>
-        )}
+        {/* Main row */}
+        <div className="flex items-center gap-4 px-5 pb-4 pt-3">
+          {/* Mic / status circle */}
+          <div className="relative grid place-items-center" style={{ width: 56, height: 56, flexShrink: 0 }}>
+            {phase === "listening" && (
+              <span
+                className="absolute inset-0 rounded-full"
+                style={{
+                  background: "var(--primary)",
+                  opacity: 0.18,
+                  animation: "pingSoft 1.6s ease-out infinite",
+                }}
+              />
+            )}
+            <div
+              className="grid place-items-center text-white"
+              style={{
+                width: 48,
+                height: 48,
+                borderRadius: 24,
+                background: phase === "done"
+                  ? "#22C55E"
+                  : isError
+                    ? "#EF4444"
+                    : phase === "processing"
+                      ? "#0F1B17"
+                      : "var(--primary)",
+                transition: "background 200ms ease",
+                boxShadow: phase === "listening" ? "0 6px 18px rgba(45,212,168,0.45)" : "none",
+              }}
+            >
+              {phase === "processing" ? (
+                <Loader2 size={20} className="animate-spin" />
+              ) : phase === "done" ? (
+                <Check size={20} />
+              ) : (
+                <Mic size={20} />
+              )}
+            </div>
+          </div>
 
-        {(phase === "error_no_speech" || phase === "error_network") && (
-          <>
-            <p className="text-center text-sm" style={{ color: "rgba(255,255,255,0.7)" }}>
-              {phase === "error_no_speech" ? t("voice.noSpeechSub") : t("voice.networkSub")}
-            </p>
+          {/* Waveform / status */}
+          <div className="min-w-0 flex-1">
+            {phase === "listening" ? (
+              <div className="flex h-7 items-center gap-[3px]">
+                {Array.from({ length: 18 }).map((_, i) => (
+                  <span
+                    key={i}
+                    style={{
+                      width: 3,
+                      borderRadius: 2,
+                      background: "var(--primary)",
+                      height: `${20 + ((i * 13) % 60)}%`,
+                      animation: `bar 0.9s ease-in-out ${i * 60}ms infinite alternate`,
+                    }}
+                  />
+                ))}
+              </div>
+            ) : phase === "processing" ? (
+              <div className="text-[13px]" style={{ color: "#5A6B62" }}>{t("voice.processing")}…</div>
+            ) : phase === "done" ? (
+              <div className="text-[13px] font-medium" style={{ color: "#0F1B17" }}>{t("voice.success")}</div>
+            ) : (
+              <div className="text-[13px]" style={{ color: "#5A6B62" }}>
+                {phase === "denied"
+                  ? t("voice.deniedSub")
+                  : phase === "unsupported"
+                    ? t("voice.unsupportedSub")
+                    : phase === "error_no_speech"
+                      ? t("voice.noSpeechSub")
+                      : phase === "error_network"
+                        ? t("voice.networkSub")
+                        : phase === "error_api"
+                          ? t("voice.apiSub")
+                          : ""}
+              </div>
+            )}
+            {phase === "listening" && (
+              <div className="mt-1 font-mono text-[11px]" style={{ color: "#7A8A85" }}>
+                {fmt(elapsed)}
+              </div>
+            )}
+          </div>
+
+          {/* Stop / action button */}
+          {phase === "listening" && (
+            <button
+              onClick={stopAndProcess}
+              aria-label={t("voice.stop")}
+              className="grid place-items-center rounded-full text-white transition active:scale-95"
+              style={{ width: 44, height: 44, background: "#0F1B17", flexShrink: 0 }}
+            >
+              <span style={{ width: 12, height: 12, borderRadius: 3, background: "#fff" }} />
+            </button>
+          )}
+        </div>
+
+        {/* Error / fallback actions */}
+        {(phase === "error_no_speech" || phase === "error_network" || phase === "error_api") && (
+          <div className="flex gap-2 px-5 pb-1">
             <button
               onClick={startListening}
-              className="rounded-full bg-white py-3 text-sm font-semibold text-black"
+              className="flex-1 rounded-full bg-primary py-2.5 text-[13px] font-semibold text-primary-foreground"
             >
               {t("voice.retry")}
             </button>
             <button
               onClick={() => onFallback("manual")}
-              className="rounded-full border border-white py-3 text-sm font-semibold text-white"
+              className="flex-1 rounded-full border border-input py-2.5 text-[13px] font-semibold"
+              style={{ color: "#0F1B17" }}
             >
               {t("voice.useManual")}
             </button>
-          </>
+          </div>
         )}
 
-        {phase === "error_api" && (
-          <>
-            <p className="text-center text-sm" style={{ color: "rgba(255,255,255,0.7)" }}>
-              {t("voice.apiSub")}
-            </p>
-            {rawTranscript && (
-              <div
-                className="rounded-lg p-3 text-sm"
-                style={{ background: "rgba(255,255,255,0.1)" }}
-              >
-                « {rawTranscript} »
-              </div>
-            )}
-            <button
-              onClick={async () => {
-                const parts = rawTranscript
-                  .split(/[,;]| et | puis /i)
-                  .map((s) => s.trim())
-                  .filter(Boolean);
-                await onTranscript(parts.join(", "));
-                onClose();
-              }}
-              className="rounded-full bg-white py-3 text-sm font-semibold text-black"
-            >
-              {t("voice.useAnyway")}
-            </button>
-          </>
-        )}
-
-        {phase === "denied" && (
-          <>
-            <p className="text-center text-sm" style={{ color: "rgba(255,255,255,0.7)" }}>
-              {t("voice.deniedSub")}
-            </p>
+        {(phase === "denied" || phase === "unsupported") && (
+          <div className="flex gap-2 px-5 pb-1">
             <button
               onClick={() => onFallback("photo")}
-              className="rounded-full bg-white py-3 text-sm font-semibold text-black"
+              className="flex-1 rounded-full bg-primary py-2.5 text-[13px] font-semibold text-primary-foreground"
             >
               {t("voice.usePhoto")}
             </button>
             <button
               onClick={() => onFallback("manual")}
-              className="rounded-full border border-white py-3 text-sm font-semibold text-white"
+              className="flex-1 rounded-full border border-input py-2.5 text-[13px] font-semibold"
+              style={{ color: "#0F1B17" }}
             >
               {t("voice.useManual")}
             </button>
-          </>
-        )}
-
-        {phase === "unsupported" && (
-          <>
-            <p className="text-center text-sm" style={{ color: "rgba(255,255,255,0.7)" }}>
-              {t("voice.unsupportedSub")}
-            </p>
-            <button
-              onClick={() => onFallback("photo")}
-              className="rounded-full bg-white py-3 text-sm font-semibold text-black"
-            >
-              {t("voice.usePhoto")}
-            </button>
-            <button
-              onClick={() => onFallback("manual")}
-              className="rounded-full border border-white py-3 text-sm font-semibold text-white"
-            >
-              {t("voice.useManual")}
-            </button>
-          </>
+          </div>
         )}
       </div>
 
-      <button
-        onClick={onClose}
-        className="absolute bottom-8 text-sm"
-        style={{ color: "rgba(255,255,255,0.5)" }}
-      >
-        {t("voice.cancel")}
-      </button>
+      <style>{`
+        @keyframes pingSoft { 0% { transform: scale(1); opacity: 0.5; } 100% { transform: scale(1.6); opacity: 0; } }
+        @keyframes bar { 0% { transform: scaleY(0.4); } 100% { transform: scaleY(1); } }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+      `}</style>
     </div>
   );
 }

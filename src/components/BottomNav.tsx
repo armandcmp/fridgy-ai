@@ -111,12 +111,9 @@ export function BottomNav() {
       {/* STEP 1 — Quel repas ? */}
       <BottomSheet open={step === "meal"} onClose={closeSheets}>
         <div className="pb-2">
-          <h3 className="mb-1 text-center text-[20px] font-extrabold tracking-tight" style={{ color: "#0F1B17" }}>
+          <h3 className="mb-5 text-center text-[20px] font-extrabold tracking-tight" style={{ color: "#0F1B17" }}>
             {t("sheet.mealLabel")}
           </h3>
-          <p className="mb-5 text-center text-[12.5px]" style={{ color: "#7A8A85" }}>
-            {t("meal.pickHint") || ""}
-          </p>
           <div className="space-y-3">
             {MEALS.map(({ m, from, to, accent, subKey, hour, img }) => {
               const meta = MEAL_META[m];
@@ -167,7 +164,7 @@ export function BottomNav() {
                       className="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide"
                       style={{ background: "#0F1B17", color: "#fff" }}
                     >
-                      {t("meal.now") || "Maintenant"}
+                      {t("meal.now")}
                     </span>
                   )}
                 </button>
