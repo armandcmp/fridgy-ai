@@ -2,20 +2,14 @@ import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import fr from "@/locales/fr.json";
 import en from "@/locales/en.json";
-import es from "@/locales/es.json";
-import pt from "@/locales/pt.json";
-import zh from "@/locales/zh.json";
 
 export const LANG_KEY = "fridgechef_lang";
-export const SUPPORTED = ["fr", "en", "es", "pt", "zh"] as const;
+export const SUPPORTED = ["fr", "en"] as const;
 export type Lang = (typeof SUPPORTED)[number];
 
 export const LANG_NAMES: Record<Lang, string> = {
-  fr: "français",
+  fr: "Français",
   en: "English",
-  es: "español",
-  pt: "português",
-  zh: "中文",
 };
 
 function detect(): Lang {
@@ -34,9 +28,6 @@ if (!i18n.isInitialized) {
     resources: {
       fr: { translation: fr },
       en: { translation: en },
-      es: { translation: es },
-      pt: { translation: pt },
-      zh: { translation: zh },
     },
     lng: detect(),
     fallbackLng: "fr",
@@ -58,7 +49,8 @@ export function setLanguage(lang: Lang) {
 }
 
 export function getLanguage(): Lang {
-  return (i18n.language?.slice(0, 2) as Lang) || "fr";
+  const code = (i18n.language?.slice(0, 2) as Lang) || "fr";
+  return SUPPORTED.includes(code) ? code : "fr";
 }
 
 export function getLanguageName(): string {
