@@ -1,10 +1,12 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Camera, Mic } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { hydrateFromProfile } from "@/lib/auth-sync";
+
+const CONSENT_KEY = "fridgy_consent_v1";
 
 export const Route = createFileRoute("/auth")({
   component: AuthScreen,
@@ -25,6 +27,30 @@ function AuthScreen() {
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotLoading, setForgotLoading] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [acceptedLegal, setAcceptedLegal] = useState(false);
+  const [acceptedPerms, setAcceptedPerms] = useState(false);
+
+  // Hydrate any previously accepted consent so returning users aren't asked again
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (localStorage.getItem(CONSENT_KEY)) {
+      setAcceptedLegal(true);
+      setAcceptedPerms(true);
+    }
+  }, []);
+
+  const persistConsent = () => {
+    try {
+      localStorage.setItem(
+        CONSENT_KEY,
+        JSON.stringify({ legal: true, perms: true, at: new Date().toISOString() }),
+      );
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const consentOk = acceptedLegal && acceptedPerms;
 
   // Already signed in? Skip the screen.
   useEffect(() => {
