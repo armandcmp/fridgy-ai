@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { ChevronRight, Crown, Copy, Share2, LogOut, Camera, Trash2 } from "lucide-react";
+import { ChevronRight, Crown, LogOut, Camera, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { storage } from "@/lib/storage";
@@ -8,7 +8,7 @@ import { auth } from "@/lib/auth";
 import { useLocalReactive } from "@/lib/hooks";
 import { isPremium, setPremium, usePremium } from "@/lib/freemium";
 import { getLanguage, setLanguage, SUPPORTED, type Lang, LANG_NAMES } from "@/lib/i18n";
-import { getGroup, setGroup, clearGroup, randomCode, updateShared, encodeExport, decodeImport } from "@/lib/group";
+
 import { PaywallModal } from "@/components/PaywallModal";
 import { Avatar } from "@/components/Avatar";
 
@@ -25,7 +25,7 @@ function Settings() {
  const user = useLocalReactive(() => storage.getUser());
  const sessionUser = useLocalReactive(() => storage.getSessionUser());
  const premium = usePremium();
- const group = useLocalReactive(() => getGroup());
+ 
  const [paywall, setPaywall] = useState(false);
  const [editingName, setEditingName] = useState(false);
  const [name, setName] = useState(user?.name ?? "");
@@ -38,12 +38,6 @@ function Settings() {
  const [mounted, setMounted] = useState(false);
  useEffect(() => setMounted(true), []);
 
- // Group state
- const [joining, setJoining] = useState(false);
- const [joinCode, setJoinCode] = useState("");
- const [showExport, setShowExport] = useState(false);
- const [showImport, setShowImport] = useState(false);
- const [importCode, setImportCode] = useState("");
 
  if (!mounted || !user) {
  return (
@@ -122,76 +116,6 @@ function Settings() {
  toast(next ? t("settings.premiumOn") : t("settings.premiumOff"));
  };
 
- const createGroup = () => {
- setGroup({
- code: randomCode(),
- role: "owner",
- memberName: user.name,
- sharedData: { ingredients: [], planning: null, updatedAt: new Date().toISOString() },
- });
- toast.success(t("group.created"));
- };
-
- const joinGroupFn = () => {
- const c = joinCode.trim().toUpperCase();
- if (c.length !== 6) return toast.error(t("group.importError"));
- setGroup({
- code: c,
- role: "member",
- memberName: user.name,
- sharedData: { ingredients: [], planning: null, updatedAt: new Date().toISOString() },
- });
- setJoining(false);
- setJoinCode("");
- toast.success(t("group.joined"));
- };
-
- const copyCode = (code: string) => {
- navigator.clipboard.writeText(code).then(() => toast.success(t("group.codeCopied")));
- };
-
- const shareGroup = (code: string) => {
- const text = t("group.shareText", { code });
- const n = navigator as Navigator & { share?: (d: { text: string }) => Promise<void> };
- if (n.share) {
- n.share({ text }).catch(() => undefined);
- } else {
- navigator.clipboard.writeText(text).then(() => toast.success(t("common.copied")));
- }
- };
-
- const updateGroupIngredients = () => {
- updateShared({ ingredients: storage.getSession() });
- toast.success(t("common.copied"));
- };
-
- const sharePlanning = () => {
- updateShared({ planning: storage.getPlanning() });
- toast.success(t("common.copied"));
- };
-
- const doExport = () => {
- if (!group) return;
- setShowExport(true);
- };
-
- const doImport = () => {
- try {
- const g = decodeImport(importCode);
- setGroup(g);
- setShowImport(false);
- setImportCode("");
- toast.success(t("group.imported"));
- } catch {
- toast.error(t("group.importError"));
- }
- };
-
- const leaveGroup = () => {
- if (confirm(t("group.confirmLeave"))) {
- clearGroup();
- }
- };
 
  const exportData = () => {
  const data: Record<string, unknown> = {};
@@ -366,126 +290,6 @@ function Settings() {
  </Row>
  </Section>
 
- {/* GROUP */}
- <Section title={t("settings.group")}>
- {!group ? (
- <div className="p-4 space-y-2">
- <button
- onClick={createGroup}
- className="w-full rounded-full bg-primary py-2.5 text-sm font-semibold text-primary-foreground"
- >
- {t("group.create")}
- </button>
- {!joining ? (
- <button
- onClick={() => setJoining(true)}
- className="w-full rounded-full border border-primary py-2.5 text-sm font-semibold text-primary"
- >
- {t("group.join")}
- </button>
- ) : (
- <div className="flex gap-2">
- <input
- autoFocus
- value={joinCode}
- onChange={(e) => setJoinCode(e.target.value.toUpperCase().slice(0, 6))}
- placeholder={t("group.codeInput")}
- className="flex-1 rounded-full border border-input bg-background px-3 py-2 text-sm tracking-widest outline-none focus:border-primary"
- />
- <button
- onClick={joinGroupFn}
- className="rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground"
- >
- OK
- </button>
- </div>
- )}
- </div>
- ) : (
- <div className="p-4 space-y-3">
- <div className="flex items-center justify-between gap-2 rounded-xl bg-muted/40 p-3">
- <span className="font-mono text-xl font-bold tracking-widest">{group.code}</span>
- <div className="flex gap-1">
- <button
- onClick={() => copyCode(group.code)}
- className="grid h-8 w-8 place-items-center rounded-full bg-card"
- aria-label={t("common.copy")}
- >
- <Copy size={14} />
- </button>
- <button
- onClick={() => shareGroup(group.code)}
- className="grid h-8 w-8 place-items-center rounded-full bg-card"
- aria-label={t("common.share")}
- >
- <Share2 size={14} />
- </button>
- </div>
- </div>
-
- <div className="rounded-xl border border-border p-3">
- <p className="text-xs font-semibold">{t("group.shared")}</p>
- {group.sharedData.ingredients.length > 0 ? (
- <div className="mt-2 flex flex-wrap gap-1.5">
- {group.sharedData.ingredients.slice(0, 12).map((i) => (
- <span key={i} className="rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">
- {i}
- </span>
- ))}
- </div>
- ) : (
- <p className="mt-1 text-xs text-muted-foreground">{t("group.nothingShared")}</p>
- )}
- <button
- onClick={updateGroupIngredients}
- className="mt-3 w-full rounded-full bg-secondary py-2 text-xs font-semibold text-secondary-foreground"
- >
- {t("group.updateShared")}
- </button>
- </div>
-
- <div className="rounded-xl border border-border p-3">
- <p className="text-xs font-semibold">{t("group.sharedPlanning")}</p>
- <p className="mt-1 text-xs text-muted-foreground">
- {group.sharedData.planning
- ? `${group.sharedData.planning.days.filter((d) => d.recette).length} / 7`
- : t("group.nothingShared")}
- </p>
- <button
- onClick={sharePlanning}
- className="mt-3 w-full rounded-full bg-secondary py-2 text-xs font-semibold text-secondary-foreground"
- >
- {t("group.sharePlanning")}
- </button>
- </div>
-
- <div className="rounded-xl border border-border p-3">
- <p className="text-xs font-semibold">{t("group.sync")}</p>
- <div className="mt-2 grid grid-cols-2 gap-2">
- <button
- onClick={doExport}
- className="rounded-full border border-border py-2 text-[11px] font-semibold"
- >
- {t("group.exportBtn")}
- </button>
- <button
- onClick={() => setShowImport(true)}
- className="rounded-full border border-border py-2 text-[11px] font-semibold"
- >
- {t("group.importBtn")}
- </button>
- </div>
- </div>
-
- <button
- onClick={leaveGroup}
- className="w-full rounded-full border border-destructive py-2.5 text-sm font-semibold text-destructive"
- >
- {t("group.leave")}
- </button>
- </div>
- )}
- </Section>
 
         {/* SUBSCRIPTION */}
         <Section title={t("settings.subscription")}>
@@ -644,54 +448,6 @@ function Settings() {
  );
  })()}
 
- {/* EXPORT MODAL */}
- {showExport && group && (
- <Modal onClose={() => setShowExport(false)} title={t("group.exportTitle")}>
- <textarea
- readOnly
- value={encodeExport(group)}
- className="h-32 w-full resize-none rounded-xl border border-input bg-muted p-3 font-mono text-[10px]"
- />
- <p className="mt-2 text-xs text-muted-foreground">{t("group.exportInstructions")}</p>
- <div className="mt-3 flex gap-2">
- <button
- onClick={() => {
- navigator.clipboard.writeText(encodeExport(group));
- toast.success(t("common.copied"));
- }}
- className="flex-1 rounded-full bg-primary py-2 text-sm font-semibold text-primary-foreground"
- >
- {t("common.copy")}
- </button>
- <a
- href={`https://wa.me/?text=${encodeURIComponent(encodeExport(group))}`}
- target="_blank"
- rel="noopener noreferrer"
- className="flex-1 rounded-full bg-emerald-600 py-2 text-center text-sm font-semibold text-white"
- >
- WhatsApp
- </a>
- </div>
- </Modal>
- )}
-
- {showImport && (
- <Modal onClose={() => setShowImport(false)} title={t("group.importBtn")}>
- <textarea
- autoFocus
- value={importCode}
- onChange={(e) => setImportCode(e.target.value)}
- placeholder={t("group.importPlaceholder")}
- className="h-32 w-full resize-none rounded-xl border border-input bg-background p-3 font-mono text-[10px]"
- />
- <button
- onClick={doImport}
- className="mt-3 w-full rounded-full bg-primary py-2.5 text-sm font-semibold text-primary-foreground"
- >
- {t("common.import")}
- </button>
- </Modal>
- )}
 
  <PaywallModal open={paywall} onClose={() => setPaywall(false)} />
  </div>

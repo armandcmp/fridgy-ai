@@ -8,6 +8,7 @@ import { useUsage, usePremium, LIMITS } from "@/lib/freemium";
 import { RecipeImage } from "@/components/RecipeImage";
 import { PaywallModal } from "@/components/PaywallModal";
 import { Avatar } from "@/components/Avatar";
+import { GroupButton } from "@/components/GroupButton";
 import { StatsSection } from "@/components/StatsSection";
 import type { Recipe } from "@/lib/types";
 import fridgyLogo from "@/assets/fridgy-logo.jpeg.asset.json";
@@ -186,6 +187,7 @@ function Home() {
             </div>
           </Link>
           <div className="flex items-center gap-2">
+            <GroupButton />
             {premium && (
               <span
                 className="inline-grid h-7 w-7 place-items-center rounded-full text-white"
@@ -195,7 +197,6 @@ function Home() {
                 <Crown size={14} />
               </span>
             )}
-            
           </div>
         </header>
 
