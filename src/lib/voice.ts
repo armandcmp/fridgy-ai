@@ -1,5 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+// Cross-browser voice recognition backed by server-side Lovable AI transcription.
+// Works on Chrome/Firefox/Safari (macOS+iOS)/Android — anywhere getUserMedia is allowed.
 import { getLanguage } from "./i18n";
+import { WavRecorder } from "./voiceRecorder";
 
 export type VoiceState = "idle" | "listening" | "interim" | "processing" | "done" | "error";
 export type VoiceErrorKind =
@@ -11,17 +14,17 @@ export type VoiceErrorKind =
   | "start_failed"
   | "unknown";
 
-const BCP47: Record<string, string> = {
-  fr: "fr-FR",
-  en: "en-US",
-  es: "es-ES",
-  pt: "pt-BR",
-  zh: "zh-CN",
+const ISO3: Record<string, string> = {
+  fr: "fra",
+  en: "eng",
+  es: "spa",
+  pt: "por",
+  zh: "zho",
 };
 
 export function isSpeechSupported(): boolean {
   if (typeof window === "undefined") return false;
-  return !!((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition);
+  return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && (window as any).AudioContext);
 }
 
 export async function checkMicPermission(): Promise<"granted" | "denied" | "prompt"> {
@@ -52,10 +55,8 @@ export interface VoiceCallbacks {
 }
 
 export class VoiceRecognitionManager {
-  private recognition: any = null;
-  private listening = false;
-  private transcript = "";
-  private stoppedByUser = false;
+  private recorder: WavRecorder | null = null;
+  private aborted = false;
 
   constructor(private cb: VoiceCallbacks) {}
 
@@ -63,90 +64,73 @@ export class VoiceRecognitionManager {
     return isSpeechSupported();
   }
 
-  start() {
+  async start() {
     if (!this.isSupported()) {
       this.cb.onError("not_supported");
       return;
     }
-    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    const r = new SR();
-    this.recognition = r;
-    this.transcript = "";
-    this.stoppedByUser = false;
-    r.lang = BCP47[getLanguage()] || "en-US";
-    r.continuous = true;
-    r.interimResults = true;
-    r.maxAlternatives = 3;
-
-    r.onstart = () => {
-      this.listening = true;
+    this.aborted = false;
+    this.recorder = new WavRecorder();
+    try {
+      await this.recorder.start();
       this.cb.onState("listening");
-    };
-    r.onresult = (event: any) => {
-      let interim = "";
-      let final = "";
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const res = event.results[i];
-        if (res.isFinal) final += res[0].transcript;
-        else interim += res[0].transcript;
-      }
-      if (interim) this.cb.onState("interim", interim);
-      if (final) this.transcript += " " + final;
-    };
-    r.onerror = (event: any) => {
-      const err = event.error as string;
-      if (err === "aborted") return;
-      if (err === "not-allowed" || err === "service-not-allowed") this.cb.onError("permission_denied");
-      else if (err === "no-speech") this.cb.onError("no_speech");
-      else if (err === "network") this.cb.onError("network");
-      else this.cb.onError("unknown");
-    };
-    r.onend = () => {
-      this.listening = false;
-      const t = this.transcript.trim();
-      if (t) {
-        this.cb.onState("processing");
-        this.cb.onResult(t);
-      } else if (this.stoppedByUser) {
-        this.cb.onError("no_speech");
-      }
-    };
-
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    const delay = isIOS ? 200 : 0;
-    setTimeout(() => {
-      try {
-        r.start();
-      } catch {
-        this.cb.onError("start_failed");
-      }
-    }, delay);
+    } catch (e: any) {
+      const name = e?.name || "";
+      if (name === "NotAllowedError" || name === "SecurityError") this.cb.onError("permission_denied");
+      else this.cb.onError("start_failed");
+    }
   }
 
-  stop() {
-    this.stoppedByUser = true;
-    if (this.recognition && this.listening) {
-      try {
-        this.recognition.stop();
-      } catch {
-        /* */
+  async stop() {
+    if (!this.recorder) return;
+    if (this.aborted) return;
+    const rec = this.recorder;
+    this.recorder = null;
+    let blob: Blob;
+    try {
+      blob = await rec.stop();
+    } catch {
+      this.cb.onError("unknown");
+      return;
+    }
+    if (blob.size < 2048) {
+      this.cb.onError("no_speech");
+      return;
+    }
+    this.cb.onState("processing");
+    try {
+      const form = new FormData();
+      form.append("file", blob, "recording.wav");
+      const lang = ISO3[getLanguage()];
+      if (lang) form.append("language", lang);
+      const resp = await fetch("/api/transcribe", { method: "POST", body: form });
+      if (!resp.ok) {
+        this.cb.onError(resp.status >= 500 ? "network" : "unknown");
+        return;
       }
+      const json = await resp.json();
+      const text = (json?.text || "").trim();
+      if (!text) {
+        this.cb.onError("no_speech");
+        return;
+      }
+      this.cb.onResult(text);
+    } catch {
+      this.cb.onError("network");
     }
   }
 
   abort() {
-    if (this.recognition) {
-      try {
-        this.recognition.abort();
-      } catch {
-        /* */
-      }
+    this.aborted = true;
+    try {
+      this.recorder?.abort();
+    } catch {
+      /* */
     }
-    this.listening = false;
+    this.recorder = null;
   }
 }
 
-// Backwards-compat helper
 export function startVoiceRecognition(
   onResult: (transcript: string) => void,
   onError: (err: string) => void,
