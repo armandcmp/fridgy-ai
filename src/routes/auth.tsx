@@ -69,6 +69,11 @@ function AuthScreen() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!consentOk) {
+      toast.error("Veuillez accepter les conditions d'utilisation et la politique de confidentialité.");
+      return;
+    }
+    persistConsent();
     setLoading(true);
     try {
       if (mode === "signup") {
@@ -106,6 +111,11 @@ function AuthScreen() {
   };
 
   const google = async () => {
+    if (!consentOk) {
+      toast.error("Veuillez accepter les conditions d'utilisation et la politique de confidentialité.");
+      return;
+    }
+    persistConsent();
     setLoading(true);
     const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: window.location.origin,
