@@ -164,7 +164,7 @@ export function BottomNav() {
                       className="rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide"
                       style={{ background: "#0F1B17", color: "#fff" }}
                     >
-                      {t("meal.now") || "Maintenant"}
+                      {t("meal.now")}
                     </span>
                   )}
                 </button>
