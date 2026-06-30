@@ -312,14 +312,23 @@ function AuthScreen({ onAuthed }: { onAuthed: () => void }) {
  {mode === "register" ? t("auth.createCta") : t("auth.loginCta")}
  </button>
 
- {mode === "login" && (
- <button
- onClick={() => toast(t("auth.forgotSoon"))}
- className="mt-3 block w-full text-center text-xs text-muted-foreground"
- >
- {t("auth.forgot")}
- </button>
- )}
+        {mode === "login" && (
+          <button
+            onClick={async () => {
+              const target = window.prompt(t("auth.forgotPrompt") || "Entrez votre email :", email);
+              if (!target) return;
+              const { supabase } = await import("@/integrations/supabase/client");
+              const { error } = await supabase.auth.resetPasswordForEmail(target.trim(), {
+                redirectTo: `${window.location.origin}/reset-password`,
+              });
+              if (error) toast.error(error.message);
+              else toast.success("Email envoyé !");
+            }}
+            className="mt-3 block w-full text-center text-xs text-primary underline"
+          >
+            {t("auth.forgot")}
+          </button>
+        )}
 
  <button
  onClick={() => {
