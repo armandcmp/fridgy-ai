@@ -8,7 +8,7 @@ import { auth } from "@/lib/auth";
 import { useLocalReactive } from "@/lib/hooks";
 import { isPremium, setPremium, usePremium } from "@/lib/freemium";
 import { getLanguage, setLanguage, SUPPORTED, type Lang, LANG_NAMES } from "@/lib/i18n";
-import { getGroup, setGroup, clearGroup, randomCode, updateShared, encodeExport, decodeImport } from "@/lib/group";
+
 import { PaywallModal } from "@/components/PaywallModal";
 import { Avatar } from "@/components/Avatar";
 
