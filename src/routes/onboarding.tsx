@@ -43,7 +43,7 @@ const LANGS: { code: Lang; flag: string; name: string; cta: string }[] = [
  { code: "zh", flag: "🇨🇳", name: "中文", cta: "继续 →" },
 ];
 
-type Step = "lang" | "auth" | "profile" | "program";
+type Step = "lang" | "notif" | "auth" | "profile" | "program";
 
 const ONBOARDING_DONE_KEY = "fridgechef_onboarding_complete";
 
