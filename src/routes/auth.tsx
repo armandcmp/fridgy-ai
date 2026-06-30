@@ -198,6 +198,50 @@ function AuthScreen() {
           </button>
         </form>
 
+        {mode === "signin" && (
+          <div className="mt-3 text-center">
+            <button
+              type="button"
+              onClick={() => {
+                setForgotEmail(email);
+                setForgotOpen((v) => !v);
+              }}
+              className="text-[12.5px] font-semibold text-primary hover:underline"
+            >
+              Mot de passe oublié ?
+            </button>
+          </div>
+        )}
+
+        {forgotOpen && mode === "signin" && (
+          <form
+            onSubmit={sendReset}
+            className="mt-3 rounded-2xl border p-3"
+            style={{ borderColor: "var(--border)", background: "var(--muted)" }}
+          >
+            <p className="mb-2 text-[12px] text-muted-foreground">
+              Entrez votre email, nous vous enverrons un lien pour réinitialiser votre mot de passe.
+            </p>
+            <input
+              type="email"
+              required
+              value={forgotEmail}
+              onChange={(e) => setForgotEmail(e.target.value)}
+              placeholder="vous@exemple.com"
+              className="w-full rounded-xl border bg-card px-3 py-2.5 text-[14px] outline-none focus:border-primary"
+              style={{ borderColor: "var(--border)" }}
+            />
+            <button
+              type="submit"
+              disabled={forgotLoading}
+              className="mt-2 w-full rounded-xl py-2.5 text-[13px] font-extrabold text-primary-foreground disabled:opacity-60"
+              style={{ background: "var(--primary)" }}
+            >
+              {forgotLoading ? "Envoi…" : "Envoyer le lien"}
+            </button>
+          </form>
+        )}
+
         <div className="my-4 flex items-center gap-3 text-[11px] uppercase tracking-wider text-muted-foreground">
           <span className="h-px flex-1 bg-border" />
           ou
