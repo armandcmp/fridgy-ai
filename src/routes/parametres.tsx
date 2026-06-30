@@ -25,7 +25,7 @@ function Settings() {
  const user = useLocalReactive(() => storage.getUser());
  const sessionUser = useLocalReactive(() => storage.getSessionUser());
  const premium = usePremium();
- const group = useLocalReactive(() => getGroup());
+ 
  const [paywall, setPaywall] = useState(false);
  const [editingName, setEditingName] = useState(false);
  const [name, setName] = useState(user?.name ?? "");
