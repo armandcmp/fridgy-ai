@@ -1,10 +1,12 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Camera, Mic } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { hydrateFromProfile } from "@/lib/auth-sync";
+
+const CONSENT_KEY = "fridgy_consent_v1";
 
 export const Route = createFileRoute("/auth")({
   component: AuthScreen,
@@ -25,6 +27,30 @@ function AuthScreen() {
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotLoading, setForgotLoading] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [acceptedLegal, setAcceptedLegal] = useState(false);
+  const [acceptedPerms, setAcceptedPerms] = useState(false);
+
+  // Hydrate any previously accepted consent so returning users aren't asked again
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (localStorage.getItem(CONSENT_KEY)) {
+      setAcceptedLegal(true);
+      setAcceptedPerms(true);
+    }
+  }, []);
+
+  const persistConsent = () => {
+    try {
+      localStorage.setItem(
+        CONSENT_KEY,
+        JSON.stringify({ legal: true, perms: true, at: new Date().toISOString() }),
+      );
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const consentOk = acceptedLegal && acceptedPerms;
 
   // Already signed in? Skip the screen.
   useEffect(() => {
@@ -43,6 +69,11 @@ function AuthScreen() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!consentOk) {
+      toast.error("Veuillez accepter les conditions d'utilisation et la politique de confidentialité.");
+      return;
+    }
+    persistConsent();
     setLoading(true);
     try {
       if (mode === "signup") {
@@ -80,6 +111,11 @@ function AuthScreen() {
   };
 
   const google = async () => {
+    if (!consentOk) {
+      toast.error("Veuillez accepter les conditions d'utilisation et la politique de confidentialité.");
+      return;
+    }
+    persistConsent();
     setLoading(true);
     const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: window.location.origin,
@@ -184,9 +220,16 @@ function AuthScreen() {
             />
           )}
 
+          <ConsentBlock
+            acceptedLegal={acceptedLegal}
+            setAcceptedLegal={setAcceptedLegal}
+            acceptedPerms={acceptedPerms}
+            setAcceptedPerms={setAcceptedPerms}
+          />
+
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !consentOk}
             className="mt-2 w-full rounded-2xl py-3 text-[14px] font-extrabold text-primary-foreground transition active:scale-[0.99] disabled:opacity-60"
             style={{ background: "var(--primary)" }}
           >
@@ -251,7 +294,7 @@ function AuthScreen() {
         <button
           type="button"
           onClick={google}
-          disabled={loading}
+          disabled={loading || !consentOk}
           className="flex w-full items-center justify-center gap-2 rounded-2xl border bg-card py-3 text-[14px] font-semibold transition active:scale-[0.99] disabled:opacity-60"
           style={{ borderColor: "var(--border)" }}
         >
@@ -261,8 +304,71 @@ function AuthScreen() {
       </div>
 
       <p className="mt-6 text-center text-[11.5px] text-muted-foreground">
-        En continuant, vous acceptez nos conditions d'utilisation.
+        En continuant, vous acceptez nos{" "}
+        <Link to="/terms" className="font-semibold text-primary hover:underline">conditions d'utilisation</Link>{" "}
+        et notre{" "}
+        <Link to="/privacy" className="font-semibold text-primary hover:underline">politique de confidentialité</Link>.
       </p>
+    </div>
+  );
+}
+
+function ConsentBlock({
+  acceptedLegal,
+  setAcceptedLegal,
+  acceptedPerms,
+  setAcceptedPerms,
+}: {
+  acceptedLegal: boolean;
+  setAcceptedLegal: (v: boolean) => void;
+  acceptedPerms: boolean;
+  setAcceptedPerms: (v: boolean) => void;
+}) {
+  return (
+    <div
+      className="mt-2 space-y-2 rounded-2xl border p-3"
+      style={{ borderColor: "var(--border)", background: "var(--muted)" }}
+    >
+      <label className="flex cursor-pointer items-start gap-2.5 text-[12.5px] leading-snug text-foreground">
+        <input
+          type="checkbox"
+          checked={acceptedLegal}
+          onChange={(e) => setAcceptedLegal(e.target.checked)}
+          className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--primary)]"
+          required
+        />
+        <span>
+          J'accepte les{" "}
+          <Link to="/terms" target="_blank" className="font-semibold text-primary underline">
+            conditions d'utilisation
+          </Link>{" "}
+          et la{" "}
+          <Link to="/privacy" target="_blank" className="font-semibold text-primary underline">
+            politique de confidentialité
+          </Link>{" "}
+          (RGPD, abonnements, essai gratuit 14 jours, résiliation à tout moment).
+        </span>
+      </label>
+      <label className="flex cursor-pointer items-start gap-2.5 text-[12.5px] leading-snug text-foreground">
+        <input
+          type="checkbox"
+          checked={acceptedPerms}
+          onChange={(e) => setAcceptedPerms(e.target.checked)}
+          className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--primary)]"
+          required
+        />
+        <span className="flex flex-wrap items-center gap-1">
+          Je comprends que Fridgy demandera l'accès à la{" "}
+          <span className="inline-flex items-center gap-1 font-semibold">
+            <Camera size={12} /> caméra
+          </span>{" "}
+          (scan du frigo) et au{" "}
+          <span className="inline-flex items-center gap-1 font-semibold">
+            <Mic size={12} /> microphone
+          </span>{" "}
+          (dictée vocale) uniquement lorsque je les utilise. Aucun enregistrement n'est conservé.
+        </span>
+      </label>
     </div>
   );
 }

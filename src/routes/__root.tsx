@@ -120,7 +120,9 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const loc = useLocation();
   const nav = useNavigate();
-  const hideNav = loc.pathname === "/onboarding" || loc.pathname === "/auth";
+  const PUBLIC_PATHS = ["/auth", "/privacy", "/terms", "/reset-password"];
+  const isPublic = PUBLIC_PATHS.includes(loc.pathname);
+  const hideNav = loc.pathname === "/onboarding" || isPublic;
 
   // Initialize OneSignal Web SDK (client-only)
   useEffect(() => {
@@ -137,6 +139,7 @@ function RootComponent() {
 
     const apply = async (hasSession: boolean) => {
       const path = window.location.pathname;
+      const onPublic = ["/auth", "/privacy", "/terms", "/reset-password"].includes(path);
       if (hasSession) {
         const u = await hydrateFromProfile();
         if (path === "/auth") {
@@ -144,7 +147,7 @@ function RootComponent() {
         }
       } else {
         clearLocalSession();
-        if (path !== "/auth") nav({ to: "/auth", replace: true });
+        if (!onPublic) nav({ to: "/auth", replace: true });
       }
     };
 
