@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as StatsRouteImport } from './routes/stats'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RecettesRouteImport } from './routes/recettes'
 import { Route as PlanningRouteImport } from './routes/planning'
 import { Route as ParametresRouteImport } from './routes/parametres'
@@ -25,6 +26,11 @@ import { Route as RecetteIdRouteImport } from './routes/recette.$id'
 const StatsRoute = StatsRouteImport.update({
   id: '/stats',
   path: '/stats',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RecettesRoute = RecettesRouteImport.update({
@@ -94,6 +100,7 @@ export interface FileRoutesByFullPath {
   '/parametres': typeof ParametresRoute
   '/planning': typeof PlanningRoute
   '/recettes': typeof RecettesRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/stats': typeof StatsRoute
   '/recette/$id': typeof RecetteIdRoute
 }
@@ -108,6 +115,7 @@ export interface FileRoutesByTo {
   '/parametres': typeof ParametresRoute
   '/planning': typeof PlanningRoute
   '/recettes': typeof RecettesRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/stats': typeof StatsRoute
   '/recette/$id': typeof RecetteIdRoute
 }
@@ -123,6 +131,7 @@ export interface FileRoutesById {
   '/parametres': typeof ParametresRoute
   '/planning': typeof PlanningRoute
   '/recettes': typeof RecettesRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/stats': typeof StatsRoute
   '/recette/$id': typeof RecetteIdRoute
 }
@@ -139,6 +148,7 @@ export interface FileRouteTypes {
     | '/parametres'
     | '/planning'
     | '/recettes'
+    | '/reset-password'
     | '/stats'
     | '/recette/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -153,6 +163,7 @@ export interface FileRouteTypes {
     | '/parametres'
     | '/planning'
     | '/recettes'
+    | '/reset-password'
     | '/stats'
     | '/recette/$id'
   id:
@@ -167,6 +178,7 @@ export interface FileRouteTypes {
     | '/parametres'
     | '/planning'
     | '/recettes'
+    | '/reset-password'
     | '/stats'
     | '/recette/$id'
   fileRoutesById: FileRoutesById
@@ -182,6 +194,7 @@ export interface RootRouteChildren {
   ParametresRoute: typeof ParametresRoute
   PlanningRoute: typeof PlanningRoute
   RecettesRoute: typeof RecettesRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   StatsRoute: typeof StatsRoute
   RecetteIdRoute: typeof RecetteIdRoute
 }
@@ -193,6 +206,13 @@ declare module '@tanstack/react-router' {
       path: '/stats'
       fullPath: '/stats'
       preLoaderRoute: typeof StatsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/recettes': {
@@ -286,6 +306,7 @@ const rootRouteChildren: RootRouteChildren = {
   ParametresRoute: ParametresRoute,
   PlanningRoute: PlanningRoute,
   RecettesRoute: RecettesRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   StatsRoute: StatsRoute,
   RecetteIdRoute: RecetteIdRoute,
 }
