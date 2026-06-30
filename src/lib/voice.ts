@@ -24,7 +24,7 @@ const ISO3: Record<string, string> = {
 
 export function isSpeechSupported(): boolean {
   if (typeof window === "undefined") return false;
-  return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && (window as any).AudioContext);
+  return !!(navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === "function" && (window as any).AudioContext);
 }
 
 export async function checkMicPermission(): Promise<"granted" | "denied" | "prompt"> {
