@@ -220,9 +220,16 @@ function AuthScreen() {
             />
           )}
 
+          <ConsentBlock
+            acceptedLegal={acceptedLegal}
+            setAcceptedLegal={setAcceptedLegal}
+            acceptedPerms={acceptedPerms}
+            setAcceptedPerms={setAcceptedPerms}
+          />
+
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !consentOk}
             className="mt-2 w-full rounded-2xl py-3 text-[14px] font-extrabold text-primary-foreground transition active:scale-[0.99] disabled:opacity-60"
             style={{ background: "var(--primary)" }}
           >
