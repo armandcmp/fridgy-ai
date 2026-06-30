@@ -16,7 +16,7 @@ export function LaunchSplash() {
       // ignore
     }
     setShow(true);
-    const t = setTimeout(() => setRemoved(true), 2500);
+    const t = setTimeout(() => setRemoved(true), 1100);
     return () => clearTimeout(t);
   }, []);
 
@@ -24,17 +24,17 @@ export function LaunchSplash() {
 
   return (
     <div
-      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center animate-launch-fade-out"
+      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center animate-splash-fade"
       style={{ background: "#F8FAF8" }}
       aria-hidden="true"
     >
       <img
         src={fridgyLogo.url}
         alt=""
-        className="mb-5 h-28 w-28 rounded-3xl object-cover shadow-xl animate-launch-zoom"
+        className="mb-4 h-20 w-20 rounded-2xl object-cover shadow-md"
       />
       <h1
-        className="launch-typewriter text-3xl font-bold tracking-tight"
+        className="text-2xl font-bold tracking-tight"
         style={{ fontFamily: "Inter, system-ui, sans-serif", color: "#0F1B17" }}
       >
         Fridgy

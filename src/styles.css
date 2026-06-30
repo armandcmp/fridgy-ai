@@ -190,35 +190,14 @@
 }
 .animate-stamp-in { animation: stamp-in 420ms cubic-bezier(.34,1.56,.64,1) both; }
 
-@keyframes launch-zoom-out {
-  0%   { transform: scale(2.6); opacity: 0; }
-  35%  { opacity: 1; }
-  100% { transform: scale(1); opacity: 1; }
+@keyframes splash-fade {
+  0% { opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { opacity: 0; visibility: hidden; }
 }
-.animate-launch-zoom { animation: launch-zoom-out 900ms cubic-bezier(.22,1,.36,1) both; }
+.animate-splash-fade { animation: splash-fade 1100ms ease-in-out both; }
 
-@keyframes launch-typewriter {
-  from { width: 0; }
-  to   { width: 100%; }
-}
-@keyframes launch-caret {
-  0%, 100% { border-right-color: transparent; }
-  50%      { border-right-color: #0F1B17; }
-}
-.launch-typewriter {
-  display: inline-block;
-  overflow: hidden;
-  white-space: nowrap;
-  border-right: 2px solid transparent;
-  animation:
-    launch-typewriter 900ms steps(6, end) 700ms both,
-    launch-caret 700ms steps(1, end) 700ms 3;
-}
-
-@keyframes launch-fade-out {
-  to { opacity: 0; visibility: hidden; }
-}
-.animate-launch-fade-out { animation: launch-fade-out 350ms ease-out 2100ms both; }
 
 .hero-glow::before {
   content: "";
