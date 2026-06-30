@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { ChevronRight, Crown, Copy, Share2, LogOut, Camera, Trash2 } from "lucide-react";
+import { ChevronRight, Crown, LogOut, Camera, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { storage } from "@/lib/storage";
