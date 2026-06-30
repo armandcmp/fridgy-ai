@@ -21,6 +21,68 @@ import {
  lbsToKg,
  setBodyProfile,
 } from "@/lib/bodyProfile";
+import { Bell, BellOff } from "lucide-react";
+import { requestNotificationsPermission, setNotificationsOptIn } from "@/lib/onesignal";
+
+function NotifScreen({ onDone }: { onDone: () => void }) {
+  const [loading, setLoading] = useState(false);
+  const accept = async () => {
+    setLoading(true);
+    setNotificationsOptIn(true);
+    const granted = await requestNotificationsPermission();
+    setLoading(false);
+    if (!granted) {
+      toast("Vous pouvez activer les notifications plus tard dans les paramètres de votre navigateur.");
+    } else {
+      toast.success("Notifications activées !");
+    }
+    onDone();
+  };
+  const decline = () => {
+    setNotificationsOptIn(false);
+    onDone();
+  };
+  return (
+    <div className="animate-fade-up">
+      <div className="mb-6 text-center">
+        <div
+          className="mx-auto grid h-20 w-20 place-items-center rounded-3xl"
+          style={{ background: "linear-gradient(135deg,#4CAF82,#2DD4A8)" }}
+        >
+          <Bell size={36} color="white" />
+        </div>
+        <h2 className="mt-5 text-[22px] font-extrabold tracking-tight" style={{ color: "#0F172A" }}>
+          Activer les notifications
+        </h2>
+        <p className="mt-2 text-[14px] text-muted-foreground">
+          Recevez des rappels pour vos repas, vos recettes préférées et les nouveautés Fridgy.
+        </p>
+      </div>
+
+      <div className="space-y-2.5">
+        <button
+          onClick={accept}
+          disabled={loading}
+          className="w-full rounded-full bg-primary py-3 text-sm font-semibold text-primary-foreground disabled:opacity-60"
+        >
+          {loading ? "Patientez…" : "Oui, activer les notifications"}
+        </button>
+        <button
+          onClick={decline}
+          disabled={loading}
+          className="flex w-full items-center justify-center gap-2 rounded-full border bg-card py-3 text-sm font-semibold text-muted-foreground"
+          style={{ borderColor: "var(--border)" }}
+        >
+          <BellOff size={16} />
+          Non merci
+        </button>
+      </div>
+      <p className="mt-4 text-center text-[11.5px] text-muted-foreground">
+        Vous pourrez modifier ce choix à tout moment.
+      </p>
+    </div>
+  );
+}
 
 export const Route = createFileRoute("/onboarding")({
  component: Onboarding,
