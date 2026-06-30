@@ -101,7 +101,7 @@ function Home() {
 
   useEffect(() => {
     setMounted(true);
-    const splashTimer = setTimeout(() => setSplash(false), 600);
+    const splashTimer = setTimeout(() => setSplash(false), 50);
     return () => clearTimeout(splashTimer);
   }, []);
 

@@ -16,6 +16,7 @@ import appCss from "../styles.css?url";
 import fridgyLogo from "../assets/fridgy-logo.jpeg.asset.json";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { BottomNav } from "../components/BottomNav";
+import { LaunchSplash } from "../components/LaunchSplash";
 import { supabase } from "@/integrations/supabase/client";
 import { hydrateFromProfile, schedulePushProfile, clearLocalSession } from "@/lib/auth-sync";
 import "../lib/i18n";
@@ -179,6 +180,7 @@ function RootComponent() {
       </div>
       {!hideNav && <BottomNav />}
       <Toaster position="top-center" richColors />
+      <LaunchSplash />
     </QueryClientProvider>
   );
 }
