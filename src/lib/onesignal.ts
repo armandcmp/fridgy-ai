@@ -40,3 +40,42 @@ export function initOneSignal(): Promise<void> {
 
   return initPromise;
 }
+
+const OPTIN_KEY = "fridgy_notifications_optin";
+
+export function getNotificationsOptIn(): boolean | null {
+  if (typeof window === "undefined") return null;
+  const v = localStorage.getItem(OPTIN_KEY);
+  if (v === "true") return true;
+  if (v === "false") return false;
+  return null;
+}
+
+export function setNotificationsOptIn(value: boolean) {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(OPTIN_KEY, value ? "true" : "false");
+}
+
+/** Initialize OneSignal and request the native permission prompt. */
+export async function requestNotificationsPermission(): Promise<boolean> {
+  if (typeof window === "undefined") return false;
+  try {
+    await initOneSignal();
+    return await new Promise<boolean>((resolve) => {
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      window.OneSignalDeferred.push(async (OneSignal: any) => {
+        try {
+          await OneSignal.Notifications.requestPermission();
+          const granted = OneSignal.Notifications.permission === true;
+          resolve(granted);
+        } catch (e) {
+          console.error("OneSignal permission request failed", e);
+          resolve(false);
+        }
+      });
+    });
+  } catch {
+    return false;
+  }
+}
+
