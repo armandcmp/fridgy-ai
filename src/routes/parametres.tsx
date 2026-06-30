@@ -38,12 +38,6 @@ function Settings() {
  const [mounted, setMounted] = useState(false);
  useEffect(() => setMounted(true), []);
 
- // Group state
- const [joining, setJoining] = useState(false);
- const [joinCode, setJoinCode] = useState("");
- const [showExport, setShowExport] = useState(false);
- const [showImport, setShowImport] = useState(false);
- const [importCode, setImportCode] = useState("");
 
  if (!mounted || !user) {
  return (
