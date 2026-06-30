@@ -139,6 +139,7 @@ function RootComponent() {
 
     const apply = async (hasSession: boolean) => {
       const path = window.location.pathname;
+      const onPublic = ["/auth", "/privacy", "/terms", "/reset-password"].includes(path);
       if (hasSession) {
         const u = await hydrateFromProfile();
         if (path === "/auth") {
@@ -146,7 +147,7 @@ function RootComponent() {
         }
       } else {
         clearLocalSession();
-        if (path !== "/auth") nav({ to: "/auth", replace: true });
+        if (!onPublic) nav({ to: "/auth", replace: true });
       }
     };
 
