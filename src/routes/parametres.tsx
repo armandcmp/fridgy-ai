@@ -524,54 +524,6 @@ function Settings() {
  );
  })()}
 
- {/* EXPORT MODAL */}
- {showExport && group && (
- <Modal onClose={() => setShowExport(false)} title={t("group.exportTitle")}>
- <textarea
- readOnly
- value={encodeExport(group)}
- className="h-32 w-full resize-none rounded-xl border border-input bg-muted p-3 font-mono text-[10px]"
- />
- <p className="mt-2 text-xs text-muted-foreground">{t("group.exportInstructions")}</p>
- <div className="mt-3 flex gap-2">
- <button
- onClick={() => {
- navigator.clipboard.writeText(encodeExport(group));
- toast.success(t("common.copied"));
- }}
- className="flex-1 rounded-full bg-primary py-2 text-sm font-semibold text-primary-foreground"
- >
- {t("common.copy")}
- </button>
- <a
- href={`https://wa.me/?text=${encodeURIComponent(encodeExport(group))}`}
- target="_blank"
- rel="noopener noreferrer"
- className="flex-1 rounded-full bg-emerald-600 py-2 text-center text-sm font-semibold text-white"
- >
- WhatsApp
- </a>
- </div>
- </Modal>
- )}
-
- {showImport && (
- <Modal onClose={() => setShowImport(false)} title={t("group.importBtn")}>
- <textarea
- autoFocus
- value={importCode}
- onChange={(e) => setImportCode(e.target.value)}
- placeholder={t("group.importPlaceholder")}
- className="h-32 w-full resize-none rounded-xl border border-input bg-background p-3 font-mono text-[10px]"
- />
- <button
- onClick={doImport}
- className="mt-3 w-full rounded-full bg-primary py-2.5 text-sm font-semibold text-primary-foreground"
- >
- {t("common.import")}
- </button>
- </Modal>
- )}
 
  <PaywallModal open={paywall} onClose={() => setPaywall(false)} />
  </div>
