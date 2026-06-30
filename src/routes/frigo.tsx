@@ -61,22 +61,35 @@ function Frigo() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search.mode]);
 
+  const normalize = (s: string) =>
+    s
+      .toLowerCase()
+      .trim()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9\s]/g, "")
+      .replace(/\s+/g, " ")
+      .replace(/s$/, "");
+
   const addItem = (raw: string) => {
     const v = raw.trim();
     if (!v) return;
+    const key = normalize(v);
+    if (!key) return;
     setItems((prev) =>
-      prev.some((p) => p.toLowerCase() === v.toLowerCase()) ? prev : [...prev, v],
+      prev.some((p) => normalize(p) === key) ? prev : [...prev, v],
     );
   };
   const addMany = (list: string[]) => {
     setItems((prev) => {
-      const set = new Set(prev.map((p) => p.toLowerCase()));
+      const set = new Set(prev.map((p) => normalize(p)));
       const next = [...prev];
       for (const v of list) {
         const x = v.trim();
-        if (x && !set.has(x.toLowerCase())) {
+        const key = normalize(x);
+        if (key && !set.has(key)) {
           next.push(x);
-          set.add(x.toLowerCase());
+          set.add(key);
         }
       }
       return next;
