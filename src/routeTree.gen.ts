@@ -9,9 +9,11 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as StatsRouteImport } from './routes/stats'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RecettesRouteImport } from './routes/recettes'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PlanningRouteImport } from './routes/planning'
 import { Route as ParametresRouteImport } from './routes/parametres'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
@@ -24,6 +26,11 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as RecetteIdRouteImport } from './routes/recette.$id'
 import { Route as ApiTranscribeRouteImport } from './routes/api/transcribe'
 
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StatsRoute = StatsRouteImport.update({
   id: '/stats',
   path: '/stats',
@@ -37,6 +44,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const RecettesRoute = RecettesRouteImport.update({
   id: '/recettes',
   path: '/recettes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PlanningRoute = PlanningRouteImport.update({
@@ -105,9 +117,11 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof OnboardingRoute
   '/parametres': typeof ParametresRoute
   '/planning': typeof PlanningRoute
+  '/privacy': typeof PrivacyRoute
   '/recettes': typeof RecettesRoute
   '/reset-password': typeof ResetPasswordRoute
   '/stats': typeof StatsRoute
+  '/terms': typeof TermsRoute
   '/api/transcribe': typeof ApiTranscribeRoute
   '/recette/$id': typeof RecetteIdRoute
 }
@@ -121,9 +135,11 @@ export interface FileRoutesByTo {
   '/onboarding': typeof OnboardingRoute
   '/parametres': typeof ParametresRoute
   '/planning': typeof PlanningRoute
+  '/privacy': typeof PrivacyRoute
   '/recettes': typeof RecettesRoute
   '/reset-password': typeof ResetPasswordRoute
   '/stats': typeof StatsRoute
+  '/terms': typeof TermsRoute
   '/api/transcribe': typeof ApiTranscribeRoute
   '/recette/$id': typeof RecetteIdRoute
 }
@@ -138,9 +154,11 @@ export interface FileRoutesById {
   '/onboarding': typeof OnboardingRoute
   '/parametres': typeof ParametresRoute
   '/planning': typeof PlanningRoute
+  '/privacy': typeof PrivacyRoute
   '/recettes': typeof RecettesRoute
   '/reset-password': typeof ResetPasswordRoute
   '/stats': typeof StatsRoute
+  '/terms': typeof TermsRoute
   '/api/transcribe': typeof ApiTranscribeRoute
   '/recette/$id': typeof RecetteIdRoute
 }
@@ -156,9 +174,11 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/parametres'
     | '/planning'
+    | '/privacy'
     | '/recettes'
     | '/reset-password'
     | '/stats'
+    | '/terms'
     | '/api/transcribe'
     | '/recette/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -172,9 +192,11 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/parametres'
     | '/planning'
+    | '/privacy'
     | '/recettes'
     | '/reset-password'
     | '/stats'
+    | '/terms'
     | '/api/transcribe'
     | '/recette/$id'
   id:
@@ -188,9 +210,11 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/parametres'
     | '/planning'
+    | '/privacy'
     | '/recettes'
     | '/reset-password'
     | '/stats'
+    | '/terms'
     | '/api/transcribe'
     | '/recette/$id'
   fileRoutesById: FileRoutesById
@@ -205,15 +229,24 @@ export interface RootRouteChildren {
   OnboardingRoute: typeof OnboardingRoute
   ParametresRoute: typeof ParametresRoute
   PlanningRoute: typeof PlanningRoute
+  PrivacyRoute: typeof PrivacyRoute
   RecettesRoute: typeof RecettesRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   StatsRoute: typeof StatsRoute
+  TermsRoute: typeof TermsRoute
   ApiTranscribeRoute: typeof ApiTranscribeRoute
   RecetteIdRoute: typeof RecetteIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/stats': {
       id: '/stats'
       path: '/stats'
@@ -233,6 +266,13 @@ declare module '@tanstack/react-router' {
       path: '/recettes'
       fullPath: '/recettes'
       preLoaderRoute: typeof RecettesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/planning': {
@@ -325,9 +365,11 @@ const rootRouteChildren: RootRouteChildren = {
   OnboardingRoute: OnboardingRoute,
   ParametresRoute: ParametresRoute,
   PlanningRoute: PlanningRoute,
+  PrivacyRoute: PrivacyRoute,
   RecettesRoute: RecettesRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   StatsRoute: StatsRoute,
+  TermsRoute: TermsRoute,
   ApiTranscribeRoute: ApiTranscribeRoute,
   RecetteIdRoute: RecetteIdRoute,
 }

@@ -120,7 +120,9 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const loc = useLocation();
   const nav = useNavigate();
-  const hideNav = loc.pathname === "/onboarding" || loc.pathname === "/auth";
+  const PUBLIC_PATHS = ["/auth", "/privacy", "/terms", "/reset-password"];
+  const isPublic = PUBLIC_PATHS.includes(loc.pathname);
+  const hideNav = loc.pathname === "/onboarding" || isPublic;
 
   // Initialize OneSignal Web SDK (client-only)
   useEffect(() => {
