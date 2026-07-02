@@ -259,14 +259,22 @@ ${retryHint}
 
 Génère EXACTEMENT 3 recettes RADICALEMENT DIFFÉRENTES entre elles, adaptées à ${mealType ?? "dejeuner"} et au programme ${program}.
 
-RÈGLE D'INGRÉDIENTS (PRIORITÉ ABSOLUE) :
-- Les 2 PREMIÈRES recettes doivent être préparables UNIQUEMENT avec les ingrédients disponibles ci-dessus (plus eau, sel, poivre, huile, épices de base). TOUS leurs ingrédients doivent avoir "disponible": true. AUCUN ingrédient à acheter.
-- La 3ème recette peut introduire 2-4 ingrédients supplémentaires à acheter (marqués "disponible": false) pour proposer une option plus riche.
-- Si la liste disponible est trop pauvre pour 2 recettes complètes, fais au minimum 1 recette 100 % avec les ingrédients disponibles.
+RÈGLE D'INGRÉDIENTS (PRIORITÉ ABSOLUE, NON NÉGOCIABLE) :
+- Les 2 PREMIÈRES recettes DOIVENT OBLIGATOIREMENT être 100 % préparables avec UNIQUEMENT les ingrédients disponibles ci-dessus (plus eau, sel, poivre, huile, vinaigre, épices/herbes de base). TOUS leurs ingrédients ont "disponible": true. AUCUN achat requis, même si la recette est simple ou modeste (ex. omelette nature, riz sauté aux œufs, salade basique). Une recette simple mais 100 % faisable est préférable à une recette élaborée nécessitant un achat.
+- Si les ingrédients disponibles sont très peu nombreux, propose quand même 2 recettes basiques réalisables (ex. œufs brouillés / omelette / œufs au plat / œuf dur en salade si seuls des œufs sont disponibles). Priorise la faisabilité totale sur l'originalité.
+- La 3ème recette peut introduire 2-4 ingrédients supplémentaires à acheter (marqués "disponible": false) pour proposer une option plus élaborée.
 
 Chaque recette a un ingrédient principal différent, une famille différente (pas deux salades, pas deux omelettes) et un mode de cuisson différent.
 
 Pour chaque ingrédient, indique "disponible: true" UNIQUEMENT s'il est présent dans la liste de l'utilisateur (correspondance souple, accents/pluriels tolérés), sinon "disponible: false" (à acheter).
+
+RÈGLE POUR LES ÉTAPES (TRÈS IMPORTANT) :
+- Rédige des étapes DÉTAILLÉES et PÉDAGOGIQUES : minimum 6 étapes, idéalement 8 à 12, pour qu'un débutant complet puisse suivre sans galérer.
+- Chaque étape est une phrase claire et actionnable qui précise : l'ustensile (poêle, casserole, saladier, four...), la température ou puissance (feu doux/moyen/vif, four à X °C), la durée exacte (ex. "faire revenir 3 à 4 minutes"), les indices visuels/sensoriels ("jusqu'à ce que ce soit doré", "jusqu'à ébullition", "jusqu'à ce que le liquide ait réduit de moitié").
+- Détaille la préparation des ingrédients (laver, éplucher, émincer finement, couper en dés de 1 cm, etc.) en étapes distinctes AVANT la cuisson.
+- Précise l'ordre exact d'ajout des ingrédients et les gestes clés (mélanger, remuer, retourner, couvrir, réserver).
+- Termine par une étape de dressage / service (assaisonnement final, présentation dans l'assiette, suggestion d'accompagnement).
+- Aucune étape vague du type "cuire le tout" ou "assaisonner" seule : toujours dire comment, combien de temps et à quel moment.
 
 Réponds UNIQUEMENT avec ce JSON exact (aucun markdown, aucun texte avant/après) :
 {
