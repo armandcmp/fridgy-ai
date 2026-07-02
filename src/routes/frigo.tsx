@@ -43,7 +43,24 @@ function Frigo() {
   const [generating, setGenerating] = useState(false);
   const [voiceOpen, setVoiceOpen] = useState(false);
   const [paywall, setPaywall] = useState(false);
+  const [scanTip, setScanTip] = useState(false);
+  const [scanTipHide, setScanTipHide] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  const openCamera = () => {
+    if (localStorage.getItem("fridgy_scan_tip_hidden") === "1") {
+      fileRef.current?.click();
+    } else {
+      setScanTipHide(false);
+      setScanTip(true);
+    }
+  };
+
+  const confirmScanTip = () => {
+    if (scanTipHide) localStorage.setItem("fridgy_scan_tip_hidden", "1");
+    setScanTip(false);
+    setTimeout(() => fileRef.current?.click(), 50);
+  };
 
   const extractImg = useServerFn(extractFromImage);
   const extractTxt = useServerFn(extractIngredients);
