@@ -149,7 +149,7 @@ function Frigo() {
 
   const handleVoiceFallback = (m: "photo" | "manual") => {
     setVoiceOpen(false);
-    if (m === "photo") setTimeout(() => fileRef.current?.click(), 50);
+    if (m === "photo") setTimeout(() => openCamera(), 50);
     else setMode("manual");
   };
 
