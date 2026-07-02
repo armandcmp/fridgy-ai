@@ -174,14 +174,14 @@ function targetCalories(tdee: number | undefined, meal?: string): number {
 }
 
 function validateDiversity(recipes: RichRecipe[], target: number): boolean {
-  if (recipes.length < 3) return false;
+  if (recipes.length < 5) return false;
   const mains = recipes
-    .slice(0, 3)
+    .slice(0, 5)
     .map((r) => (r.ingredients[0]?.nom ?? "").toLowerCase().trim())
     .filter(Boolean);
-  if (new Set(mains).size < 3) return false;
-  return recipes.slice(0, 3).every(
-    (r) => r.calories >= target * 0.8 && r.calories <= target * 1.2,
+  if (new Set(mains).size < 4) return false;
+  return recipes.slice(0, 5).every(
+    (r) => r.calories >= target * 0.7 && r.calories <= target * 1.3,
   );
 }
 
@@ -257,14 +257,14 @@ ${programDirectives(program, bp)}
 ${recent}
 ${retryHint}
 
-Génère EXACTEMENT 3 recettes RADICALEMENT DIFFÉRENTES entre elles, adaptées à ${mealType ?? "dejeuner"} et au programme ${program}.
+Génère EXACTEMENT 5 recettes RADICALEMENT DIFFÉRENTES entre elles, adaptées à ${mealType ?? "dejeuner"} et au programme ${program}.
 
 RÈGLE D'INGRÉDIENTS (PRIORITÉ ABSOLUE, NON NÉGOCIABLE) :
-- Les 2 PREMIÈRES recettes DOIVENT OBLIGATOIREMENT être 100 % préparables avec UNIQUEMENT les ingrédients disponibles ci-dessus (plus eau, sel, poivre, huile, vinaigre, épices/herbes de base). TOUS leurs ingrédients ont "disponible": true. AUCUN achat requis, même si la recette est simple ou modeste (ex. omelette nature, riz sauté aux œufs, salade basique). Une recette simple mais 100 % faisable est préférable à une recette élaborée nécessitant un achat.
-- Si les ingrédients disponibles sont très peu nombreux, propose quand même 2 recettes basiques réalisables (ex. œufs brouillés / omelette / œufs au plat / œuf dur en salade si seuls des œufs sont disponibles). Priorise la faisabilité totale sur l'originalité.
-- La 3ème recette peut introduire 2-4 ingrédients supplémentaires à acheter (marqués "disponible": false) pour proposer une option plus élaborée.
+- Les 3 PREMIÈRES recettes DOIVENT OBLIGATOIREMENT être 100 % préparables avec UNIQUEMENT les ingrédients disponibles ci-dessus (plus eau, sel, poivre, huile, vinaigre, épices/herbes de base). TOUS leurs ingrédients ont "disponible": true. AUCUN achat requis.
+- Si les ingrédients disponibles sont très peu nombreux, propose quand même 3 recettes basiques réalisables. Priorise la faisabilité totale sur l'originalité.
+- Les 2 DERNIÈRES recettes peuvent introduire 2-4 ingrédients supplémentaires à acheter (marqués "disponible": false) pour proposer des options plus élaborées.
 
-Chaque recette a un ingrédient principal différent, une famille différente (pas deux salades, pas deux omelettes) et un mode de cuisson différent.
+Chaque recette a un ingrédient principal différent, une famille différente et un mode de cuisson différent.
 
 Pour chaque ingrédient, indique "disponible: true" UNIQUEMENT s'il est présent dans la liste de l'utilisateur (correspondance souple, accents/pluriels tolérés), sinon "disponible: false" (à acheter).
 
@@ -378,13 +378,13 @@ export const generateRecipes = createServerFn({ method: "POST" })
 Vise précisément ~${target} kcal par recette (tolérance ±20 %). Force 3 ingrédients principaux différents et 3 modes de cuisson différents.`;
       try {
         const retry = await runOnce(retryHint);
-        if (retry.length >= 3) list = retry;
+        if (retry.length >= 5) list = retry;
       } catch {
         // keep first attempt
       }
     }
 
-    const recettes = list.slice(0, 3).map((r) => ({
+    const recettes = list.slice(0, 5).map((r) => ({
       titre: r.titre,
       description: r.description,
       calories: r.calories,
