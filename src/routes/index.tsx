@@ -11,7 +11,7 @@ import { Avatar } from "@/components/Avatar";
 
 import { StatsSection } from "@/components/StatsSection";
 import type { Recipe } from "@/lib/types";
-import fridgyLogo from "@/assets/fridgy-logo.jpeg.asset.json";
+
 import { getTrialInfo } from "@/lib/trial";
 
 function UpgradeCard({ onOpen }: { onOpen: () => void }) {
