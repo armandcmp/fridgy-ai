@@ -18,6 +18,7 @@ import { Route as PlanningRouteImport } from './routes/planning'
 import { Route as ParametresRouteImport } from './routes/parametres'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as HistoriqueRouteImport } from './routes/historique'
+import { Route as GenereesRouteImport } from './routes/generees'
 import { Route as FrigoRouteImport } from './routes/frigo'
 import { Route as CoursesRouteImport } from './routes/courses'
 import { Route as CommunauteRouteImport } from './routes/communaute'
@@ -71,6 +72,11 @@ const HistoriqueRoute = HistoriqueRouteImport.update({
   path: '/historique',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GenereesRoute = GenereesRouteImport.update({
+  id: '/generees',
+  path: '/generees',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FrigoRoute = FrigoRouteImport.update({
   id: '/frigo',
   path: '/frigo',
@@ -113,6 +119,7 @@ export interface FileRoutesByFullPath {
   '/communaute': typeof CommunauteRoute
   '/courses': typeof CoursesRoute
   '/frigo': typeof FrigoRoute
+  '/generees': typeof GenereesRoute
   '/historique': typeof HistoriqueRoute
   '/onboarding': typeof OnboardingRoute
   '/parametres': typeof ParametresRoute
@@ -131,6 +138,7 @@ export interface FileRoutesByTo {
   '/communaute': typeof CommunauteRoute
   '/courses': typeof CoursesRoute
   '/frigo': typeof FrigoRoute
+  '/generees': typeof GenereesRoute
   '/historique': typeof HistoriqueRoute
   '/onboarding': typeof OnboardingRoute
   '/parametres': typeof ParametresRoute
@@ -150,6 +158,7 @@ export interface FileRoutesById {
   '/communaute': typeof CommunauteRoute
   '/courses': typeof CoursesRoute
   '/frigo': typeof FrigoRoute
+  '/generees': typeof GenereesRoute
   '/historique': typeof HistoriqueRoute
   '/onboarding': typeof OnboardingRoute
   '/parametres': typeof ParametresRoute
@@ -170,6 +179,7 @@ export interface FileRouteTypes {
     | '/communaute'
     | '/courses'
     | '/frigo'
+    | '/generees'
     | '/historique'
     | '/onboarding'
     | '/parametres'
@@ -188,6 +198,7 @@ export interface FileRouteTypes {
     | '/communaute'
     | '/courses'
     | '/frigo'
+    | '/generees'
     | '/historique'
     | '/onboarding'
     | '/parametres'
@@ -206,6 +217,7 @@ export interface FileRouteTypes {
     | '/communaute'
     | '/courses'
     | '/frigo'
+    | '/generees'
     | '/historique'
     | '/onboarding'
     | '/parametres'
@@ -225,6 +237,7 @@ export interface RootRouteChildren {
   CommunauteRoute: typeof CommunauteRoute
   CoursesRoute: typeof CoursesRoute
   FrigoRoute: typeof FrigoRoute
+  GenereesRoute: typeof GenereesRoute
   HistoriqueRoute: typeof HistoriqueRoute
   OnboardingRoute: typeof OnboardingRoute
   ParametresRoute: typeof ParametresRoute
@@ -303,6 +316,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HistoriqueRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/generees': {
+      id: '/generees'
+      path: '/generees'
+      fullPath: '/generees'
+      preLoaderRoute: typeof GenereesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/frigo': {
       id: '/frigo'
       path: '/frigo'
@@ -361,6 +381,7 @@ const rootRouteChildren: RootRouteChildren = {
   CommunauteRoute: CommunauteRoute,
   CoursesRoute: CoursesRoute,
   FrigoRoute: FrigoRoute,
+  GenereesRoute: GenereesRoute,
   HistoriqueRoute: HistoriqueRoute,
   OnboardingRoute: OnboardingRoute,
   ParametresRoute: ParametresRoute,

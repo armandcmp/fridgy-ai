@@ -202,7 +202,7 @@ function Frigo() {
       storage.setSession(items);
       storage.rememberIngredients(items);
       bumpUsage("recipes");
-      nav({ to: "/recettes" });
+      nav({ to: "/generees" });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : t("recipe.generationError"));
     } finally {
