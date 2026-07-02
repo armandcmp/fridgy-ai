@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Camera, Keyboard, Mic, Plus, X, Sparkles, Brain } from "lucide-react";
+import { Camera, Keyboard, Mic, Plus, X, Sparkles, Lightbulb } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { storage } from "@/lib/storage";
@@ -35,7 +35,7 @@ function Frigo() {
   const nav = useNavigate();
   const search = Route.useSearch();
   const user = useLocalReactive(() => storage.getUser());
-  const memory = useLocalReactive(() => storage.getMemory());
+  
   const [mode, setMode] = useState<Mode>("menu");
   const [items, setItems] = useState<string[]>(() => storage.getSession());
   const [manualInput, setManualInput] = useState("");
@@ -210,7 +210,7 @@ function Frigo() {
     }
   };
 
-  const topMem = memory.ingredients.slice(0, 6);
+  
 
   return (
     <div className="px-5 pt-8">
@@ -219,28 +219,25 @@ function Frigo() {
         <p className="text-sm text-muted-foreground">{t("frigo.subtitle")}</p>
       </header>
 
-      {topMem.length > 0 && (
-        <section className="fc-card mb-5 p-4">
-          <h2 className="inline-flex items-center gap-2 text-sm font-semibold">
-            <Brain size={16} className="text-primary" /> {t("frigo.habits")}
-          </h2>
-          <p className="text-xs text-muted-foreground">{t("frigo.habitsSub")}</p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {topMem.map((m) => (
-              <button
-                key={m.nom}
-                onClick={() => addItem(m.nom)}
-                className="inline-flex items-center gap-1 rounded-full bg-secondary px-3 py-1.5 text-xs font-medium text-secondary-foreground transition active:scale-95"
-              >
-                <Plus size={12} /> {m.nom}
-              </button>
-            ))}
+      <section className="fc-card mb-5 p-4">
+        <div className="flex items-start gap-3">
+          <div
+            className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl text-white"
+            style={{ background: "#F59E0B", boxShadow: "0 6px 14px #F59E0B55" }}
+          >
+            <Lightbulb size={18} strokeWidth={2.2} />
           </div>
-          <p className="mt-3 text-[11px] text-muted-foreground">
-            {t("frigo.habitsBasis", { count: memory.ingredients.length })}
-          </p>
-        </section>
-      )}
+          <div className="min-w-0">
+            <h2 className="text-sm font-semibold" style={{ color: "#0F1B17" }}>
+              {t("frigo.hintTitle")}
+            </h2>
+            <p className="mt-1 text-[12.5px] leading-relaxed" style={{ color: "#5A6B62" }}>
+              {t("frigo.hintBody")}
+            </p>
+          </div>
+        </div>
+      </section>
+
 
       {mode === "menu" && (
         <div className="grid grid-cols-1 gap-3">

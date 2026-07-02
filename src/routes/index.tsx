@@ -86,7 +86,7 @@ export const Route = createFileRoute("/")({
 });
 
 function Home() {
-  const { t } = useTranslation();
+  const { t, ready } = useTranslation();
   const nav = useNavigate();
   const [mounted, setMounted] = useState(false);
   const sess = useLocalReactive(() => storage.getSessionUser());
@@ -139,7 +139,7 @@ function Home() {
     }
   }, [mounted, sess, nav]);
 
-  if (!mounted || !sess || !user) {
+  if (!mounted || !ready || !sess || !user) {
     return <div style={{ minHeight: "100vh", background: "#FFFFFF" }} />;
   }
 
