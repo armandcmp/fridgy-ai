@@ -370,6 +370,48 @@ function Frigo() {
         onTranscript={handleVoiceTranscript}
         onFallback={handleVoiceFallback}
       />
+
+      {scanTip && (
+        <div
+          className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/50 p-4 animate-fade-up"
+          onClick={() => setScanTip(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl"
+          >
+            <div
+              className="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-2xl text-white"
+              style={{ background: "#2DD4A8", boxShadow: "0 6px 14px #2DD4A855" }}
+            >
+              <Camera size={22} strokeWidth={2.2} />
+            </div>
+            <h3 className="text-center text-lg font-extrabold tracking-tight" style={{ color: "#0F1B17" }}>
+              {t("frigo.scanTip.title")}
+            </h3>
+            <p className="mt-2 text-center text-sm leading-relaxed" style={{ color: "#5A6B62" }}>
+              {t("frigo.scanTip.body")}
+            </p>
+            <label className="mt-5 flex cursor-pointer items-center gap-2.5 rounded-2xl bg-secondary/60 px-4 py-3 text-sm">
+              <input
+                type="checkbox"
+                checked={scanTipHide}
+                onChange={(e) => setScanTipHide(e.target.checked)}
+                className="h-4 w-4 accent-primary"
+              />
+              <span className="font-medium" style={{ color: "#0F1B17" }}>
+                {t("frigo.scanTip.hide")}
+              </span>
+            </label>
+            <button
+              onClick={confirmScanTip}
+              className="mt-4 w-full rounded-full bg-primary py-3.5 text-sm font-semibold text-primary-foreground"
+            >
+              {t("frigo.scanTip.cta")}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
