@@ -11,13 +11,14 @@ export const fetchUnsplashImage = createServerFn({ method: "GET" })
     try {
       const res = await fetch(
         `https://api.unsplash.com/search/photos?query=${encodeURIComponent(
-          data.query + " food dish"
-        )}&per_page=1&orientation=landscape&content_filter=high`,
+          data.query + " plated gourmet food"
+        )}&per_page=5&orientation=landscape&content_filter=high&order_by=relevant`,
         { headers: { Authorization: `Client-ID ${key}` } }
       );
       if (!res.ok) return { url: null };
       const json: any = await res.json();
-      const photo = json?.results?.[0];
+      const results = json?.results ?? [];
+      const photo = results[Math.floor(Math.random() * Math.min(results.length, 5))] ?? results[0];
       const url: string | null = photo?.urls?.regular ?? photo?.urls?.small ?? null;
       return { url };
     } catch {
