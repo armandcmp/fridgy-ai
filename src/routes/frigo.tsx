@@ -71,7 +71,7 @@ function Frigo() {
     if (consumedRef.current || !search.mode) return;
     consumedRef.current = true;
     const m = search.mode;
-    if (m === "photo") setTimeout(() => fileRef.current?.click(), 50);
+    if (m === "photo") setTimeout(() => openCamera(), 50);
     else if (m === "manual") setMode("manual");
     else if (m === "voice") setVoiceOpen(true);
     nav({ to: "/frigo", search: {}, replace: true });
