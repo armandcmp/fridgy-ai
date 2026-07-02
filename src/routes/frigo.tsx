@@ -35,7 +35,7 @@ function Frigo() {
   const nav = useNavigate();
   const search = Route.useSearch();
   const user = useLocalReactive(() => storage.getUser());
-  const memory = useLocalReactive(() => storage.getMemory());
+  
   const [mode, setMode] = useState<Mode>("menu");
   const [items, setItems] = useState<string[]>(() => storage.getSession());
   const [manualInput, setManualInput] = useState("");
