@@ -245,6 +245,7 @@
   "recettes.empty": "No recipes yet",
   "recettes.emptyHint": "Scan your fridge to generate your first recipes.",
   "recettes.fAll": "All",
+  "recettes.fCooked": "Cooked",
   "recettes.fFav": "Favorites",
   "recettes.noMatch": "No recipes match",
   "recettes.searchPh": "Search for a recipe...",
