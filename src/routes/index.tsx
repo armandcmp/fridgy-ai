@@ -154,14 +154,12 @@ function Home() {
         <header className="mb-6 flex items-center justify-between animate-fade-up">
           <Link to="/parametres" className="flex items-center gap-3 min-w-0">
             <Avatar name={sess.prenom} id={sess.id} color={sess.avatarColor} photo={sess.avatarPhoto || undefined} size={42} />
-            <div className="min-w-0">
-              <p className="truncate text-[14.5px] font-bold tracking-tight" style={{ color: "#0F1B17" }}>
+            <div className="min-w-0 flex items-center">
+              <p className="truncate text-[15px] font-bold tracking-tight" style={{ color: "#0F1B17" }}>
                 {sess.prenom}
               </p>
-              <p className="truncate text-[11.5px]" style={{ color: "#7A8A85" }}>
-                {sess.email}
-              </p>
             </div>
+
           </Link>
           <div className="flex items-center gap-2">
             {premium && (
