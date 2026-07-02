@@ -11,7 +11,7 @@ import { Avatar } from "@/components/Avatar";
 
 import { StatsSection } from "@/components/StatsSection";
 import type { Recipe } from "@/lib/types";
-import fridgyLogo from "@/assets/fridgy-logo.jpeg.asset.json";
+
 import { getTrialInfo } from "@/lib/trial";
 
 function UpgradeCard({ onOpen }: { onOpen: () => void }) {
@@ -89,10 +89,8 @@ function Home() {
   const { t } = useTranslation();
   const nav = useNavigate();
   const [mounted, setMounted] = useState(false);
-  const [splash, setSplash] = useState(true);
   const sess = useLocalReactive(() => storage.getSessionUser());
   const user = useLocalReactive(() => storage.getUser());
-  // history not used on home anymore
   const favorites = useLocalReactive(() => storage.getFavorites());
   const allRecipes = useLocalReactive(() => storage.getAllRecipes());
   const usage = useUsage();
@@ -101,8 +99,6 @@ function Home() {
 
   useEffect(() => {
     setMounted(true);
-    const splashTimer = setTimeout(() => setSplash(false), 50);
-    return () => clearTimeout(splashTimer);
   }, []);
 
   useEffect(() => {
@@ -143,27 +139,8 @@ function Home() {
     }
   }, [mounted, sess, nav]);
 
-  // Today meal pill removed per user request
-
-  if (!mounted || splash || !sess || !user) {
-    return (
-      <div
-        className="flex min-h-screen items-center justify-center animate-fade-up"
-        style={{ background: "#F8FAF8" }}
-      >
-        <div className="text-center animate-fade-up">
-          <img
-            src={fridgyLogo.url}
-            alt="Fridgy"
-            className="mx-auto mb-4 h-24 w-24 rounded-3xl object-cover shadow-lg"
-            style={{ animation: "pulse-ring 1.6s ease-in-out infinite" }}
-          />
-
-          <h1 className="text-2xl font-bold tracking-tight" style={{ fontFamily: "Inter, system-ui, sans-serif" }}>Fridgy</h1>
-        </div>
-
-      </div>
-    );
+  if (!mounted || !sess || !user) {
+    return <div style={{ minHeight: "100vh", background: "#FFFFFF" }} />;
   }
 
   void user;

@@ -292,3 +292,12 @@
   color: #FFFFFF;
 }
 
+
+/* Lock zoom, panning, and rubber-band overscroll */
+html, body {
+  overscroll-behavior: none;
+  overflow-x: hidden;
+  touch-action: pan-y;
+  -webkit-text-size-adjust: 100%;
+}
+
