@@ -110,7 +110,7 @@ function Onboarding() {
   const confirmLang = () => {
     if (!pickedLang) return;
     setLanguage(pickedLang);
-    setStep("notif");
+    setStep("auth");
   };
 
  return (
