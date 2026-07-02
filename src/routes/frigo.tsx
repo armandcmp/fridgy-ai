@@ -210,7 +210,7 @@ function Frigo() {
     }
   };
 
-  const topMem = memory.ingredients.slice(0, 6);
+  
 
   return (
     <div className="px-5 pt-8">
