@@ -11,7 +11,7 @@ export const Route = createFileRoute("/recettes")({
   component: RecettesScreen,
 });
 
-type Filter = "all" | "bulk" | "cut" | "loss" | "maintain" | "fav";
+type Filter = "all" | "cooked" | "bulk" | "cut" | "loss" | "maintain" | "fav";
 
 function RecettesScreen() {
   const { t } = useTranslation();
@@ -22,29 +22,28 @@ function RecettesScreen() {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
 
-  // Only show recipes the user has actually cooked (logged in history).
-  // Match history titles back to the full Recipe object stored in allRecipes/current.
+  // Full pool: every recipe ever generated + current session (deduped by title).
   const merged = useMemo(() => {
     const pool = [...current, ...all];
-    const byTitle = new Map<string, typeof pool[number]>();
-    for (const r of pool) {
-      const k = r.titre.toLowerCase().trim();
-      if (!byTitle.has(k)) byTitle.set(k, r);
-    }
     const seen = new Set<string>();
     const out: typeof pool = [];
-    for (const entry of history) {
-      const k = entry.recette.titre.toLowerCase().trim();
+    for (const r of pool) {
+      const k = r.titre.toLowerCase().trim();
       if (seen.has(k)) continue;
       seen.add(k);
-      const full = byTitle.get(k);
-      if (full) out.push(full);
+      out.push(r);
     }
     return out;
-  }, [history, all, current]);
+  }, [all, current]);
+
+  const cookedTitles = useMemo(
+    () => new Set(history.map((h) => h.recette.titre.toLowerCase().trim())),
+    [history],
+  );
 
   const FILTERS: { id: Filter; label: string }[] = [
     { id: "all", label: t("recettes.fAll") },
+    { id: "cooked", label: t("recettes.fCooked") },
     { id: "bulk", label: t("program.bulk") },
     { id: "cut", label: t("program.cut") },
     { id: "loss", label: t("program.loss") },
@@ -54,7 +53,9 @@ function RecettesScreen() {
 
   const filtered = useMemo(() => {
     let list = merged;
-    if (filter === "fav") {
+    if (filter === "cooked") {
+      list = list.filter((r) => cookedTitles.has(r.titre.toLowerCase().trim()));
+    } else if (filter === "fav") {
       const favIds = new Set(favs.map((f) => f.id));
       const favTitles = new Set(favs.map((f) => f.titre.toLowerCase().trim()));
       list = list.filter((r) => favIds.has(r.id) || favTitles.has(r.titre.toLowerCase().trim()));
@@ -67,7 +68,8 @@ function RecettesScreen() {
       list = list.filter((r) => r.titre.toLowerCase().includes(q));
     }
     return list;
-  }, [merged, favs, filter, query, t]);
+  }, [merged, cookedTitles, favs, filter, query, t]);
+
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
