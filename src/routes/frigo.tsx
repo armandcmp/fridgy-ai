@@ -245,7 +245,7 @@ function Frigo() {
       {mode === "menu" && (
         <div className="grid grid-cols-1 gap-3">
           {[
-            { onClick: () => fileRef.current?.click(), disabled: busy, Icon: Camera, title: t("frigo.photo"), sub: t("frigo.photoSub"), from: "#E9FBF3", to: "#CFF5E4", accent: "#2DD4A8" },
+            { onClick: openCamera, disabled: busy, Icon: Camera, title: t("frigo.photo"), sub: t("frigo.photoSub"), from: "#E9FBF3", to: "#CFF5E4", accent: "#2DD4A8" },
             { onClick: () => setMode("manual"), disabled: false, Icon: Keyboard, title: t("frigo.manual"), sub: t("frigo.manualSub"), from: "#EEF2FF", to: "#DDE6FF", accent: "#3B82F6" },
             { onClick: () => setVoiceOpen(true), disabled: busy, Icon: Mic, title: t("frigo.voice"), sub: t("frigo.voiceSub"), from: "#F5EEFF", to: "#E7DAFF", accent: "#8B5CF6" },
           ].map(({ onClick, disabled, Icon, title, sub, from, to, accent }) => (
