@@ -40,7 +40,7 @@ const LANGS: { code: Lang; flag: string; name: string; cta: string }[] = [
   { code: "en", flag: "🇬🇧", name: "English", cta: "Continue →" },
 ];
 
-type Step = "lang" | "notif" | "auth" | "profile" | "program";
+type Step = "lang" | "auth" | "profile" | "program";
 
 const ONBOARDING_DONE_KEY = "fridgechef_onboarding_complete";
 
