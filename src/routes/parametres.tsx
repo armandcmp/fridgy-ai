@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
 import { ChevronRight, Crown, LogOut, Camera, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -8,6 +9,12 @@ import { auth } from "@/lib/auth";
 import { useLocalReactive } from "@/lib/hooks";
 import { isPremium, setPremium, usePremium } from "@/lib/freemium";
 import { getLanguage, setLanguage, SUPPORTED, type Lang, LANG_NAMES } from "@/lib/i18n";
+import { translateStoredRecipes } from "@/lib/ai.functions";
+import {
+ collectStoredRecipesForTranslation,
+ applyTranslatedStoredRecipes,
+ recipeChunks,
+} from "@/lib/recipe-language";
 
 import { PaywallModal } from "@/components/PaywallModal";
 import { Avatar } from "@/components/Avatar";
@@ -20,13 +27,14 @@ export const Route = createFileRoute("/parametres")({
 const PROGRAMS = ["bulk", "cut", "loss", "maintain"] as const;
 
 function Settings() {
- const { t, i18n } = useTranslation();
+ const { t } = useTranslation();
  const nav = useNavigate();
  const user = useLocalReactive(() => storage.getUser());
  const sessionUser = useLocalReactive(() => storage.getSessionUser());
  const premium = usePremium();
  
  const [paywall, setPaywall] = useState(false);
+ const [translatingRecipes, setTranslatingRecipes] = useState(false);
  const [editingName, setEditingName] = useState(false);
  const [name, setName] = useState(user?.name ?? "");
  const [editingProgram, setEditingProgram] = useState(false);
@@ -114,6 +122,33 @@ function Settings() {
  const next = !isPremium();
  setPremium(next);
  toast(next ? t("settings.premiumOn") : t("settings.premiumOff"));
+ };
+
+ const translateRecipes = useServerFn(translateStoredRecipes);
+
+ const changeLanguage = async (lang: Lang) => {
+ const previousLang = getLanguage();
+ if (lang === previousLang || translatingRecipes) return;
+ const source = collectStoredRecipesForTranslation();
+ setLanguage(lang);
+
+ if (source.length === 0) return;
+
+ setTranslatingRecipes(true);
+ toast.loading(t("settings.recipesTranslating"), { id: "recipe-language-sync" });
+ try {
+ const translated = [];
+ for (const chunk of recipeChunks(source)) {
+ const result = await translateRecipes({ data: { lang, recipes: chunk } });
+ translated.push(...result.recettes);
+ }
+ applyTranslatedStoredRecipes(source, translated);
+ toast.success(t("settings.recipesTranslated"), { id: "recipe-language-sync" });
+ } catch {
+ toast.error(t("settings.recipesTranslationFailed"), { id: "recipe-language-sync" });
+ } finally {
+ setTranslatingRecipes(false);
+ }
  };
 
 
@@ -270,10 +305,8 @@ function Settings() {
  <Row label={t("settings.language")}>
  <select
  value={getLanguage()}
- onChange={(e) => {
- setLanguage(e.target.value as Lang);
- void i18n.changeLanguage(e.target.value);
- }}
+  disabled={translatingRecipes}
+  onChange={(e) => void changeLanguage(e.target.value as Lang)}
  className="rounded-lg border border-input bg-background px-2 py-1 text-sm outline-none"
  >
  {SUPPORTED.map((l) => (
