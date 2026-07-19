@@ -186,8 +186,8 @@ function Home() {
             }}
           >
             <img
-              src="https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=1200&q=80"
-              alt=""
+              src={heroFood.url}
+              alt="Assiette appétissante avec poulet grillé, tomates et poivrons"
               className="absolute inset-0 h-full w-full object-cover"
               loading="eager"
             />
