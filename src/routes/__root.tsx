@@ -19,7 +19,8 @@ import { BottomNav } from "../components/BottomNav";
 import { LaunchSplash } from "../components/LaunchSplash";
 import { supabase } from "@/integrations/supabase/client";
 import { hydrateFromProfile, schedulePushProfile, clearLocalSession } from "@/lib/auth-sync";
-import "../lib/i18n";
+import i18n from "../lib/i18n";
+import { I18nextProvider } from "react-i18next";
 
 function NotFoundComponent() {
   return (
