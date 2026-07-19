@@ -20,6 +20,22 @@ export function collectStoredRecipesForTranslation(): Recipe[] {
  storage.getAllRecipes().forEach(add);
  storage.getFavorites().forEach(add);
  storage.getPlanning()?.days.forEach((day) => add(day.recette));
+ storage.getHistory().forEach((entry) =>
+ add({
+ id: `history-${entry.id}`,
+ titre: entry.recette.titre,
+ description: "",
+ calories: entry.recette.calories,
+ proteines: entry.recette.proteines,
+ glucides: entry.recette.glucides,
+ lipides: entry.recette.lipides,
+ temps: "",
+ difficulte: "",
+ ingredients: [],
+ etapes: [],
+ program: entry.recette.program,
+ }),
+ );
 
  return Array.from(unique.values());
 }
