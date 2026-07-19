@@ -167,6 +167,41 @@ const RichRecipeSchema = z.object({
 
 type RichRecipe = z.infer<typeof RichRecipeSchema>;
 
+const StoredRecipeTranslationInputSchema = z.object({
+  id: z.string(),
+  titre: z.string(),
+  description: z.string().default(""),
+  calories: z.number(),
+  proteines: z.number(),
+  glucides: z.number(),
+  lipides: z.number(),
+  fibres: z.number().optional(),
+  indexGlycemique: z.string().optional(),
+  temps: z.string(),
+  difficulte: z.string(),
+  ingredients: z.array(z.string()).default([]),
+  ingredientsDetail: z.array(IngredientItemSchema).optional(),
+  etapes: z.array(z.string()).default([]),
+  program: z.string(),
+  mealType: z.string().optional(),
+  conseilNutritionnel: z.string().optional().default(""),
+  pourquoiAdapte: z.string().optional().default(""),
+});
+
+const RecipeTranslationOutputSchema = z.object({
+  id: z.string(),
+  titre: z.string(),
+  description: z.string().default(""),
+  temps: z.string(),
+  difficulte: z.string(),
+  program: z.string(),
+  ingredients: z.array(z.string()).default([]),
+  ingredientsDetail: z.array(IngredientItemSchema).optional(),
+  etapes: z.array(z.string()).default([]),
+  conseilNutritionnel: z.string().optional().default(""),
+  pourquoiAdapte: z.string().optional().default(""),
+});
+
 function targetCalories(tdee: number | undefined, meal?: string): number {
   const base = tdee && tdee > 0 ? tdee : 2000;
   const ratio = meal === "petit-dejeuner" ? 0.25 : meal === "diner" ? 0.3 : 0.4;
@@ -405,6 +440,88 @@ Vise précisément ~${target} kcal par recette (tolérance ±20 %). Force 3 ingr
       conseilNutritionnel: r.conseil_nutritionnel,
       pourquoiAdapte: r.pourquoi_adapte,
     }));
+
+    return { recettes };
+  });
+
+export const translateStoredRecipes = createServerFn({ method: "POST" })
+  .inputValidator(
+    z.object({
+      lang: langField,
+      recipes: z.array(StoredRecipeTranslationInputSchema).min(1).max(10),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const lang = langName(data.lang);
+    const text = await callAI({
+      temperature: 0.1,
+      messages: [
+        {
+          role: "system",
+          content: `You are a precise culinary translator for a food app.
+Translate existing recipes into ${lang} without changing meaning, order, IDs, nutrition numbers, booleans or JSON keys.
+Every visible text value must be in ${lang}: title, description, time, difficulty, program, ingredient names, quantities, steps, nutrition advice and adaptation reason.
+Keep measurement amounts equivalent. Keep ingredient availability booleans unchanged. Reply ONLY with valid JSON.`,
+        },
+        {
+          role: "user",
+          content: `Translate these recipes into ${lang}.
+
+Input recipes:
+${JSON.stringify(data.recipes)}
+
+Reply exactly:
+{
+  "recettes": [
+    {
+      "id": "same id",
+      "titre": "translated string",
+      "description": "translated string",
+      "temps": "translated string",
+      "difficulte": "translated string",
+      "program": "translated string",
+      "ingredients": ["translated string"],
+      "ingredientsDetail": [{ "nom": "translated string", "quantite": "translated string", "disponible": true }],
+      "etapes": ["translated string"],
+      "conseilNutritionnel": "translated string",
+      "pourquoiAdapte": "translated string"
+    }
+  ]
+}`,
+        },
+      ],
+    });
+    const parsed = extractJSON<{ recettes: unknown[] }>(text);
+    const byId = new Map(
+      (parsed.recettes ?? [])
+        .map((raw) => {
+          try {
+            const recipe = RecipeTranslationOutputSchema.parse(raw);
+            return [recipe.id, recipe] as const;
+          } catch {
+            return null;
+          }
+        })
+        .filter((item): item is readonly [string, z.infer<typeof RecipeTranslationOutputSchema>] => item !== null),
+    );
+
+    const recettes = data.recipes.map((recipe) => {
+      const translated = byId.get(recipe.id);
+      if (!translated) return recipe;
+      return {
+        ...recipe,
+        titre: translated.titre,
+        description: translated.description,
+        temps: translated.temps,
+        difficulte: translated.difficulte,
+        program: translated.program,
+        ingredients: translated.ingredients.length > 0 ? translated.ingredients : recipe.ingredients,
+        ingredientsDetail: translated.ingredientsDetail ?? recipe.ingredientsDetail,
+        etapes: translated.etapes.length > 0 ? translated.etapes : recipe.etapes,
+        conseilNutritionnel: translated.conseilNutritionnel,
+        pourquoiAdapte: translated.pourquoiAdapte,
+      };
+    });
 
     return { recettes };
   });
