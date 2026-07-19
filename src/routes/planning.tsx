@@ -242,7 +242,7 @@ function Planning() {
                           ? "border-primary bg-primary text-primary-foreground"
                           : "border-border bg-transparent"
                       }`}
-                      aria-label={it.checked ? "Décocher" : "Cocher"}
+                      aria-label={it.checked ? t("planning.uncheck") : t("planning.check")}
                     >
                       {it.checked && <Check size={14} strokeWidth={3} />}
                     </button>
@@ -256,7 +256,7 @@ function Planning() {
                     <button
                       onClick={() => storage.removeShoppingItem(it.id)}
                       className="grid h-7 w-7 place-items-center rounded-full text-muted-foreground hover:bg-muted"
-                      aria-label="Supprimer"
+                      aria-label={t("common.delete")}
                     >
                       <X size={14} />
                     </button>
@@ -270,16 +270,16 @@ function Planning() {
                     onClick={() => storage.clearCheckedShopping()}
                     className="flex-1 rounded-full border border-border py-2.5 text-xs font-semibold text-muted-foreground"
                   >
-                    Retirer cochés
+                    {t("planning.removeChecked")}
                   </button>
                 )}
                 <button
                   onClick={() => {
-                    if (confirm("Vider toute la liste ?")) storage.clearShoppingList();
+                    if (confirm(t("planning.clearConfirm"))) storage.clearShoppingList();
                   }}
                   className="flex-1 rounded-full border border-border py-2.5 text-xs font-semibold text-muted-foreground"
                 >
-                  Tout effacer
+                  {t("planning.clearAll")}
                 </button>
               </div>
             </>
@@ -311,7 +311,7 @@ function Planning() {
                   <PickRow
                     key={r.id}
                     title={r.titre}
-                    meta={`${r.calories} kcal · ${r.program}`}
+                    meta={`${r.calories} kcal · ${t(`program.${programSlug(r.program)}`)}`}
                     onPick={() => {
                       updateDay(picker, { ...r, id: `${Date.now()}` });
                       setPicker(null);
@@ -329,7 +329,7 @@ function Planning() {
                   <PickRow
                     key={r.id}
                     title={r.titre}
-                    meta={`${r.calories} kcal · ${r.program}`}
+                    meta={`${r.calories} kcal · ${t(`program.${programSlug(r.program)}`)}`}
                     onPick={() => {
                       updateDay(picker, { ...r, id: `${Date.now()}` });
                       setPicker(null);
