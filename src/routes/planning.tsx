@@ -184,7 +184,7 @@ function Planning() {
                       <button
                         onClick={() => updateDay(i, null)}
                         className="grid h-8 w-8 place-items-center rounded-full text-muted-foreground hover:bg-muted"
-                        aria-label="Retirer"
+                        aria-label={t("planning.removeMeal")}
                       >
                         <Trash2 size={15} />
                       </button>
