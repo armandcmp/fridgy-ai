@@ -349,7 +349,7 @@ function Settings() {
                     {t("settings.planActive")}
                   </p>
                   <p className="text-[11.5px] font-medium" style={{ color: "#92704A" }}>
-                    Toutes les fonctionnalités débloquées
+                    {t("settings.proUnlocked")}
                   </p>
                 </div>
               </div>
@@ -379,10 +379,10 @@ function Settings() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-[14px] font-extrabold tracking-tight" style={{ color: "#0F1B17" }}>
-                    Passer à Fridgy Pro
+                    {t("settings.upgradeFridgyPro")}
                   </p>
                   <p className="truncate text-[11.5px] font-medium" style={{ color: "#7C5A2A" }}>
-                    Essai gratuit 14 jours · 3,89€/mois ou −23 % à l'année
+                    {t("settings.proOffer")}
                   </p>
                 </div>
                 <ChevronRight size={18} style={{ color: "#B45309" }} />
@@ -397,7 +397,7 @@ function Settings() {
  onClick={() => {
  if (typeof window !== "undefined") window.location.href = "/onboarding?edit=body";
  }}
- label="Modifier mon profil corporel"
+  label={t("settings.editBodyProfile")}
  />
  <ButtonRow onClick={() => nav({ to: "/stats" })} label={t("settings.openStats")} />
  <ButtonRow onClick={() => nav({ to: "/historique" })} label={t("settings.openHistory")} />
