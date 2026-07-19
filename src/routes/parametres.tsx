@@ -18,6 +18,7 @@ import {
 
 import { PaywallModal } from "@/components/PaywallModal";
 import { Avatar } from "@/components/Avatar";
+import type { Recipe } from "@/lib/types";
 
 export const Route = createFileRoute("/parametres")({
  component: Settings,
@@ -137,10 +138,10 @@ function Settings() {
  setTranslatingRecipes(true);
  toast.loading(t("settings.recipesTranslating"), { id: "recipe-language-sync" });
  try {
- const translated = [];
+ const translated: Recipe[] = [];
  for (const chunk of recipeChunks(source)) {
  const result = await translateRecipes({ data: { lang, recipes: chunk } });
- translated.push(...result.recettes);
+ translated.push(...(result.recettes as Recipe[]));
  }
  applyTranslatedStoredRecipes(source, translated);
  toast.success(t("settings.recipesTranslated"), { id: "recipe-language-sync" });
