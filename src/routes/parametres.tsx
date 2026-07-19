@@ -45,6 +45,7 @@ function Settings() {
  });
  const photoInputRef = useRef<HTMLInputElement | null>(null);
  const [mounted, setMounted] = useState(false);
+ const translateRecipes = useServerFn(translateStoredRecipes);
  useEffect(() => setMounted(true), []);
 
 
@@ -124,8 +125,6 @@ function Settings() {
  setPremium(next);
  toast(next ? t("settings.premiumOn") : t("settings.premiumOff"));
  };
-
- const translateRecipes = useServerFn(translateStoredRecipes);
 
  const changeLanguage = async (lang: Lang) => {
  const previousLang = getLanguage();
