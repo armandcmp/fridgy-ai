@@ -3,7 +3,7 @@ import { useState } from "react";
 import { ArrowLeft, Clock, Flame, CheckCircle2, Share2, Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { storage, programColor } from "@/lib/storage";
+import { storage, programColor, programSlug } from "@/lib/storage";
 import { useLocalReactive } from "@/lib/hooks";
 import { FavoriteHeart } from "@/components/FavoriteHeart";
 import { MacroBar } from "@/components/MacroBar";
@@ -20,11 +20,13 @@ function RecipeDetail() {
  const { id } = Route.useParams();
  const nav = useNavigate();
  const recipes = useLocalReactive(() => storage.getRecipes());
+ const allRecipes = useLocalReactive(() => storage.getAllRecipes());
  const favs = useLocalReactive(() => storage.getFavorites());
  const planning = useLocalReactive(() => storage.getPlanning());
  const [sharing, setSharing] = useState(false);
  const all = [
  ...recipes,
+  ...allRecipes,
  ...favs,
  ...(planning?.days.map((d) => d.recette).filter(Boolean) ?? []),
  ];
@@ -42,6 +44,7 @@ function RecipeDetail() {
  }
 
  const pc = programColor(recipe.program);
+ const programLabel = t(`program.${programSlug(recipe.program)}`);
 
  const markCooked = () => {
  storage.addHistory({
@@ -108,7 +111,7 @@ function RecipeDetail() {
  <span
  className={`inline-block rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${pc.bg} ${pc.text}`}
  >
- {recipe.program}
+  {programLabel}
  </span>
  <h1 className="mt-2 text-2xl font-bold leading-tight drop-shadow">{recipe.titre}</h1>
  <p className="mt-2 text-sm text-white/90 drop-shadow">{recipe.description}</p>
@@ -131,7 +134,7 @@ function RecipeDetail() {
  className="rounded-full px-2.5 py-1 font-semibold"
  style={{ background: "rgba(76,175,130,0.12)", color: "#1F6B4A" }}
  >
- Fibres : {recipe.fibres} g
+  {t("recipe.fibers")} : {recipe.fibres} g
  </span>
  )}
  {recipe.indexGlycemique && (
@@ -151,7 +154,7 @@ function RecipeDetail() {
  }}
  >
  <h3 className="text-sm font-semibold" style={{ color: "#92660A" }}>
- Adapté à votre profil
+  {t("recipe.adaptedProfile")}
  </h3>
  <p className="mt-1.5 text-sm" style={{ color: "#5A4408" }}>
  {recipe.conseilNutritionnel}
@@ -176,7 +179,7 @@ function RecipeDetail() {
  className="rounded-full px-2 py-0.5 text-[10px] font-semibold"
  style={{ background: "rgba(76,175,130,0.15)", color: "#1F6B4A" }}
  >
- Dans votre frigo
+  {t("recipe.available")}
  </span>
                 ) : (
                   <div className="flex items-center gap-1.5">
@@ -184,18 +187,18 @@ function RecipeDetail() {
                       className="rounded-full px-2 py-0.5 text-[10px] font-semibold"
                       style={{ background: "rgba(245,158,11,0.15)", color: "#92660A" }}
                     >
-                      À acheter
+                      {t("recipe.toBuy")}
                     </span>
                     <button
                       onClick={() => {
                         const ok = storage.addShoppingItem(ing.nom);
                         toast.success(
-                          ok ? `« ${ing.nom} » ajouté à la liste` : "Déjà dans la liste",
+                          ok ? t("recipe.addedShopping", { item: ing.nom }) : t("recipe.alreadyShopping"),
                         );
                       }}
                       className="grid h-6 w-6 place-items-center rounded-full bg-primary text-primary-foreground active:scale-95"
-                      aria-label="Ajouter à la liste de courses"
-                      title="Ajouter à ma liste de courses"
+                      aria-label={t("recipe.addShopping")}
+                      title={t("recipe.addShopping")}
                     >
                       <Plus size={13} strokeWidth={3} />
                     </button>
@@ -242,6 +245,7 @@ function RecipeDetail() {
 }
 
 function IGBadge({ ig }: { ig: "Bas" | "Moyen" | "Élevé" }) {
+ const { t } = useTranslation();
  const map: Record<string, { bg: string; fg: string }> = {
  Bas: { bg: "rgba(76,175,130,0.15)", fg: "#1F6B4A" },
  Moyen: { bg: "rgba(245,158,11,0.15)", fg: "#92660A" },
@@ -253,7 +257,7 @@ function IGBadge({ ig }: { ig: "Bas" | "Moyen" | "Élevé" }) {
  className="rounded-full px-2.5 py-1 font-semibold"
  style={{ background: c.bg, color: c.fg }}
  >
- IG : {ig}
+  {t("recipe.gi")} : {t(`recipe.gi.${ig === "Bas" ? "low" : ig === "Élevé" ? "high" : "medium"}`)}
  </span>
  );
 }

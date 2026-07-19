@@ -176,7 +176,7 @@ const StoredRecipeTranslationInputSchema = z.object({
   glucides: z.number(),
   lipides: z.number(),
   fibres: z.number().optional(),
-  indexGlycemique: z.string().optional(),
+  indexGlycemique: z.enum(["Bas", "Moyen", "Élevé"]).optional(),
   temps: z.string(),
   difficulte: z.string(),
   ingredients: z.array(z.string()).default([]),

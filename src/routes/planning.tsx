@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { Sparkles, Trash2, Plus, ShoppingBasket, X, Check } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { storage, programColor, shortDate, startOfWeek, WEEK_DAYS } from "@/lib/storage";
+import { storage, programColor, programSlug, shortDate, startOfWeek, WEEK_DAYS } from "@/lib/storage";
 import { useLocalReactive } from "@/lib/hooks";
 import { generateWeekPlan } from "@/lib/ai.functions";
 import { getLanguage } from "@/lib/i18n";
@@ -172,7 +172,7 @@ function Planning() {
                         <span
                           className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold ${pc!.bg} ${pc!.text}`}
                         >
-                          {r.program}
+                          {t(`program.${programSlug(r.program)}`)}
                         </span>
                         <p className="mt-1 text-sm font-semibold leading-tight">{r.titre}</p>
                         <p className="text-xs text-muted-foreground">{r.calories} kcal</p>

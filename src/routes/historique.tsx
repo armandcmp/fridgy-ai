@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { storage, programColor, shortDate } from "@/lib/storage";
+import { storage, programColor, programSlug, shortDate } from "@/lib/storage";
 import { useLocalReactive } from "@/lib/hooks";
 import { usePremium } from "@/lib/freemium";
 import { PaywallModal } from "@/components/PaywallModal";
@@ -99,6 +99,7 @@ function Historique() {
  <div className="space-y-2">
  {entries.map((e) => {
  const pc = programColor(e.recette.program);
+  const programLabel = t(`program.${programSlug(e.recette.program)}`);
  return (
  <div key={e.id} className="fc-card flex items-start gap-3 p-3">
  <div className="flex-1">
@@ -111,7 +112,7 @@ function Historique() {
  <span
  className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold ${pc.bg} ${pc.text}`}
  >
- {e.recette.program}
+  {programLabel}
  </span>
  <p className="mt-1.5 text-[11px] text-muted-foreground">
  P:{Math.round(e.recette.proteines)}g · G:

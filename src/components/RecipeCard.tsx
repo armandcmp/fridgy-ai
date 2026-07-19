@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Clock, Flame } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { Recipe } from "@/lib/types";
-import { programColor } from "@/lib/storage";
+import { programColor, programSlug } from "@/lib/storage";
 import { MEAL_META, type MealType } from "@/lib/meal";
 import { FavoriteHeart } from "./FavoriteHeart";
 import { RecipeImage } from "./RecipeImage";
@@ -23,7 +23,9 @@ function MealBadge({ mealType }: { mealType?: MealType }) {
 }
 
 export function RecipeCard({ recipe, index = 0 }: { recipe: Recipe; index?: number }) {
+ const { t } = useTranslation();
  const pc = programColor(recipe.program);
+ const programLabel = t(`program.${programSlug(recipe.program)}`);
  const score = recipeScore(recipe);
  return (
  <Link
@@ -49,7 +51,7 @@ export function RecipeCard({ recipe, index = 0 }: { recipe: Recipe; index?: numb
  <span
  className={`inline-block rounded-full px-2.5 py-1 text-[10px] font-semibold ${pc.bg} ${pc.text}`}
  >
- {recipe.program}
+  {programLabel}
  </span>
  <h3 className="display-title mt-2 text-[20px]">
  {recipe.titre}
@@ -101,7 +103,9 @@ export function MiniRecipeCard({
  width?: number;
  imageHeight?: number;
 }) {
+  const { t } = useTranslation();
  const pc = programColor(recipe.program);
+  const programLabel = t(`program.${programSlug(recipe.program)}`);
  const score = recipeScore(recipe);
  return (
  <Link
@@ -124,7 +128,7 @@ export function MiniRecipeCard({
  className={`inline-block rounded-full px-2 py-0.5 text-[9px] font-semibold ${pc.bg} ${pc.text}`}
  style={{ fontFamily: "Inter, system-ui, sans-serif" }}
  >
- {recipe.program}
+  {programLabel}
  </span>
  <h4
  className="mt-2 line-clamp-2 text-sm font-bold leading-tight"
