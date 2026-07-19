@@ -309,23 +309,23 @@ Réponds UNIQUEMENT avec ce JSON exact (aucun markdown, aucun texte avant/après
 }
 
 
-const SYSTEM_PROMPT = `Tu es un chef cuisinier et nutritionniste expert spécialisé dans la nutrition sportive et le rééquilibrage alimentaire. Tu génères des recettes STRICTEMENT personnalisées selon le programme nutritionnel, le profil corporel et le type de repas. Tu rédiges TOUS les champs textuels (titre, description, ingrédients, étapes, conseils) dans la langue de sortie demandée par l'utilisateur.
+function systemPrompt(lang: string): string {
+  return `You are an expert chef and sports nutritionist. You generate recipes strictly personalized to the user's nutrition program, body profile and meal type.
 
-RÈGLES ABSOLUES :
-1. Recettes RADICALEMENT différentes selon le programme :
-   - Prise de masse → surplus calorique, beaucoup de protéines ET glucides, portions généreuses, ingrédients denses.
-   - Sèche → protéines élevées, glucides bas, lipides modérés, faible densité calorique, beaucoup de légumes.
-   - Perte de poids → déficit calorique, fibres élevées, peu de graisses saturées, aliments rassasiants peu caloriques.
-   - Maintien → macros équilibrées 40/30/30 (glucides/protéines/lipides), varié.
-2. Recettes DIFFÉRENTES selon le type de repas :
-   - petit-dejeuner → JAMAIS de viande rouge, jamais de plats du soir, toujours des ingrédients matinaux.
-   - dejeuner → plat complet avec source de protéines + féculents + légumes.
-   - diner → JAMAIS de glucides lourds, privilégier légumes et protéines maigres.
-3. Les 3 recettes doivent être TOUTES DIFFÉRENTES entre elles : ingrédient principal différent, famille de plats différente, mode de cuisson différent.
-4. Calibrer les calories selon le TDEE fourni (petit-dejeuner ×0.25, dejeuner ×0.40, diner ×0.30). Sinon valeurs standards (2000 kcal/jour).
-5. PRIORITÉ INGRÉDIENTS : les 2 premières recettes utilisent UNIQUEMENT les ingrédients disponibles (aucun achat). La 3ème peut inclure quelques ingrédients à acheter.
+CRITICAL LANGUAGE RULE — ABSOLUTELY NON-NEGOTIABLE:
+The entire JSON response MUST be written in ${lang} and ONLY in ${lang}.
+This applies to EVERY textual field without exception: titre/title, description, ingredient names, quantities, etapes/steps, difficulte, indexGlycemique, conseil_nutritionnel, pourquoi_adapte, adaptation_profil.
+Do NOT mix languages. Do NOT leave any word in another language. If the user's input ingredients are in another language, translate them into ${lang} in your output.
 
-Tu réponds UNIQUEMENT en JSON valide, sans markdown, sans texte avant ou après.`;
+RULES:
+1. Recipes must strictly match the nutrition program (bulk/cut/loss/maintain) with correct calorie/macro balance.
+2. Recipes must match the meal type (breakfast/lunch/dinner) — no heavy meats at breakfast, no heavy carbs at dinner.
+3. The 5 recipes MUST all be radically different: different main ingredient, different family, different cooking method.
+4. Calibrate calories to TDEE (breakfast ×0.25, lunch ×0.40, dinner ×0.30). Default 2000 kcal/day if none.
+5. First 3 recipes use ONLY the available ingredients (no shopping). Last 2 may add a few items to buy.
+
+Reply ONLY with valid JSON, no markdown, no text before or after.`;
+}
 
 
 export const generateRecipes = createServerFn({ method: "POST" })
@@ -341,11 +341,12 @@ export const generateRecipes = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     const target = targetCalories(data.bodyProfile?.tdee, data.mealType);
+    const lang = langName(data.lang);
 
     async function runOnce(retryHint: string): Promise<RichRecipe[]> {
       const text = await callAI({
         messages: [
-          { role: "system", content: SYSTEM_PROMPT },
+          { role: "system", content: systemPrompt(lang) },
           {
             role: "user",
             content: buildUserPrompt(
@@ -355,11 +356,12 @@ export const generateRecipes = createServerFn({ method: "POST" })
               data.bodyProfile,
               data.recentTitles ?? [],
               retryHint,
-              langName(data.lang),
+              lang,
             ),
           },
         ],
       });
+
       const parsed = extractJSON<{ recettes: unknown[] }>(text);
       return (parsed.recettes ?? [])
         .map((r) => {

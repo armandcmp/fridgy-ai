@@ -148,7 +148,7 @@ function Home() {
   const recommended = allRecipes.slice(0, 6);
 
   return (
-    <div style={{ background: "#FFFFFF" }} className="min-h-screen pb-2">
+    <div style={{ background: "#FFFFFF" }} className="min-h-screen pb-28">
       <div className="px-5 pt-6">
         {/* TOP BAR */}
         <header className="mb-6 flex items-center justify-between animate-fade-up">
