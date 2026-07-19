@@ -23,6 +23,10 @@ function ensurePlanning(p: WeekPlanning | null, weekStart: Date): WeekPlanning {
   };
 }
 
+function dayLabel(index: number, t: (key: string) => string) {
+  return t(`day.${index}`);
+}
+
 function Planning() {
   const { t } = useTranslation();
   const nav = useNavigate();
@@ -163,7 +167,7 @@ function Planning() {
                   style={{ animationDelay: generating ? `${i * 80}ms` : "0ms" }}
                 >
                   <div className="mb-1.5 flex items-baseline justify-between">
-                    <h3 className="text-[15px] font-bold">{d.jour}</h3>
+                    <h3 className="text-[15px] font-bold">{dayLabel(i, t)}</h3>
                     <span className="text-xs text-muted-foreground">{shortDate(date.toISOString())}</span>
                   </div>
                   {r ? (
@@ -299,7 +303,7 @@ function Planning() {
             style={{ paddingBottom: "calc(1.25rem + env(safe-area-inset-bottom))" }}
           >
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="font-semibold">{t("planning.addFor", { day: planning.days[picker].jour })}</h3>
+              <h3 className="font-semibold">{t("planning.addFor", { day: dayLabel(picker, t) })}</h3>
               <button onClick={() => setPicker(null)}><X size={20} /></button>
             </div>
 
