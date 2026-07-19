@@ -1,4 +1,5 @@
 import type { Recipe } from "@/lib/types";
+import { useTranslation } from "react-i18next";
 
 export type ScoreLevel = "excellent" | "good" | "medium" | "poor";
 
@@ -28,7 +29,9 @@ export function NutriScoreBadge({
   size?: number;
   showLabel?: boolean;
 }) {
+  const { t } = useTranslation();
   const c = CONFIG[score];
+  const label = t(`score.${score}`);
   return (
     <div className="flex flex-col items-center gap-1">
       <div
@@ -42,7 +45,7 @@ export function NutriScoreBadge({
           boxShadow: `0 4px 12px ${c.color.startsWith("var") ? "rgba(45,139,87,.28)" : c.color + "44"}`,
           fontFamily: "Fredoka, system-ui, sans-serif",
         }}
-        aria-label={`Score: ${c.label}`}
+        aria-label={`Score: ${label}`}
       >
         {c.icon}
       </div>
@@ -51,7 +54,7 @@ export function NutriScoreBadge({
           className="label-cap"
           style={{ color: c.color, fontSize: 10, letterSpacing: 0.5 }}
         >
-          {c.label}
+          {label}
         </span>
       )}
     </div>

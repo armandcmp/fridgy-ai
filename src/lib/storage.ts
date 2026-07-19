@@ -138,9 +138,11 @@ export const storage = {
  write(KEYS.recipes, r);
  storage.addAllRecipes(r);
  },
+ replaceRecipes: (r: Recipe[]) => write(KEYS.recipes, r),
 
  // ====== ALL RECIPES (history of every generated recipe) ======
  getAllRecipes: () => read<Recipe[]>(KEYS.allRecipes, []),
+ setAllRecipes: (r: Recipe[]) => write(KEYS.allRecipes, r),
  addAllRecipes: (recipes: Recipe[]) => {
  if (!recipes?.length) return;
  const existing = read<Recipe[]>(KEYS.allRecipes, []);
@@ -199,6 +201,7 @@ export const storage = {
 
  // ====== FAVORITES ======
  getFavorites: () => read<Recipe[]>(KEYS.favorites, []),
+ setFavorites: (r: Recipe[]) => write(KEYS.favorites, r),
  isFavorite: (id: string) => storage.getFavorites().some((r) => r.id === id),
  toggleFavorite: (recipe: Recipe): boolean => {
  const favs = storage.getFavorites();
@@ -273,15 +276,30 @@ export const storage = {
  },
 };
 
+export type ProgramSlug = "bulk" | "cut" | "loss" | "maintain" | "balance" | "pleasure";
+
+export function programSlug(program: string): ProgramSlug {
+ const p = (program || "")
+ .toLowerCase()
+ .normalize("NFD")
+ .replace(/[\u0300-\u036f]/g, "");
+ if (p.includes("masse") || p.includes("bulk") || p.includes("bulking")) return "bulk";
+ if (p.includes("seche") || p.includes("cut") || p.includes("cutting")) return "cut";
+ if (p.includes("perte") || p.includes("loss") || p.includes("weight loss")) return "loss";
+ if (p.includes("maintien") || p.includes("maintain") || p.includes("maintenance")) return "maintain";
+ if (p.includes("plaisir") || p.includes("indulg")) return "pleasure";
+ return "balance";
+}
+
 export function programColor(program: string): { bg: string; text: string } {
- const p = (program || "").toLowerCase();
- if (p.includes("masse") || p.includes("bulk") || p.includes("volumen") || p.includes("ganho") || p.includes("增"))
+ const slug = programSlug(program);
+ if (slug === "bulk")
  return { bg: "bg-blue-100", text: "text-blue-700" };
- if (p.includes("sèche") || p.includes("seche") || p.includes("cut") || p.includes("definici") || p.includes("seca") || p.includes("减脂"))
+ if (slug === "cut")
  return { bg: "bg-orange-100", text: "text-orange-700" };
- if (p.includes("perte") || p.includes("loss") || p.includes("emagre") || p.includes("减重") || p.includes("pérdida"))
+ if (slug === "loss")
  return { bg: "bg-emerald-100", text: "text-emerald-700" };
- if (p.includes("maintien") || p.includes("maintain") || p.includes("mantén") || p.includes("manten") || p.includes("维持"))
+ if (slug === "maintain")
  return { bg: "bg-teal-100", text: "text-teal-700" };
  return { bg: "bg-emerald-100", text: "text-emerald-700" };
 }

@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { Sparkles, Trash2, Plus, ShoppingBasket, X, Check } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { storage, programColor, shortDate, startOfWeek, WEEK_DAYS } from "@/lib/storage";
+import { storage, programColor, programSlug, shortDate, startOfWeek, WEEK_DAYS } from "@/lib/storage";
 import { useLocalReactive } from "@/lib/hooks";
 import { generateWeekPlan } from "@/lib/ai.functions";
 import { getLanguage } from "@/lib/i18n";
@@ -21,6 +21,10 @@ function ensurePlanning(p: WeekPlanning | null, weekStart: Date): WeekPlanning {
     weekStart: weekStart.toISOString(),
     days: WEEK_DAYS.map((j) => ({ jour: j, recette: null })),
   };
+}
+
+function dayLabel(index: number, t: (key: string) => string) {
+  return t(`day.${index}`);
 }
 
 function Planning() {
@@ -87,7 +91,7 @@ function Planning() {
     if (ok) {
       setNewItem("");
     } else if (newItem.trim()) {
-      toast.error("Déjà dans la liste");
+      toast.error(t("planning.alreadyInList"));
     }
   };
 
@@ -131,10 +135,10 @@ function Planning() {
       <Tabs defaultValue="planning" className="w-full">
         <TabsList className="grid w-full grid-cols-2 h-11 rounded-full bg-muted p-1">
           <TabsTrigger value="planning" className="rounded-full text-sm">
-            Planning
+            {t("planning.tabPlanning")}
           </TabsTrigger>
           <TabsTrigger value="courses" className="rounded-full text-sm">
-            Ma liste {remaining > 0 ? `(${remaining})` : ""}
+            {t("planning.tabList")} {remaining > 0 ? `(${remaining})` : ""}
           </TabsTrigger>
         </TabsList>
 
@@ -163,7 +167,7 @@ function Planning() {
                   style={{ animationDelay: generating ? `${i * 80}ms` : "0ms" }}
                 >
                   <div className="mb-1.5 flex items-baseline justify-between">
-                    <h3 className="text-[15px] font-bold">{d.jour}</h3>
+                    <h3 className="text-[15px] font-bold">{dayLabel(i, t)}</h3>
                     <span className="text-xs text-muted-foreground">{shortDate(date.toISOString())}</span>
                   </div>
                   {r ? (
@@ -172,7 +176,7 @@ function Planning() {
                         <span
                           className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold ${pc!.bg} ${pc!.text}`}
                         >
-                          {r.program}
+                          {t(`program.${programSlug(r.program)}`)}
                         </span>
                         <p className="mt-1 text-sm font-semibold leading-tight">{r.titre}</p>
                         <p className="text-xs text-muted-foreground">{r.calories} kcal</p>
@@ -180,7 +184,7 @@ function Planning() {
                       <button
                         onClick={() => updateDay(i, null)}
                         className="grid h-8 w-8 place-items-center rounded-full text-muted-foreground hover:bg-muted"
-                        aria-label="Retirer"
+                        aria-label={t("planning.removeMeal")}
                       >
                         <Trash2 size={15} />
                       </button>
@@ -211,13 +215,13 @@ function Planning() {
                   addItem();
                 }
               }}
-              placeholder="Ajouter un aliment…"
+               placeholder={t("planning.addFoodPh")}
               className="flex-1 rounded-full border border-border bg-card px-4 py-2.5 text-sm outline-none focus:border-primary"
             />
             <button
               onClick={addItem}
               className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground active:scale-95"
-              aria-label="Ajouter"
+              aria-label={t("planning.addFood")}
             >
               <Plus size={18} />
             </button>
@@ -226,9 +230,9 @@ function Planning() {
           {shopping.length === 0 ? (
             <div className="fc-card p-6 text-center text-sm text-muted-foreground">
               <ShoppingBasket size={28} className="mx-auto mb-2 text-muted-foreground/50" />
-              Votre liste est vide.
+              {t("planning.emptyList")}
               <br />
-              Ajoutez des aliments ci-dessus ou depuis une recette.
+              {t("planning.emptyListHint")}
             </div>
           ) : (
             <>
@@ -242,7 +246,7 @@ function Planning() {
                           ? "border-primary bg-primary text-primary-foreground"
                           : "border-border bg-transparent"
                       }`}
-                      aria-label={it.checked ? "Décocher" : "Cocher"}
+                      aria-label={it.checked ? t("planning.uncheck") : t("planning.check")}
                     >
                       {it.checked && <Check size={14} strokeWidth={3} />}
                     </button>
@@ -256,7 +260,7 @@ function Planning() {
                     <button
                       onClick={() => storage.removeShoppingItem(it.id)}
                       className="grid h-7 w-7 place-items-center rounded-full text-muted-foreground hover:bg-muted"
-                      aria-label="Supprimer"
+                      aria-label={t("common.delete")}
                     >
                       <X size={14} />
                     </button>
@@ -270,16 +274,16 @@ function Planning() {
                     onClick={() => storage.clearCheckedShopping()}
                     className="flex-1 rounded-full border border-border py-2.5 text-xs font-semibold text-muted-foreground"
                   >
-                    Retirer cochés
+                    {t("planning.removeChecked")}
                   </button>
                 )}
                 <button
                   onClick={() => {
-                    if (confirm("Vider toute la liste ?")) storage.clearShoppingList();
+                    if (confirm(t("planning.clearConfirm"))) storage.clearShoppingList();
                   }}
                   className="flex-1 rounded-full border border-border py-2.5 text-xs font-semibold text-muted-foreground"
                 >
-                  Tout effacer
+                  {t("planning.clearAll")}
                 </button>
               </div>
             </>
@@ -299,7 +303,7 @@ function Planning() {
             style={{ paddingBottom: "calc(1.25rem + env(safe-area-inset-bottom))" }}
           >
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="font-semibold">{t("planning.addFor", { day: planning.days[picker].jour })}</h3>
+              <h3 className="font-semibold">{t("planning.addFor", { day: dayLabel(picker, t) })}</h3>
               <button onClick={() => setPicker(null)}><X size={20} /></button>
             </div>
 
@@ -311,7 +315,7 @@ function Planning() {
                   <PickRow
                     key={r.id}
                     title={r.titre}
-                    meta={`${r.calories} kcal · ${r.program}`}
+                    meta={`${r.calories} kcal · ${t(`program.${programSlug(r.program)}`)}`}
                     onPick={() => {
                       updateDay(picker, { ...r, id: `${Date.now()}` });
                       setPicker(null);
@@ -329,7 +333,7 @@ function Planning() {
                   <PickRow
                     key={r.id}
                     title={r.titre}
-                    meta={`${r.calories} kcal · ${r.program}`}
+                    meta={`${r.calories} kcal · ${t(`program.${programSlug(r.program)}`)}`}
                     onPick={() => {
                       updateDay(picker, { ...r, id: `${Date.now()}` });
                       setPicker(null);

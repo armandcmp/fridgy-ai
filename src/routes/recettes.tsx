@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { storage } from "@/lib/storage";
+import { storage, programSlug } from "@/lib/storage";
 import { useLocalReactive } from "@/lib/hooks";
 import { RecipeCard } from "@/components/RecipeCard";
 import { MEAL_META, getCurrentMeal } from "@/lib/meal";
@@ -60,15 +60,14 @@ function RecettesScreen() {
       const favTitles = new Set(favs.map((f) => f.titre.toLowerCase().trim()));
       list = list.filter((r) => favIds.has(r.id) || favTitles.has(r.titre.toLowerCase().trim()));
     } else if (filter !== "all") {
-      const key = t(`program.${filter}`).toLowerCase();
-      list = list.filter((r) => r.program?.toLowerCase().includes(key));
+      list = list.filter((r) => programSlug(r.program) === filter);
     }
     if (query.trim()) {
       const q = query.trim().toLowerCase();
       list = list.filter((r) => r.titre.toLowerCase().includes(q));
     }
     return list;
-  }, [merged, cookedTitles, favs, filter, query, t]);
+  }, [merged, cookedTitles, favs, filter, query]);
 
 
   const [mounted, setMounted] = useState(false);
