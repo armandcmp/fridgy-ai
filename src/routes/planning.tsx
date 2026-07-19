@@ -87,7 +87,7 @@ function Planning() {
     if (ok) {
       setNewItem("");
     } else if (newItem.trim()) {
-      toast.error("Déjà dans la liste");
+      toast.error(t("planning.alreadyInList"));
     }
   };
 
@@ -131,10 +131,10 @@ function Planning() {
       <Tabs defaultValue="planning" className="w-full">
         <TabsList className="grid w-full grid-cols-2 h-11 rounded-full bg-muted p-1">
           <TabsTrigger value="planning" className="rounded-full text-sm">
-            Planning
+            {t("planning.tabPlanning")}
           </TabsTrigger>
           <TabsTrigger value="courses" className="rounded-full text-sm">
-            Ma liste {remaining > 0 ? `(${remaining})` : ""}
+            {t("planning.tabList")} {remaining > 0 ? `(${remaining})` : ""}
           </TabsTrigger>
         </TabsList>
 
@@ -211,13 +211,13 @@ function Planning() {
                   addItem();
                 }
               }}
-              placeholder="Ajouter un aliment…"
+               placeholder={t("planning.addFoodPh")}
               className="flex-1 rounded-full border border-border bg-card px-4 py-2.5 text-sm outline-none focus:border-primary"
             />
             <button
               onClick={addItem}
               className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground active:scale-95"
-              aria-label="Ajouter"
+              aria-label={t("planning.addFood")}
             >
               <Plus size={18} />
             </button>
@@ -226,9 +226,9 @@ function Planning() {
           {shopping.length === 0 ? (
             <div className="fc-card p-6 text-center text-sm text-muted-foreground">
               <ShoppingBasket size={28} className="mx-auto mb-2 text-muted-foreground/50" />
-              Votre liste est vide.
+              {t("planning.emptyList")}
               <br />
-              Ajoutez des aliments ci-dessus ou depuis une recette.
+              {t("planning.emptyListHint")}
             </div>
           ) : (
             <>
