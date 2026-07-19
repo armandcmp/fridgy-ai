@@ -213,7 +213,7 @@ function Frigo() {
   
 
   return (
-    <div className="px-5 pt-8">
+    <div className="px-5 pt-8 pb-28">
       <header className="mb-5">
         <h1 className="text-2xl font-bold">{t("frigo.title")}</h1>
         <p className="text-sm text-muted-foreground">{t("frigo.subtitle")}</p>
