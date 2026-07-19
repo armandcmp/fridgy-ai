@@ -139,7 +139,7 @@ function Settings() {
  };
 
  return (
- <div className="px-5 pt-8">
+ <div className="px-5 pt-8 pb-28">
  <header className="mb-5">
  <h1 className="text-2xl font-bold">{t("settings.title")}</h1>
  </header>
