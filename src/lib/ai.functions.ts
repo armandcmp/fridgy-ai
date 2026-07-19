@@ -148,7 +148,7 @@ const RichRecipeSchema = z.object({
   description: z.string().default(""),
   temps: z.string().default("20 min"),
   difficulte: z.string().default("Facile"),
-  mealType: z.string().optional(),
+  mealType: MealEnum,
   program: z.string().optional(),
   calories: z.number(),
   proteines: z.number(),
