@@ -118,16 +118,13 @@ function Onboarding() {
  <div className="mx-auto max-w-sm">
  {step === "lang" && (
  <div className="animate-fade-up">
- <div className="mb-6 text-center">
- <div className="text-5xl"></div>
- <div className="mt-4 space-y-0.5 text-[13px] text-muted-foreground">
- <div>Choisissez votre langue</div>
- <div>Choose your language</div>
- <div>Elige tu idioma</div>
- <div>Escolha seu idioma</div>
- <div>选择您的语言</div>
- </div>
- </div>
+  <div className="mb-6 text-center">
+  <div className="text-5xl"></div>
+  <div className="mt-4 space-y-0.5 text-[13px] text-muted-foreground">
+  <div>Choisissez votre langue</div>
+  <div>Choose your language</div>
+  </div>
+  </div>
  <div className="space-y-2.5">
  {LANGS.map((l) => {
  const selected = pickedLang === l.code;
