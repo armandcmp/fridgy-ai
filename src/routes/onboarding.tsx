@@ -95,12 +95,13 @@ function Onboarding() {
 
  const stored = localStorage.getItem(LANG_KEY);
  const hasProfile = !!getBodyProfile();
- if (sess && !sess.program) {
- setStep(hasProfile ? "program" : "profile");
- } else if (stored) {
- setStep("auth");
- } else {
+ if (!stored) {
  setStep("lang");
+ } else if (!sess) {
+ nav({ to: "/auth", replace: true });
+ return;
+ } else {
+ setStep(hasProfile ? "program" : "profile");
  }
  setReady(true);
  }, [nav]);
@@ -110,7 +111,7 @@ function Onboarding() {
   const confirmLang = () => {
     if (!pickedLang) return;
     setLanguage(pickedLang);
-    setStep("auth");
+    nav({ to: "/auth", replace: true });
   };
 
  return (
