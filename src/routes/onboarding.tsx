@@ -159,9 +159,8 @@ function Onboarding() {
  )}
 
 
-        {step === "auth" && (
-          <AuthScreen onAuthed={() => setStep("profile")} />
-        )}
+        {false && step === "auth" && <AuthScreen onAuthed={() => setStep("profile")} />}
+
 
  {step === "profile" && (
  <BodyProfileScreen
