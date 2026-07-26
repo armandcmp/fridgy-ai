@@ -95,7 +95,7 @@ function Onboarding() {
 
  const stored = localStorage.getItem(LANG_KEY);
  const hasProfile = !!getBodyProfile();
- if (!stored) {
+ if (!sess && !stored) {
  setStep("lang");
  } else if (!sess) {
  nav({ to: "/auth", replace: true });
