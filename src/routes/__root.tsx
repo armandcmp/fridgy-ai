@@ -131,6 +131,8 @@ function RootComponent() {
   useEffect(() => {
     let booted = false;
 
+    const PUBLIC_PATHS = ["/auth", "/reset-password", "/privacy", "/terms", "/onboarding"];
+
     const apply = async (hasSession: boolean) => {
       const path = window.location.pathname;
       if (hasSession) {
@@ -140,9 +142,19 @@ function RootComponent() {
         }
       } else {
         clearLocalSession();
-        if (path !== "/auth") nav({ to: "/auth", replace: true });
+        if (PUBLIC_PATHS.includes(path)) return;
+        // First launch: language choice before sign in / sign up
+        const hasLang = (() => {
+          try {
+            return !!localStorage.getItem("fridgechef_lang");
+          } catch {
+            return false;
+          }
+        })();
+        nav({ to: hasLang ? "/auth" : "/onboarding", replace: true });
       }
     };
+
 
     supabase.auth.getSession().then(({ data }) => {
       booted = true;
