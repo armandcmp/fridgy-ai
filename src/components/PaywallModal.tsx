@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { X, Crown, Check, Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
+import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
+import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { getTrialInfo } from "@/lib/trial";
 
 type Cycle = "monthly" | "annual";
@@ -18,6 +19,7 @@ export function PaywallModal({
   const { t } = useTranslation();
   const [shown, setShown] = useState(false);
   const [cycle, setCycle] = useState<Cycle>("monthly");
+  const [checkout, setCheckout] = useState(false);
   const trial = typeof window !== "undefined" ? getTrialInfo() : null;
   const trialActive = !!trial?.active;
 
@@ -29,7 +31,10 @@ export function PaywallModal({
 
   useEffect(() => {
     if (open) requestAnimationFrame(() => setShown(true));
-    else setShown(false);
+    else {
+      setShown(false);
+      setCheckout(false);
+    }
   }, [open]);
 
   if (!open) return null;
@@ -192,16 +197,25 @@ export function PaywallModal({
             </div>
           </div>
 
-          <button
-            onClick={() => toast(t("paywall.soon"))}
-            className="mt-5 w-full rounded-full py-3.5 text-sm font-extrabold text-white shadow-lg transition active:scale-[0.98]"
-            style={{ background: "linear-gradient(135deg,#F59E0B,#B45309)" }}
-          >
-            {trialActive ? "Continuer avec Fridgy Pro" : "S'abonner à Fridgy Pro"}
-          </button>
-          <p className="mt-2 text-center text-[11px] text-muted-foreground">
-            14 jours d'essai gratuit · Annulez à tout moment
-          </p>
+          {checkout ? (
+            <div className="mt-5 overflow-hidden rounded-2xl">
+              <StripeEmbeddedCheckout priceId={cycle === "annual" ? "pro_yearly" : "pro_monthly"} />
+            </div>
+          ) : (
+            <>
+              <button
+                onClick={() => setCheckout(true)}
+                className="mt-5 w-full rounded-full py-3.5 text-sm font-extrabold text-white shadow-lg transition active:scale-[0.98]"
+                style={{ background: "linear-gradient(135deg,#F59E0B,#B45309)" }}
+              >
+                {trialActive ? "Continuer avec Fridgy Pro" : "S'abonner à Fridgy Pro"}
+              </button>
+              <p className="mt-2 text-center text-[11px] text-muted-foreground">
+                14 jours d'essai gratuit · Annulez à tout moment
+              </p>
+            </>
+          )}
+          <div className="mt-3"><PaymentTestModeBanner /></div>
         </div>
       </div>
     </div>
