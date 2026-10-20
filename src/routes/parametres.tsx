@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { storage } from "@/lib/storage";
 import { auth } from "@/lib/auth";
 import { useLocalReactive } from "@/lib/hooks";
-import { isPremium, setPremium, usePremium } from "@/lib/freemium";
+import { usePremium } from "@/lib/freemium";
 import { getLanguage, setLanguage, SUPPORTED, type Lang, LANG_NAMES } from "@/lib/i18n";
 import { translateStoredRecipes } from "@/lib/ai.functions";
 import {
@@ -120,11 +120,6 @@ function Settings() {
  localStorage.setItem("fridgechef_units", next);
  };
 
- const togglePremium = () => {
- const next = !isPremium();
- setPremium(next);
- toast(next ? t("settings.premiumOn") : t("settings.premiumOff"));
- };
 
  const changeLanguage = async (lang: Lang) => {
  const previousLang = getLanguage();
