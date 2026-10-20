@@ -428,12 +428,24 @@ function Settings() {
 
 
 
+ {premium && (
  <button
- onClick={togglePremium}
- className="mx-auto mt-4 block text-[11px] text-muted-foreground underline"
+ onClick={async () => {
+ try {
+ const { createPortalSession } = await import("@/utils/payments.functions");
+ const { getStripeEnvironment } = await import("@/lib/stripe");
+ const r = await createPortalSession({ data: { environment: getStripeEnvironment(), returnUrl: window.location.href } });
+ if ("error" in r) throw new Error(r.error);
+ window.open(r.url, "_blank");
+ } catch (e) {
+ toast.error((e as Error).message);
+ }
+ }}
+ className="mx-auto mt-4 block text-[12px] font-semibold text-muted-foreground underline"
  >
- {t("settings.devMode")}
+ Gérer mon abonnement
  </button>
+ )}
 
  {/* LOGOUT */}
  {(() => {
