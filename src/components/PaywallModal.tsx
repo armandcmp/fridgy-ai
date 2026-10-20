@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { X, Crown, Check, Sparkles } from "lucide-react";
-import { useTranslation } from "react-i18next";
 import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { getTrialInfo } from "@/lib/trial";
@@ -16,7 +15,6 @@ export function PaywallModal({
   onClose: () => void;
   reason?: string;
 }) {
-  const { t } = useTranslation();
   const [shown, setShown] = useState(false);
   const [cycle, setCycle] = useState<Cycle>("monthly");
   const [checkout, setCheckout] = useState(false);
