@@ -1,0 +1,1 @@
+- Pro access is derived from the `subscriptions` table (written only by the Stripe webhook at /api/public/payments/webhook) and mirrored into local premium flag via src/lib/subscription.ts; never grant Pro client-side otherwise.
