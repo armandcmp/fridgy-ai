@@ -9,87 +9,27 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TermsRouteImport } from './routes/terms'
-import { Route as StatsRouteImport } from './routes/stats'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as RecettesRouteImport } from './routes/recettes'
-import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as PlanningRouteImport } from './routes/planning'
-import { Route as ParametresRouteImport } from './routes/parametres'
-import { Route as OnboardingRouteImport } from './routes/onboarding'
-import { Route as HistoriqueRouteImport } from './routes/historique'
-import { Route as GenereesRouteImport } from './routes/generees'
-import { Route as FrigoRouteImport } from './routes/frigo'
-import { Route as CoursesRouteImport } from './routes/courses'
-import { Route as CommunauteRouteImport } from './routes/communaute'
-import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as RecetteIdRouteImport } from './routes/recette.$id'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as CommunauteRouteImport } from './routes/communaute'
+import { Route as CoursesRouteImport } from './routes/courses'
+import { Route as FrigoRouteImport } from './routes/frigo'
+import { Route as GenereesRouteImport } from './routes/generees'
+import { Route as HistoriqueRouteImport } from './routes/historique'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as ParametresRouteImport } from './routes/parametres'
+import { Route as PlanningRouteImport } from './routes/planning'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as RecettesRouteImport } from './routes/recettes'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as StatsRouteImport } from './routes/stats'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ApiTranscribeRouteImport } from './routes/api/transcribe'
+import { Route as RecetteIdRouteImport } from './routes/recette.$id'
 
-const TermsRoute = TermsRouteImport.update({
-  id: '/terms',
-  path: '/terms',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const StatsRoute = StatsRouteImport.update({
-  id: '/stats',
-  path: '/stats',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ResetPasswordRoute = ResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RecettesRoute = RecettesRouteImport.update({
-  id: '/recettes',
-  path: '/recettes',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivacyRoute = PrivacyRouteImport.update({
-  id: '/privacy',
-  path: '/privacy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PlanningRoute = PlanningRouteImport.update({
-  id: '/planning',
-  path: '/planning',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ParametresRoute = ParametresRouteImport.update({
-  id: '/parametres',
-  path: '/parametres',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OnboardingRoute = OnboardingRouteImport.update({
-  id: '/onboarding',
-  path: '/onboarding',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HistoriqueRoute = HistoriqueRouteImport.update({
-  id: '/historique',
-  path: '/historique',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GenereesRoute = GenereesRouteImport.update({
-  id: '/generees',
-  path: '/generees',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FrigoRoute = FrigoRouteImport.update({
-  id: '/frigo',
-  path: '/frigo',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CoursesRoute = CoursesRouteImport.update({
-  id: '/courses',
-  path: '/courses',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CommunauteRoute = CommunauteRouteImport.update({
-  id: '/communaute',
-  path: '/communaute',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -97,19 +37,79 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const CommunauteRoute = CommunauteRouteImport.update({
+  id: '/communaute',
+  path: '/communaute',
   getParentRoute: () => rootRouteImport,
 } as any)
-const RecetteIdRoute = RecetteIdRouteImport.update({
-  id: '/recette/$id',
-  path: '/recette/$id',
+const CoursesRoute = CoursesRouteImport.update({
+  id: '/courses',
+  path: '/courses',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FrigoRoute = FrigoRouteImport.update({
+  id: '/frigo',
+  path: '/frigo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GenereesRoute = GenereesRouteImport.update({
+  id: '/generees',
+  path: '/generees',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HistoriqueRoute = HistoriqueRouteImport.update({
+  id: '/historique',
+  path: '/historique',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ParametresRoute = ParametresRouteImport.update({
+  id: '/parametres',
+  path: '/parametres',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlanningRoute = PlanningRouteImport.update({
+  id: '/planning',
+  path: '/planning',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecettesRoute = RecettesRouteImport.update({
+  id: '/recettes',
+  path: '/recettes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StatsRoute = StatsRouteImport.update({
+  id: '/stats',
+  path: '/stats',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiTranscribeRoute = ApiTranscribeRouteImport.update({
   id: '/api/transcribe',
   path: '/api/transcribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecetteIdRoute = RecetteIdRouteImport.update({
+  id: '/recette/$id',
+  path: '/recette/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -253,95 +253,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/terms': {
-      id: '/terms'
-      path: '/terms'
-      fullPath: '/terms'
-      preLoaderRoute: typeof TermsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/stats': {
-      id: '/stats'
-      path: '/stats'
-      fullPath: '/stats'
-      preLoaderRoute: typeof StatsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/reset-password': {
-      id: '/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof ResetPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/recettes': {
-      id: '/recettes'
-      path: '/recettes'
-      fullPath: '/recettes'
-      preLoaderRoute: typeof RecettesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacy': {
-      id: '/privacy'
-      path: '/privacy'
-      fullPath: '/privacy'
-      preLoaderRoute: typeof PrivacyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/planning': {
-      id: '/planning'
-      path: '/planning'
-      fullPath: '/planning'
-      preLoaderRoute: typeof PlanningRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/parametres': {
-      id: '/parametres'
-      path: '/parametres'
-      fullPath: '/parametres'
-      preLoaderRoute: typeof ParametresRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/onboarding': {
-      id: '/onboarding'
-      path: '/onboarding'
-      fullPath: '/onboarding'
-      preLoaderRoute: typeof OnboardingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/historique': {
-      id: '/historique'
-      path: '/historique'
-      fullPath: '/historique'
-      preLoaderRoute: typeof HistoriqueRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/generees': {
-      id: '/generees'
-      path: '/generees'
-      fullPath: '/generees'
-      preLoaderRoute: typeof GenereesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/frigo': {
-      id: '/frigo'
-      path: '/frigo'
-      fullPath: '/frigo'
-      preLoaderRoute: typeof FrigoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/courses': {
-      id: '/courses'
-      path: '/courses'
-      fullPath: '/courses'
-      preLoaderRoute: typeof CoursesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/communaute': {
-      id: '/communaute'
-      path: '/communaute'
-      fullPath: '/communaute'
-      preLoaderRoute: typeof CommunauteRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -351,18 +267,95 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/communaute': {
+      id: '/communaute'
+      path: '/communaute'
+      fullPath: '/communaute'
+      preLoaderRoute: typeof CommunauteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/recette/$id': {
-      id: '/recette/$id'
-      path: '/recette/$id'
-      fullPath: '/recette/$id'
-      preLoaderRoute: typeof RecetteIdRouteImport
+    '/courses': {
+      id: '/courses'
+      path: '/courses'
+      fullPath: '/courses'
+      preLoaderRoute: typeof CoursesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/frigo': {
+      id: '/frigo'
+      path: '/frigo'
+      fullPath: '/frigo'
+      preLoaderRoute: typeof FrigoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/generees': {
+      id: '/generees'
+      path: '/generees'
+      fullPath: '/generees'
+      preLoaderRoute: typeof GenereesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/historique': {
+      id: '/historique'
+      path: '/historique'
+      fullPath: '/historique'
+      preLoaderRoute: typeof HistoriqueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/parametres': {
+      id: '/parametres'
+      path: '/parametres'
+      fullPath: '/parametres'
+      preLoaderRoute: typeof ParametresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/planning': {
+      id: '/planning'
+      path: '/planning'
+      fullPath: '/planning'
+      preLoaderRoute: typeof PlanningRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/recettes': {
+      id: '/recettes'
+      path: '/recettes'
+      fullPath: '/recettes'
+      preLoaderRoute: typeof RecettesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stats': {
+      id: '/stats'
+      path: '/stats'
+      fullPath: '/stats'
+      preLoaderRoute: typeof StatsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/transcribe': {
@@ -370,6 +363,13 @@ declare module '@tanstack/react-router' {
       path: '/api/transcribe'
       fullPath: '/api/transcribe'
       preLoaderRoute: typeof ApiTranscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/recette/$id': {
+      id: '/recette/$id'
+      path: '/recette/$id'
+      fullPath: '/recette/$id'
+      preLoaderRoute: typeof RecetteIdRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
