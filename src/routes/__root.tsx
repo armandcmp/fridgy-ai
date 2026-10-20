@@ -137,6 +137,7 @@ function RootComponent() {
       const path = window.location.pathname;
       if (hasSession) {
         const u = await hydrateFromProfile();
+        void import("@/lib/subscription").then((m) => m.syncPremium());
         if (path === "/auth") {
           nav({ to: u?.program ? "/" : "/onboarding", replace: true });
         }

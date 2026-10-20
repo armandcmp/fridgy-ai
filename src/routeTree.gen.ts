@@ -25,7 +25,9 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as StatsRouteImport } from './routes/stats'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ApiTranscribeRouteImport } from './routes/api/transcribe'
+import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
 import { Route as RecetteIdRouteImport } from './routes/recette.$id'
+import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -107,11 +109,22 @@ const ApiTranscribeRoute = ApiTranscribeRouteImport.update({
   path: '/api/transcribe',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CheckoutReturnRoute = CheckoutReturnRouteImport.update({
+  id: '/checkout/return',
+  path: '/checkout/return',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RecetteIdRoute = RecetteIdRouteImport.update({
   id: '/recette/$id',
   path: '/recette/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicPaymentsWebhookRoute =
+  ApiPublicPaymentsWebhookRouteImport.update({
+    id: '/api/public/payments/webhook',
+    path: '/api/public/payments/webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -130,7 +143,9 @@ export interface FileRoutesByFullPath {
   '/stats': typeof StatsRoute
   '/terms': typeof TermsRoute
   '/api/transcribe': typeof ApiTranscribeRoute
+  '/checkout/return': typeof CheckoutReturnRoute
   '/recette/$id': typeof RecetteIdRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -149,7 +164,9 @@ export interface FileRoutesByTo {
   '/stats': typeof StatsRoute
   '/terms': typeof TermsRoute
   '/api/transcribe': typeof ApiTranscribeRoute
+  '/checkout/return': typeof CheckoutReturnRoute
   '/recette/$id': typeof RecetteIdRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -169,7 +186,9 @@ export interface FileRoutesById {
   '/stats': typeof StatsRoute
   '/terms': typeof TermsRoute
   '/api/transcribe': typeof ApiTranscribeRoute
+  '/checkout/return': typeof CheckoutReturnRoute
   '/recette/$id': typeof RecetteIdRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -190,7 +209,9 @@ export interface FileRouteTypes {
     | '/stats'
     | '/terms'
     | '/api/transcribe'
+    | '/checkout/return'
     | '/recette/$id'
+    | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -209,7 +230,9 @@ export interface FileRouteTypes {
     | '/stats'
     | '/terms'
     | '/api/transcribe'
+    | '/checkout/return'
     | '/recette/$id'
+    | '/api/public/payments/webhook'
   id:
     | '__root__'
     | '/'
@@ -228,7 +251,9 @@ export interface FileRouteTypes {
     | '/stats'
     | '/terms'
     | '/api/transcribe'
+    | '/checkout/return'
     | '/recette/$id'
+    | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -248,7 +273,9 @@ export interface RootRouteChildren {
   StatsRoute: typeof StatsRoute
   TermsRoute: typeof TermsRoute
   ApiTranscribeRoute: typeof ApiTranscribeRoute
+  CheckoutReturnRoute: typeof CheckoutReturnRoute
   RecetteIdRoute: typeof RecetteIdRoute
+  ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -365,11 +392,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiTranscribeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/checkout/return': {
+      id: '/checkout/return'
+      path: '/checkout/return'
+      fullPath: '/checkout/return'
+      preLoaderRoute: typeof CheckoutReturnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/recette/$id': {
       id: '/recette/$id'
       path: '/recette/$id'
       fullPath: '/recette/$id'
       preLoaderRoute: typeof RecetteIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/payments/webhook': {
+      id: '/api/public/payments/webhook'
+      path: '/api/public/payments/webhook'
+      fullPath: '/api/public/payments/webhook'
+      preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -392,7 +433,9 @@ const rootRouteChildren: RootRouteChildren = {
   StatsRoute: StatsRoute,
   TermsRoute: TermsRoute,
   ApiTranscribeRoute: ApiTranscribeRoute,
+  CheckoutReturnRoute: CheckoutReturnRoute,
   RecetteIdRoute: RecetteIdRoute,
+  ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

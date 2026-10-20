@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { storage } from "@/lib/storage";
 import { auth } from "@/lib/auth";
 import { useLocalReactive } from "@/lib/hooks";
-import { isPremium, setPremium, usePremium } from "@/lib/freemium";
+import { usePremium } from "@/lib/freemium";
 import { getLanguage, setLanguage, SUPPORTED, type Lang, LANG_NAMES } from "@/lib/i18n";
 import { translateStoredRecipes } from "@/lib/ai.functions";
 import {
@@ -120,11 +120,6 @@ function Settings() {
  localStorage.setItem("fridgechef_units", next);
  };
 
- const togglePremium = () => {
- const next = !isPremium();
- setPremium(next);
- toast(next ? t("settings.premiumOn") : t("settings.premiumOff"));
- };
 
  const changeLanguage = async (lang: Lang) => {
  const previousLang = getLanguage();
@@ -428,12 +423,24 @@ function Settings() {
 
 
 
+ {premium && (
  <button
- onClick={togglePremium}
- className="mx-auto mt-4 block text-[11px] text-muted-foreground underline"
+ onClick={async () => {
+ try {
+ const { createPortalSession } = await import("@/utils/payments.functions");
+ const { getStripeEnvironment } = await import("@/lib/stripe");
+ const r = await createPortalSession({ data: { environment: getStripeEnvironment(), returnUrl: window.location.href } });
+ if ("error" in r) throw new Error(r.error);
+ window.open(r.url, "_blank");
+ } catch (e) {
+ toast.error((e as Error).message);
+ }
+ }}
+ className="mx-auto mt-4 block text-[12px] font-semibold text-muted-foreground underline"
  >
- {t("settings.devMode")}
+ Gérer mon abonnement
  </button>
+ )}
 
  {/* LOGOUT */}
  {(() => {
