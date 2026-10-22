@@ -1,221 +1,36 @@
 import { useEffect, useState } from "react";
-import { X, Crown, Check, Sparkles } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { useTranslation } from "react-i18next";
+import { X, Crown, Check } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
-import { getTrialInfo } from "@/lib/trial";
-
-type Cycle = "monthly" | "annual";
-
-export function PaywallModal({
-  open,
-  onClose,
-  reason,
-}: {
-  open: boolean;
-  onClose: () => void;
-  reason?: string;
-}) {
-  const [shown, setShown] = useState(false);
-  const [cycle, setCycle] = useState<Cycle>("monthly");
+import { getBillingState } from "@/utils/payments.functions";
+import { getStripeEnvironment } from "@/lib/stripe";
+export function PaywallModal({ open, onClose, reason }: { open: boolean; onClose: () => void; reason?: string }) {
+  const { t, i18n } = useTranslation();
+  const [cycle, setCycle] = useState<"pro_monthly" | "pro_yearly">("pro_monthly");
   const [checkout, setCheckout] = useState(false);
-  const trial = typeof window !== "undefined" ? getTrialInfo() : null;
-  const trialActive = !!trial?.active;
-
-  const monthlyPrice = 3.89;
-  const annualPrice = 35.88; // 2,99€/mois facturé annuellement
-  const annualMonthly = annualPrice / 12;
-  const annualStrike = monthlyPrice * 12; // 46,68€
-  const savingsPct = Math.round((1 - annualPrice / annualStrike) * 100);
-
-  useEffect(() => {
-    if (open) requestAnimationFrame(() => setShown(true));
-    else {
-      setShown(false);
-      setCheckout(false);
-    }
-  }, [open]);
-
+  const [eligible, setEligible] = useState(false);
+  const [error, setError] = useState("");
+  const billing = useServerFn(getBillingState);
+  useEffect(() => { if (!open) { setCheckout(false); return; } let alive = true; setError("");
+    void billing({ data: { environment: getStripeEnvironment() } }).then(r => { if (!alive) return; if ("error" in r) setError(r.error); else setEligible(r.trialEligible); }).catch(e => { if (alive) setError(String(e)); });
+    return () => { alive = false; };
+  }, [open, billing]);
   if (!open) return null;
-
-  const fmt = (n: number) =>
-    n.toFixed(2).replace(/\.00$/, "").replace(".", ",") + "€";
-
-  const features = [
-    "Recettes illimitées chaque jour",
-    "Planning de la semaine complet",
-    "Historique illimité",
-    "Liste de courses illimitée",
-    "Génération prioritaire",
-    "Sans publicité",
-  ];
-
-  return (
-    <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
-      style={{
-        background: "rgba(60,30,5,0.55)",
-        backdropFilter: "blur(6px)",
-        WebkitBackdropFilter: "blur(6px)",
-      }}
-      onClick={onClose}
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-md overflow-y-auto rounded-[28px] bg-card shadow-2xl transition-all duration-300 ease-out"
-        style={{
-          maxHeight: "92vh",
-          transform: shown ? "scale(1)" : "scale(0.96)",
-          opacity: shown ? 1 : 0,
-        }}
-      >
-        <div
-          className="relative grid h-[140px] place-items-center"
-          style={{
-            background:
-              "linear-gradient(135deg,#FCD34D 0%,#F59E0B 55%,#B45309 100%)",
-          }}
-        >
-          <div className="text-center text-white">
-            <Crown size={38} className="mx-auto drop-shadow" />
-            <p className="mt-1 text-[11px] font-bold uppercase tracking-[0.22em] opacity-95">
-              Fridgy Pro
-            </p>
-          </div>
-          <button
-            onClick={onClose}
-            className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full bg-white/25 text-white"
-            aria-label="Fermer"
-          >
-            <X size={18} />
-          </button>
-        </div>
-
-        <div className="px-5 pb-6 pt-5">
-          <h2 className="text-center text-[22px] font-extrabold tracking-tight" style={{ color: "#0F1B17" }}>
-            Passez à Fridgy Pro
-          </h2>
-          <p className="mt-1 text-center text-[13px] text-muted-foreground">
-            Toutes les fonctionnalités, sans limite
-          </p>
-
-          {trialActive && (
-            <div
-              className="mt-3 flex items-center justify-center gap-2 rounded-2xl px-3 py-2 text-[12.5px] font-semibold"
-              style={{ background: "#FFF7E6", color: "#7C2D12" }}
-            >
-              <Sparkles size={14} />
-              Essai gratuit — {trial!.daysLeft} jour
-              {trial!.daysLeft > 1 ? "s" : ""} restant
-              {trial!.daysLeft > 1 ? "s" : ""}.
-            </div>
-          )}
-
-          {reason && (
-            <p className="mt-3 rounded-xl bg-amber-50 px-3 py-2 text-center text-xs font-medium text-amber-800">
-              {reason}
-            </p>
-          )}
-
-          {/* Cycle toggle */}
-          <div
-            className="mt-4 grid grid-cols-2 gap-1 rounded-full p-1"
-            style={{ background: "#FFF6E2" }}
-          >
-            {(["monthly", "annual"] as Cycle[]).map((c) => {
-              const active = cycle === c;
-              return (
-                <button
-                  key={c}
-                  onClick={() => setCycle(c)}
-                  className="relative rounded-full py-2 text-[12.5px] font-extrabold transition"
-                  style={{
-                    background: active
-                      ? "linear-gradient(135deg,#F59E0B,#B45309)"
-                      : "transparent",
-                    color: active ? "#FFFFFF" : "#7C2D12",
-                  }}
-                >
-                  {c === "monthly" ? "Mensuel" : `Annuel · −${savingsPct}%`}
-                </button>
-              );
-            })}
-          </div>
-
-          <div
-            className="mt-4 rounded-2xl p-[2px]"
-            style={{ background: "linear-gradient(135deg,#FCD34D,#F59E0B,#B45309)" }}
-          >
-            <div
-              className="rounded-[14px] px-4 py-4"
-              style={{ background: "linear-gradient(135deg,#FFFFFF 0%,#FFF6E2 100%)" }}
-            >
-              <div className="flex items-baseline justify-between gap-2">
-                <div>
-                  <p className="text-[16px] font-extrabold tracking-tight" style={{ color: "#0F1B17" }}>
-                    Fridgy Pro {cycle === "annual" ? "Annuel" : "Mensuel"}
-                  </p>
-                  <p className="text-[11.5px] text-muted-foreground">
-                    {cycle === "annual" ? "Facturé une fois par an" : "Sans engagement"}
-                  </p>
-                </div>
-                <div className="text-right">
-                  {cycle === "monthly" ? (
-                    <p className="text-[22px] font-extrabold" style={{ color: "#B45309" }}>
-                      {fmt(monthlyPrice)}
-                      <span className="text-[12px] font-semibold text-muted-foreground">/mois</span>
-                    </p>
-                  ) : (
-                    <>
-                      <p className="text-[11px] font-semibold leading-none text-muted-foreground line-through decoration-[1.5px]">
-                        {fmt(annualStrike)}/an
-                      </p>
-                      <p className="mt-1 text-[22px] font-extrabold leading-none" style={{ color: "#B45309" }}>
-                        {fmt(annualPrice)}
-                        <span className="text-[12px] font-semibold text-muted-foreground">/an</span>
-                      </p>
-                      <p className="mt-1 text-[10.5px] font-medium text-muted-foreground">
-                        soit {fmt(annualMonthly)}/mois
-                      </p>
-                    </>
-                  )}
-                </div>
-              </div>
-              <ul className="mt-3 space-y-1.5">
-                {features.map((f) => (
-                  <li
-                    key={f}
-                    className="flex items-center gap-2 text-[12.5px]"
-                    style={{ color: "#374151" }}
-                  >
-                    <Check size={14} style={{ color: "#B45309" }} strokeWidth={3} />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          {checkout ? (
-            <div className="mt-5 overflow-hidden rounded-2xl">
-              <StripeEmbeddedCheckout priceId={cycle === "annual" ? "pro_yearly" : "pro_monthly"} />
-            </div>
-          ) : (
-            <>
-              <button
-                onClick={() => setCheckout(true)}
-                className="mt-5 w-full rounded-full py-3.5 text-sm font-extrabold text-white shadow-lg transition active:scale-[0.98]"
-                style={{ background: "linear-gradient(135deg,#F59E0B,#B45309)" }}
-              >
-                {trialActive ? "Continuer avec Fridgy Pro" : "S'abonner à Fridgy Pro"}
-              </button>
-              <p className="mt-2 text-center text-[11px] text-muted-foreground">
-                14 jours d'essai gratuit · Annulez à tout moment
-              </p>
-            </>
-          )}
-          <div className="mt-3"><PaymentTestModeBanner /></div>
-        </div>
+  const fmt = (v: number) => new Intl.NumberFormat(i18n.language, { style: "currency", currency: "EUR" }).format(v);
+  return <div className="fixed inset-0 z-[100] flex items-center justify-center bg-foreground/50 p-4 backdrop-blur-sm" onClick={onClose}>
+    <div role="dialog" aria-modal="true" aria-label="Fridgy Pro" className="max-h-[92vh] w-full max-w-md overflow-y-auto rounded-3xl bg-card shadow-2xl" onClick={e => e.stopPropagation()}>
+      <header className="relative bg-primary-light px-5 py-7 text-center"><Crown className="mx-auto mb-2 text-primary-dark" size={34}/><h2 className="text-2xl font-bold">Fridgy Pro</h2><Button variant="ghost" size="icon" aria-label={t("billing.close")} onClick={onClose} className="absolute right-3 top-3"><X/></Button></header>
+      <div className="p-5"><PaymentTestModeBanner/>{reason && <p className="mt-3 text-sm text-muted-foreground">{reason}</p>}
+        <div className="my-4 grid grid-cols-2 gap-2">{(["pro_monthly", "pro_yearly"] as const).map(key => <Button key={key} disabled={checkout} variant={cycle === key ? "default" : "outline"} onClick={() => setCycle(key)}>{t(key === "pro_monthly" ? "billing.monthly" : "billing.yearly")}</Button>)}</div>
+        <div className="mb-4 text-center">{cycle === "pro_yearly" && <p className="text-sm text-muted-foreground line-through">{fmt(46.68)}</p>}<p className="text-3xl font-bold">{fmt(cycle === "pro_monthly" ? 3.89 : 35.88)}<span className="text-sm font-normal">/{t(cycle === "pro_monthly" ? "billing.month" : "billing.year")}</span></p><p className="mt-1 text-xs text-muted-foreground">{t("billing.taxIncluded")}</p></div>
+        <ul className="mb-5 space-y-2 text-sm">{["billing.unlimited", "billing.tools", "billing.noAds"].map(k => <li key={k} className="flex gap-2"><Check size={16} className="text-primary-dark"/>{t(k)}</li>)}</ul>
+        {error && <p role="alert" className="mb-3 text-sm text-destructive">{error}</p>}
+        {checkout ? <StripeEmbeddedCheckout priceId={cycle}/> : <Button className="w-full" disabled={!!error} onClick={() => setCheckout(true)}>{t(eligible ? "billing.startTrial" : "billing.subscribe")}</Button>}
+        <p className="mt-3 text-center text-xs text-muted-foreground">{t(eligible ? "billing.trialOffer" : "billing.cancelAnytime")}</p>
       </div>
     </div>
-  );
+  </div>;
 }
