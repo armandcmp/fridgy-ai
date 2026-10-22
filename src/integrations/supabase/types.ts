@@ -14,6 +14,120 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_data: {
+        Row: {
+          payload: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          payload?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          payload?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "account_data_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      billing_accounts: {
+        Row: {
+          checkout_lock_until: string | null
+          checkout_session_id: string | null
+          customer_id: string | null
+          deleting: boolean
+          environment: string
+          trial_used: boolean
+          user_id: string
+        }
+        Insert: {
+          checkout_lock_until?: string | null
+          checkout_session_id?: string | null
+          customer_id?: string | null
+          deleting?: boolean
+          environment: string
+          trial_used?: boolean
+          user_id: string
+        }
+        Update: {
+          checkout_lock_until?: string | null
+          checkout_session_id?: string | null
+          customer_id?: string | null
+          deleting?: boolean
+          environment?: string
+          trial_used?: boolean
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "billing_accounts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      generation_usage: {
+        Row: {
+          environment: string
+          last_success_at: string | null
+          reservation_id: string | null
+          reserved_until: string | null
+          user_id: string
+        }
+        Insert: {
+          environment: string
+          last_success_at?: string | null
+          reservation_id?: string | null
+          reserved_until?: string | null
+          user_id: string
+        }
+        Update: {
+          environment?: string
+          last_success_at?: string | null
+          reservation_id?: string | null
+          reserved_until?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "generation_usage_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_events: {
+        Row: {
+          environment: string
+          id: string
+          processed_at: string
+        }
+        Insert: {
+          environment: string
+          id: string
+          processed_at?: string
+        }
+        Update: {
+          environment?: string
+          id?: string
+          processed_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_photo: string | null
@@ -53,6 +167,7 @@ export type Database = {
           created_at: string | null
           current_period_end: string | null
           current_period_start: string | null
+          ended_at: string | null
           environment: string
           id: string
           price_id: string
@@ -68,6 +183,7 @@ export type Database = {
           created_at?: string | null
           current_period_end?: string | null
           current_period_start?: string | null
+          ended_at?: string | null
           environment?: string
           id?: string
           price_id: string
@@ -83,6 +199,7 @@ export type Database = {
           created_at?: string | null
           current_period_end?: string | null
           current_period_start?: string | null
+          ended_at?: string | null
           environment?: string
           id?: string
           price_id?: string
@@ -100,7 +217,24 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      finish_generation: {
+        Args: {
+          p_env: string
+          p_premium: boolean
+          p_reservation: string
+          p_success: boolean
+          p_user: string
+        }
+        Returns: undefined
+      }
+      lock_checkout: {
+        Args: { p_env: string; p_user: string }
+        Returns: boolean
+      }
+      reserve_generation: {
+        Args: { p_env: string; p_reservation: string; p_user: string }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never
