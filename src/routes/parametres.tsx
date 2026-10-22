@@ -18,6 +18,10 @@ import {
 
 import { PaywallModal } from "@/components/PaywallModal";
 import { Avatar } from "@/components/Avatar";
+import { Button } from "@/components/ui/button";
+import { getBillingState, createPortalSession, changeBillingCycle, deleteAccount } from "@/utils/payments.functions";
+import { getStripeEnvironment } from "@/lib/stripe";
+import { activateAccount, currentOwner, accountPayload } from "@/lib/account-cache";
 import type { Recipe } from "@/lib/types";
 
 export const Route = createFileRoute("/parametres")({
@@ -46,6 +50,18 @@ function Settings() {
  const photoInputRef = useRef<HTMLInputElement | null>(null);
  const [mounted, setMounted] = useState(false);
  const translateRecipes = useServerFn(translateStoredRecipes);
+ const loadBilling = useServerFn(getBillingState);
+ const portal = useServerFn(createPortalSession);
+ const changeCycle = useServerFn(changeBillingCycle);
+ const removeAccount = useServerFn(deleteAccount);
+ const [hasBilling, setHasBilling] = useState(false);
+ const [billingBusy, setBillingBusy] = useState(false);
+ const [pastDue, setPastDue] = useState(false);
+ useEffect(() => { let alive = true; void loadBilling({ data: { environment: getStripeEnvironment() } }).then(r => { if (!alive) return; if ("error" in r) toast.error(r.error); else { setHasBilling(r.hasCustomer); setPastDue(r.rows.some(row => row.status === "past_due")); } }); return () => { alive = false; }; }, [loadBilling]);
+ const scheduleCycle = async (priceId: "pro_monthly" | "pro_yearly" | null) => {
+   setBillingBusy(true);
+   try { const r = await changeCycle({ data: { environment: getStripeEnvironment(), priceId } }); if ("error" in r) throw new Error(r.error); toast.success(r.effectiveAt ? t("billing.scheduled", { date: new Date(r.effectiveAt).toLocaleDateString() }) : t("billing.removeSwitch")); } catch(e) { toast.error(String(e)); } finally { setBillingBusy(false); }
+ };
  useEffect(() => setMounted(true), []);
 
 
@@ -423,24 +439,21 @@ function Settings() {
 
 
 
- {premium && (
- <button
- onClick={async () => {
- try {
- const { createPortalSession } = await import("@/utils/payments.functions");
- const { getStripeEnvironment } = await import("@/lib/stripe");
- const r = await createPortalSession({ data: { environment: getStripeEnvironment(), returnUrl: window.location.href } });
- if ("error" in r) throw new Error(r.error);
- window.open(r.url, "_blank");
- } catch (e) {
- toast.error((e as Error).message);
- }
- }}
- className="mx-auto mt-4 block text-[12px] font-semibold text-muted-foreground underline"
- >
- Gérer mon abonnement
- </button>
- )}
+ {pastDue && <p role="alert" className="mb-3 text-sm text-destructive">{t("billing.pastDue")}</p>}
+ {hasBilling && <div className="mb-5 flex flex-col gap-2">
+ <Button variant="outline" disabled={billingBusy} onClick={async () => {
+ const tab = window.open("about:blank", "_blank"); if (tab) tab.opener = null;
+ setBillingBusy(true); try { const r = await portal({ data: { environment: getStripeEnvironment(), returnUrl: `${window.location.origin}/parametres` } }); if ("error" in r) throw new Error(r.error); if (tab) tab.location.href = r.url; else toast.error("Please allow pop-ups to open Stripe."); } catch(e) { tab?.close(); toast.error(String(e)); } finally { setBillingBusy(false); }
+ }}>{t("billing.manage")}</Button>
+ <Button variant="outline" disabled={billingBusy} onClick={() => scheduleCycle("pro_monthly")}>{t("billing.switchMonthly")}</Button>
+ <Button variant="outline" disabled={billingBusy} onClick={() => scheduleCycle("pro_yearly")}>{t("billing.switchYearly")}</Button>
+ <Button variant="ghost" disabled={billingBusy} onClick={() => scheduleCycle(null)}>{t("billing.removeSwitch")}</Button>
+ </div>}
+ <Button variant="destructive" disabled={billingBusy} className="w-full" onClick={async () => {
+ if (window.prompt(t("billing.deleteConfirm")) !== "DELETE") return;
+ const owner = currentOwner(); setBillingBusy(true);
+ try { const r = await removeAccount({ data: { confirmation: "DELETE" } }); if ("error" in r) throw new Error(r.error); activateAccount(null); if (owner) localStorage.removeItem(`fridgy_cache:${owner}`); const { supabase } = await import("@/integrations/supabase/client"); await supabase.auth.signOut(); nav({ to: "/auth" }); } catch(e) { toast.error(String(e)); } finally { setBillingBusy(false); }
+ }}>{t("billing.delete")}</Button>
 
  {/* LOGOUT */}
  {(() => {
