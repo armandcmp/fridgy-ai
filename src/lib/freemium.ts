@@ -4,7 +4,7 @@ import type { UsageData } from "./types";
 const USAGE_KEY = "fridgechef_usage";
 const PREMIUM_KEY = "fridgechef_premium";
 
-export const LIMITS = { recipes: 3, shopping: 1 };
+export const LIMITS = { recipes: 1, shopping: 1 };
 
 function today() {
   return new Date().toISOString().split("T")[0];
@@ -15,31 +15,14 @@ export function getUsage(): UsageData {
     return { date: today(), recipesGenerated: 0, shoppingListsCreated: 0 };
   }
   try {
-    const raw = localStorage.getItem(USAGE_KEY);
-    const t = today();
-    if (!raw) {
-      const v = { date: t, recipesGenerated: 0, shoppingListsCreated: 0 };
-      localStorage.setItem(USAGE_KEY, JSON.stringify(v));
-      return v;
-    }
-    const parsed = JSON.parse(raw) as UsageData;
-    if (parsed.date !== t) {
-      const v = { date: t, recipesGenerated: 0, shoppingListsCreated: 0 };
-      localStorage.setItem(USAGE_KEY, JSON.stringify(v));
-      return v;
-    }
-    return parsed;
-  } catch {
-    return { date: today(), recipesGenerated: 0, shoppingListsCreated: 0 };
-  }
+    const raw = JSON.parse(localStorage.getItem("fridgy_server_usage") ?? "{}");
+    return { date: today(), recipesGenerated: raw.nextAt > Date.now() ? 1 : 0, shoppingListsCreated: 0 };
+  } catch { return { date: today(), recipesGenerated: 0, shoppingListsCreated: 0 }; }
 }
 
 export function bumpUsage(feature: "recipes" | "shopping") {
-  const u = getUsage();
-  if (feature === "recipes") u.recipesGenerated += 1;
-  if (feature === "shopping") u.shoppingListsCreated += 1;
-  localStorage.setItem(USAGE_KEY, JSON.stringify(u));
-  window.dispatchEvent(new CustomEvent("fridgechef:change", { detail: USAGE_KEY }));
+  void feature;
+  window.dispatchEvent(new CustomEvent("fridgechef:usage-refresh"));
 }
 
 export function isPremium(): boolean {

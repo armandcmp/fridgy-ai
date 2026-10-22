@@ -40,6 +40,7 @@ if (!i18n.isInitialized) {
 
 export function setLanguage(lang: Lang) {
   void i18n.changeLanguage(lang);
+  document.documentElement.lang = lang;
   try {
     localStorage.setItem(LANG_KEY, lang);
   } catch {

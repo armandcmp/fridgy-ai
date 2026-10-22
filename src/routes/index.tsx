@@ -16,6 +16,7 @@ import type { Recipe } from "@/lib/types";
 import { getTrialInfo } from "@/lib/trial";
 
 function UpgradeCard({ onOpen }: { onOpen: () => void }) {
+  const { t } = useTranslation();
   const trial = getTrialInfo();
   const inTrial = trial.active;
   return (
@@ -44,8 +45,8 @@ function UpgradeCard({ onOpen }: { onOpen: () => void }) {
             </p>
             <p className="text-[11.5px] font-medium" style={{ color: "#7C5A2A" }}>
               {inTrial
-                ? `Essai gratuit · ${trial.daysLeft} j restant${trial.daysLeft > 1 ? "s" : ""}`
-                : "Recettes illimitées & plus encore"}
+                ? t("billing.trialRemaining", { count: trial.daysLeft })
+                : t("billing.unlimited")}
             </p>
           </div>
           {inTrial && (
@@ -53,29 +54,29 @@ function UpgradeCard({ onOpen }: { onOpen: () => void }) {
               className="flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-extrabold text-white"
               style={{ background: "linear-gradient(135deg,#F59E0B,#B45309)" }}
             >
-              <Sparkles size={10} /> Essai gratuit
+              <Sparkles size={10} /> {t("billing.trial")}
             </span>
           )}
         </div>
         <ul className="mt-3 grid grid-cols-1 gap-1.5 text-[12.5px]" style={{ color: "#334155" }}>
           <li className="flex items-center gap-2">
             <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: "#B45309" }} />
-            Recettes illimitées chaque jour
+            {t("billing.unlimited")}
           </li>
           <li className="flex items-center gap-2">
             <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: "#B45309" }} />
-            Planning, historique & liste de courses
+            {t("billing.tools")}
           </li>
           <li className="flex items-center gap-2">
             <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: "#B45309" }} />
-            Génération prioritaire & sans pub
+            {t("billing.noAds")}
           </li>
         </ul>
         <div
           className="mt-3 grid place-items-center rounded-full py-2.5 text-[13px] font-extrabold text-white"
           style={{ background: "linear-gradient(135deg,#F59E0B,#B45309)" }}
         >
-          {inTrial ? "Voir les formules" : "Découvrir l'abonnement"} →
+          {t("billing.viewPlans")} →
         </div>
       </div>
     </button>
@@ -105,35 +106,6 @@ function Home() {
   useEffect(() => {
     if (!mounted) return;
     if (!sess && typeof window !== "undefined") {
-      try {
-        const raw = localStorage.getItem("fridgechef_accounts");
-        const accs = raw
-          ? (JSON.parse(raw) as Array<{
-              id: string;
-              prenom: string;
-              email: string;
-              program: string | null;
-              dailyKcal: number | null;
-              isPremium: boolean;
-            }>)
-          : [];
-        if (accs.length === 1) {
-          const a = accs[0];
-          localStorage.setItem(
-            "fridgechef_session_user",
-            JSON.stringify({
-              id: a.id,
-              prenom: a.prenom,
-              email: a.email,
-              program: a.program,
-              dailyKcal: a.dailyKcal,
-              isPremium: a.isPremium,
-            }),
-          );
-          window.dispatchEvent(new CustomEvent("fridgechef:change", { detail: "fridgechef_session_user" }));
-          return;
-        }
-      } catch {}
       nav({ to: "/onboarding" });
     } else if (sess && !sess.program) {
       nav({ to: "/onboarding" });
@@ -145,7 +117,7 @@ function Home() {
   }
 
   void user;
-  const remaining = Math.max(0, LIMITS.recipes - usage.recipesGenerated);
+  const remaining = usage.recipesGenerated ? 0 : 1;
   const recommended = allRecipes.slice(0, 6);
 
   return (
@@ -202,7 +174,7 @@ function Home() {
               className="mt-2 block text-[12px] font-medium"
               style={{ color: "#7A8A85" }}
             >
-              {t("home.usageLeft", { count: remaining })}
+              {t(remaining ? "billing.freeAvailable" : "billing.freeWait")}
             </button>
           )}
 
