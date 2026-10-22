@@ -25,15 +25,6 @@ export function initials(name: string): string {
   return (a + b).toUpperCase();
 }
 
-export function hashPwd(pwd: string): string {
-  if (typeof window === "undefined") return pwd;
-  try {
-    return btoa(`fc:${pwd}`);
-  } catch {
-    return pwd;
-  }
-}
-
 function read<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
   try {
@@ -62,59 +53,9 @@ export const auth = {
     window.dispatchEvent(new CustomEvent("fridgechef:change", { detail: SESSION_KEY }));
   },
 
-  emailExists(email: string): boolean {
-    const e = email.trim().toLowerCase();
-    return auth.getAccounts().some((a) => a.email === e);
-  },
-
-  register(
-    prenom: string,
-    email: string,
-    password: string,
-  ): { ok: true; user: CurrentUser } | { ok: false; error: "exists" } {
-    const accs = auth.getAccounts();
-    const e = email.trim().toLowerCase();
-    if (accs.some((a) => a.email === e)) return { ok: false, error: "exists" };
-    const id = String(Date.now());
-    const account: Account = {
-      id,
-      prenom: prenom.trim(),
-      email: e,
-      passwordHash: hashPwd(password),
-      program: null,
-      dailyKcal: null,
-      createdAt: new Date().toISOString(),
-      isPremium: false,
-    };
-    auth.setAccounts([...accs, account]);
-    const user: CurrentUser = {
-      id,
-      prenom: account.prenom,
-      email: e,
-      program: null,
-      dailyKcal: null,
-      isPremium: false,
-    };
-    auth.setSession(user);
-    return { ok: true, user };
-  },
-
-  login(email: string, password: string): { ok: boolean } {
-    const accs = auth.getAccounts();
-    const e = email.trim().toLowerCase();
-    const h = hashPwd(password);
-    const found = accs.find((a) => a.email === e && a.passwordHash === h);
-    if (!found) return { ok: false };
-    auth.setSession({
-      id: found.id,
-      prenom: found.prenom,
-      email: found.email,
-      program: found.program,
-      dailyKcal: found.dailyKcal,
-      isPremium: found.isPremium,
-    });
-    return { ok: true };
-  },
+  emailExists: (_email: string) => false,
+  register: (_prenom: string, _email: string, _password: string): { ok: false; error: "exists" } => ({ ok: false, error: "exists" }),
+  login: (_email: string, _password: string) => ({ ok: false }),
 
   updateSessionAndAccount(patch: Partial<CurrentUser>) {
     const sess = auth.getSession();

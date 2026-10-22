@@ -62,21 +62,7 @@ export const storage = {
  getSessionUser: (): CurrentUser | null => {
  const sess = read<CurrentUser | null>(KEYS.session, null);
  if (sess) return sess;
- // migrate legacy
- const legacy = read<User | null>(KEYS.legacyUser, null);
- if (!legacy) return null;
- const u: CurrentUser = {
- id: "guest",
- prenom: legacy.name,
- email: null,
- program: legacy.program,
- dailyKcal: legacy.dailyKcal,
- isPremium: false,
- avatarColor: legacy.avatarColor,
- avatarPhoto: legacy.avatarPhoto,
- };
- write(KEYS.session, u);
- return u;
+ return null;
  },
  getUser: (): User | null => {
  const sess = storage.getSessionUser();
@@ -156,7 +142,7 @@ export const storage = {
  }
  }
  if (fresh.length === 0) return;
- const next = [...fresh, ...existing].slice(0, 50);
+ const next = [...fresh, ...existing];
  write(KEYS.allRecipes, next);
  },
 

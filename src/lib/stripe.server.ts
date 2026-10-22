@@ -73,7 +73,7 @@ export function getStripeErrorMessage(error: unknown): string {
   return 'Stripe request failed';
 }
 
-export async function verifyWebhook(req: Request, env: StripeEnv): Promise<{ type: string; data: { object: any } }> {
+export async function verifyWebhook(req: Request, env: StripeEnv): Promise<{ id: string; type: string; data: { object: any } }> {
   const signature = req.headers.get("stripe-signature");
   const body = await req.text();
   const secret = env === 'sandbox'
@@ -91,6 +91,7 @@ export async function verifyWebhook(req: Request, env: StripeEnv): Promise<{ typ
   }
   if (!timestamp || v1Signatures.length === 0) throw new Error("Invalid signature format");
 
+  if (!/^\d+$/.test(timestamp)) throw new Error("Invalid timestamp");
   const age = Math.abs(Date.now() / 1000 - Number(timestamp));
   if (age > 300) throw new Error("Webhook timestamp too old");
 
@@ -104,6 +105,12 @@ export async function verifyWebhook(req: Request, env: StripeEnv): Promise<{ typ
   const signed = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(`${timestamp}.${body}`));
   const expected = Array.from(new Uint8Array(signed)).map((b) => b.toString(16).padStart(2, "0")).join("");
 
-  if (!v1Signatures.includes(expected)) throw new Error("Invalid webhook signature");
+  const matches = v1Signatures.some(signature => {
+    if (signature.length !== expected.length) return false;
+    let diff = 0;
+    for (let i = 0; i < expected.length; i++) diff |= signature.charCodeAt(i) ^ expected.charCodeAt(i);
+    return diff === 0;
+  });
+  if (!matches) throw new Error("Invalid webhook signature");
   return JSON.parse(body);
 }

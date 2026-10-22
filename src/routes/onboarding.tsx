@@ -36,8 +36,8 @@ const PROGRAMS: { slug: Slug; emoji: string; kcal: number }[] = [
 ];
 
 const LANGS: { code: Lang; flag: string; name: string; cta: string }[] = [
-  { code: "fr", flag: "🇫🇷", name: "Français", cta: "Continuer →" },
-  { code: "en", flag: "🇬🇧", name: "English", cta: "Continue →" },
+  { code: "fr", flag: "", name: "Français", cta: "Continuer →" },
+  { code: "en", flag: "", name: "English", cta: "Continue →" },
 ];
 
 type Step = "lang" | "auth" | "profile" | "program";
@@ -66,32 +66,12 @@ function Onboarding() {
  const done = localStorage.getItem(ONBOARDING_DONE_KEY) === "true";
  let sess = storage.getSessionUser();
 
- // Auto-restore single saved account when no session
- if (!sess) {
- const accs = auth.getAccounts();
- if (accs.length === 1) {
- const a = accs[0];
- auth.setSession({
- id: a.id,
- prenom: a.prenom,
- email: a.email,
- program: a.program,
- dailyKcal: a.dailyKcal,
- isPremium: a.isPremium,
- });
- sess = storage.getSessionUser();
- }
- }
-
  if (sess && sess.program && getBodyProfile()) {
  localStorage.setItem(ONBOARDING_DONE_KEY, "true");
  nav({ to: "/" });
  return;
  }
- if (done && sess) {
- nav({ to: "/" });
- return;
- }
+
 
  const stored = localStorage.getItem(LANG_KEY);
  const hasProfile = !!getBodyProfile();
@@ -348,7 +328,7 @@ function ProgramScreen({ onDone }: { onDone: () => void }) {
  if (!program) return;
  const p = PROGRAMS.find((x) => x.slug === program)!;
  const programLabel = t(`program.${program}`);
- auth.updateSessionAndAccount({ program: programLabel, dailyKcal: p.kcal });
+ auth.updateSessionAndAccount({ program: p.slug, dailyKcal: p.kcal });
  // mirror to legacy User store for screens that still read it directly
  storage.patchUser({ program: programLabel, dailyKcal: p.kcal });
  onDone();
