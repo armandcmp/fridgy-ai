@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireAIAccess, reserveAIGeneration } from "@/lib/ai-access";
 
 const GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
 const MODEL = "google/gemini-3-flash-preview";
@@ -63,7 +64,7 @@ const RecipeSchema = z.object({
   etapes: z.array(z.string()).default([]),
 });
 
-const langField = z.string().optional();
+const langField = z.enum(["fr", "en"]).optional();
 
 const MealEnum = z.enum(["petit-dejeuner", "dejeuner", "diner"]).optional();
 
@@ -364,6 +365,7 @@ Reply ONLY with valid JSON, no markdown, no text before or after.`;
 
 
 export const generateRecipes = createServerFn({ method: "POST" })
+  .middleware([reserveAIGeneration])
   .inputValidator(
     z.object({
       ingredients: z.array(z.string()).min(1),
@@ -445,6 +447,7 @@ Vise précisément ~${target} kcal par recette (tolérance ±20 %). Force 3 ingr
   });
 
 export const translateStoredRecipes = createServerFn({ method: "POST" })
+  .middleware([requireAIAccess])
   .inputValidator(
     z.object({
       lang: langField,
@@ -527,6 +530,7 @@ Reply exactly:
   });
 
 export const extractIngredients = createServerFn({ method: "POST" })
+  .middleware([requireAIAccess])
   .inputValidator(z.object({ text: z.string().min(1).max(2000), lang: langField }))
   .handler(async ({ data }) => {
     const lang = langName(data.lang);
@@ -549,7 +553,8 @@ Reply: { "ingredients": ["string"] }`,
   });
 
 export const extractFromImage = createServerFn({ method: "POST" })
-  .inputValidator(z.object({ imageBase64: z.string().min(20), lang: langField }))
+  .middleware([requireAIAccess])
+  .inputValidator(z.object({ imageBase64: z.string().min(20).max(12000000), lang: langField }))
   .handler(async ({ data }) => {
     const lang = langName(data.lang);
     const text = await callAI({
@@ -575,6 +580,7 @@ export const extractFromImage = createServerFn({ method: "POST" })
   });
 
 export const generateWeekPlan = createServerFn({ method: "POST" })
+  .middleware([reserveAIGeneration])
   .inputValidator(
     z.object({
       program: z.string(),
@@ -630,6 +636,7 @@ Keep JSON keys exactly as below but write VALUES in ${lang} (day names like "Lun
   });
 
 export const generateShoppingList = createServerFn({ method: "POST" })
+  .middleware([requireAIAccess])
   .inputValidator(
     z.object({
       recipes: z.array(
@@ -681,6 +688,7 @@ const CommunityRecipeSchema = z.object({
 });
 
 export const generateCommunityFeed = createServerFn({ method: "POST" })
+  .middleware([requireAIAccess])
   .inputValidator(z.object({ program: z.string(), lang: langField }))
   .handler(async ({ data }) => {
     const lang = langName(data.lang);
@@ -724,6 +732,7 @@ Exact JSON (keep keys, write values in ${lang}; "avatar" = 2 uppercase initials;
   });
 
 export const generateFullRecipeFromTitle = createServerFn({ method: "POST" })
+  .middleware([reserveAIGeneration])
   .inputValidator(
     z.object({ titre: z.string(), program: z.string(), lang: langField }),
   )

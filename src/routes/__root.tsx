@@ -18,7 +18,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { BottomNav } from "../components/BottomNav";
 import { LaunchSplash } from "../components/LaunchSplash";
 import { supabase } from "@/integrations/supabase/client";
-import { hydrateFromProfile, schedulePushProfile, clearLocalSession } from "@/lib/auth-sync";
+import { hydrateFromProfile, schedulePushProfile, clearLocalSession, schedulePushData } from "@/lib/auth-sync";
 import i18n from "../lib/i18n";
 import { I18nextProvider } from "react-i18next";
 
@@ -159,13 +159,13 @@ function RootComponent() {
 
     supabase.auth.getSession().then(({ data }) => {
       booted = true;
-      void apply(!!data.session);
+      void apply(!!data.session).catch(console.error);
     });
 
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
       if (!booted) return;
       if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") {
-        void apply(!!session);
+        void apply(!!session).catch(console.error);
       }
     });
 
@@ -177,6 +177,7 @@ function RootComponent() {
     const onChange = (e: Event) => {
       const key = (e as CustomEvent<string>).detail;
       if (key === "fridgechef_session_user") schedulePushProfile();
+      else if (key !== "*" && key !== "fridgechef_premium") schedulePushData();
     };
     window.addEventListener("fridgechef:change", onChange);
     return () => window.removeEventListener("fridgechef:change", onChange);
