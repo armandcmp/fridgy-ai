@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/reset-password")({
+  head: () => ({ meta: [{ title: "Nouveau mot de passe — Fridgy" }, { name: "description", content: "Fridgy : nouveau mot de passe." }, { property: "og:title", content: "Nouveau mot de passe — Fridgy" }, { property: "og:description", content: "Fridgy : nouveau mot de passe." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: ResetPassword,
 });
 
@@ -16,29 +17,12 @@ function ResetPassword() {
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const [invalid, setInvalid] = useState(false);
   useEffect(() => {
-    // Supabase parses recovery tokens from the URL hash automatically.
-    // We just need to wait for a session to exist.
-    const check = async () => {
-      const { data } = await supabase.auth.getSession();
-      if (!data.session) {
-        // Listen for the recovery event
-        const { data: sub } = supabase.auth.onAuthStateChange((event) => {
-          if (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN") {
-            setReady(true);
-          }
-        });
-        // Give it a moment
-        setTimeout(() => {
-          supabase.auth.getSession().then(({ data }) => {
-            if (data.session) setReady(true);
-          });
-        }, 500);
-        return () => sub.subscription.unsubscribe();
-      }
-      setReady(true);
-    };
-    check();
+    let alive = true;
+    const { data: listener } = supabase.auth.onAuthStateChange(event => { if (alive && event === "PASSWORD_RECOVERY") setReady(true); });
+    const timer = setTimeout(async () => { const { data } = await supabase.auth.getSession(); if (alive) { setReady(!!data.session); setInvalid(!data.session); } }, 2000);
+    return () => { alive = false; clearTimeout(timer); listener.subscription.unsubscribe(); };
   }, []);
 
   const submit = async (e: React.FormEvent) => {
@@ -60,7 +44,7 @@ function ResetPassword() {
           Nouveau mot de passe
         </h1>
         <p className="mt-1 text-[13.5px] text-muted-foreground">
-          {ready ? "Choisissez un nouveau mot de passe" : "Vérification du lien…"}
+          {ready ? "Choisissez un nouveau mot de passe" : invalid ? "Lien invalide ou expiré. Demandez un nouveau lien depuis la connexion." : "Vérification du lien…"}
         </p>
       </div>
 

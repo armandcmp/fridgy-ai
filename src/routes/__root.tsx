@@ -80,8 +80,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "description", content: "Cuisinez avec ce que vous avez dans votre frigo !!!" },
       { property: "og:description", content: "Cuisinez avec ce que vous avez dans votre frigo !!!" },
       { name: "twitter:description", content: "Cuisinez avec ce que vous avez dans votre frigo !!!" },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/lHu4NBQpNJgeLmLAyvNSTRaOiIx1/social-images/social-1782724284161-Image.webp" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/lHu4NBQpNJgeLmLAyvNSTRaOiIx1/social-images/social-1782724284161-Image.webp" },
       { name: "twitter:card", content: "summary_large_image" },
       { property: "og:type", content: "website" },
     ],
@@ -121,6 +119,7 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const loc = useLocation();
   const nav = useNavigate();
+  useEffect(() => { document.documentElement.lang = i18n.language?.startsWith("en") ? "en" : "fr"; }, []);
   const hideNav = loc.pathname === "/onboarding" || loc.pathname === "/auth";
 
   // Notifications disabled: no OneSignal init, no permission prompt.
@@ -138,6 +137,7 @@ function RootComponent() {
       if (hasSession) {
         const u = await hydrateFromProfile();
         void import("@/lib/subscription").then((m) => m.syncPremium());
+        if (!u?.program && !PUBLIC_PATHS.includes(path)) { nav({ to: "/onboarding", replace: true }); return; }
         if (path === "/auth") {
           nav({ to: u?.program ? "/" : "/onboarding", replace: true });
         }
@@ -171,6 +171,27 @@ function RootComponent() {
 
     return () => sub.subscription.unsubscribe();
   }, [nav]);
+
+  useEffect(() => {
+    const refresh = async () => {
+      const { syncPremium } = await import("@/lib/subscription");
+      await syncPremium();
+      const { data } = await supabase.auth.getUser();
+      if (!data.user) return;
+      const { getStripeEnvironment } = await import("@/lib/stripe");
+      const env = getStripeEnvironment();
+      const { data: usage } = await supabase.from("generation_usage").select("last_success_at").eq("user_id", data.user.id).eq("environment", env).maybeSingle();
+      if (localStorage.getItem("fridgy_data_owner") !== data.user.id) return;
+      localStorage.setItem("fridgy_server_usage", JSON.stringify({ nextAt: usage?.last_success_at ? Date.parse(usage.last_success_at)+72*3600000 : 0 }));
+      const { data: subs } = await supabase.from("subscriptions").select("status,current_period_end").eq("user_id", data.user.id).eq("environment", env).eq("status", "trialing");
+      localStorage.setItem("fridgy_server_trial_end", String(subs?.[0]?.current_period_end ? Date.parse(subs[0].current_period_end) : 0));
+      window.dispatchEvent(new CustomEvent("fridgechef:change", { detail: "fridgechef_usage" }));
+    };
+    const run = () => { void refresh().catch(console.error); };
+    window.addEventListener("focus", run); window.addEventListener("fridgechef:usage-refresh", run);
+    const timer = setInterval(run, 60000); run();
+    return () => { clearInterval(timer); window.removeEventListener("focus", run); window.removeEventListener("fridgechef:usage-refresh", run); };
+  }, []);
 
   // Mirror local profile edits to the database
   useEffect(() => {

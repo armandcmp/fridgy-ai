@@ -23,6 +23,7 @@ import {
 } from "@/lib/bodyProfile";
 
 export const Route = createFileRoute("/onboarding")({
+  head: () => ({ meta: [{ title: "Votre profil — Fridgy" }, { name: "description", content: "Fridgy : votre profil." }, { property: "og:title", content: "Votre profil — Fridgy" }, { property: "og:description", content: "Fridgy : votre profil." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
  component: Onboarding,
 });
 
@@ -326,11 +327,12 @@ function ProgramScreen({ onDone }: { onDone: () => void }) {
 
  const finish = () => {
  if (!program) return;
- const p = PROGRAMS.find((x) => x.slug === program)!;
+ const p = PROGRAMS.find((x) => x.slug === program);
+ if (!p) return;
  const programLabel = t(`program.${program}`);
  auth.updateSessionAndAccount({ program: p.slug, dailyKcal: p.kcal });
  // mirror to legacy User store for screens that still read it directly
- storage.patchUser({ program: programLabel, dailyKcal: p.kcal });
+ storage.patchUser({ program, dailyKcal: p.kcal });
  onDone();
  };
 

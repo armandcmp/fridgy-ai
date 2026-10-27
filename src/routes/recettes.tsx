@@ -8,6 +8,7 @@ import { RecipeCard } from "@/components/RecipeCard";
 import { MEAL_META, getCurrentMeal } from "@/lib/meal";
 
 export const Route = createFileRoute("/recettes")({
+  head: () => ({ meta: [{ title: "Mes recettes — Fridgy" }, { name: "description", content: "Fridgy : mes recettes." }, { property: "og:title", content: "Mes recettes — Fridgy" }, { property: "og:description", content: "Fridgy : mes recettes." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: RecettesScreen,
 });
 

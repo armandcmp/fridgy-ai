@@ -84,6 +84,7 @@ function UpgradeCard({ onOpen }: { onOpen: () => void }) {
 }
 
 export const Route = createFileRoute("/")({
+  head: () => ({ meta: [{ title: "Accueil — Fridgy" }, { name: "description", content: "Fridgy : accueil." }, { property: "og:title", content: "Accueil — Fridgy" }, { property: "og:description", content: "Fridgy : accueil." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: Home,
 });
 

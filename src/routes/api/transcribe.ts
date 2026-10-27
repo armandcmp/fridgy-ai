@@ -4,6 +4,12 @@ export const Route = createFileRoute("/api/transcribe")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const token = request.headers.get("Authorization")?.replace(/^Bearer /, "");
+        if (!token) return Response.json({ error: "Sign in required" }, { status: 401 });
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const { data: auth, error: authError } = await supabaseAdmin.auth.getUser(token);
+        if (authError || !auth.user) return Response.json({ error: "Sign in required" }, { status: 401 });
+        if (Number(request.headers.get("content-length") ?? 0) > 12000000) return Response.json({ error: "Audio too large" }, { status: 413 });
         const apiKey = process.env.LOVABLE_API_KEY;
         if (!apiKey) {
           return new Response(
@@ -33,6 +39,7 @@ export const Route = createFileRoute("/api/transcribe")({
         }
         const file = fileEntry as unknown as File;
 
+        if (file.size > 10000000 || (language && !["fr", "en"].includes(language))) return Response.json({ error: "Invalid audio" }, { status: 400 });
         if ((file as Blob).size < 2048) {
           return new Response(
             JSON.stringify({ error: "empty_audio" }),

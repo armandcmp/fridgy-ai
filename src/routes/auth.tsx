@@ -4,17 +4,20 @@ import { Eye, EyeOff, Camera, Mic } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
+import { useTranslation } from "react-i18next";
 import { hydrateFromProfile } from "@/lib/auth-sync";
 
 const CONSENT_KEY = "fridgy_consent_v1";
 
 export const Route = createFileRoute("/auth")({
+  head: () => ({ meta: [{ title: "Connexion — Fridgy" }, { name: "description", content: "Fridgy : connexion." }, { property: "og:title", content: "Connexion — Fridgy" }, { property: "og:description", content: "Fridgy : connexion." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: AuthScreen,
 });
 
 type Mode = "signin" | "signup";
 
 function AuthScreen() {
+  const { t } = useTranslation();
   const nav = useNavigate();
   const [mode, setMode] = useState<Mode>("signin");
   const [prenom, setPrenom] = useState("");
@@ -70,7 +73,7 @@ function AuthScreen() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!consentOk) {
-      toast.error("Veuillez accepter les conditions d'utilisation et la politique de confidentialité.");
+      toast.error(t("account.consentRequired"));
       return;
     }
     persistConsent();
@@ -78,9 +81,9 @@ function AuthScreen() {
     try {
       if (mode === "signup") {
         if (password !== confirmPassword) {
-          throw new Error("Les mots de passe ne correspondent pas");
+          throw new Error(t("account.mismatch"));
         }
-        const { error } = await supabase.auth.signUp({
+        const { data: signup, error } = await supabase.auth.signUp({
           email: email.trim(),
           password,
           options: {
@@ -89,8 +92,9 @@ function AuthScreen() {
           },
         });
         if (error) throw error;
+        if (!signup.session) { toast.success(t("account.verify")); setMode("signin"); return; }
         const u = await hydrateFromProfile();
-        toast.success("Compte créé !");
+        toast.success(t("account.created"));
         nav({ to: u?.program ? "/" : "/onboarding", replace: true });
       } else {
         const { error } = await supabase.auth.signInWithPassword({
@@ -99,7 +103,7 @@ function AuthScreen() {
         });
         if (error) throw error;
         const u = await hydrateFromProfile();
-        toast.success(`Bon retour, ${u?.prenom ?? ""} !`);
+        toast.success(t("account.welcome", { name: u?.prenom ?? "" }));
         nav({ to: u?.program ? "/" : "/onboarding", replace: true });
       }
     } catch (err) {
@@ -112,7 +116,7 @@ function AuthScreen() {
 
   const google = async () => {
     if (!consentOk) {
-      toast.error("Veuillez accepter les conditions d'utilisation et la politique de confidentialité.");
+      toast.error(t("account.consentRequired"));
       return;
     }
     persistConsent();
@@ -121,7 +125,7 @@ function AuthScreen() {
       redirect_uri: window.location.origin,
     });
     if (result.error) {
-      toast.error("Connexion Google impossible");
+      toast.error(t("account.googleError"));
       setLoading(false);
       return;
     }
@@ -142,7 +146,7 @@ function AuthScreen() {
       toast.error(error.message);
       return;
     }
-    toast.success("Email envoyé ! Vérifiez votre boîte de réception.");
+    toast.success(t("account.resetSent"));
     setForgotOpen(false);
     setForgotEmail("");
   };
@@ -154,7 +158,7 @@ function AuthScreen() {
           Fridgy
         </h1>
         <p className="mt-1 text-[13.5px] text-muted-foreground">
-          {mode === "signup" ? "Créez votre compte" : "Connectez-vous à votre compte"}
+          {mode === "signup" ? t("account.createTitle") : t("account.signinTitle")}
         </p>
       </div>
 
@@ -175,7 +179,7 @@ function AuthScreen() {
                 boxShadow: mode === m ? "var(--shadow-card)" : "none",
               }}
             >
-              {m === "signin" ? "Connexion" : "Inscription"}
+              {m === "signin" ? t("account.signin") : t("account.signup")}
             </button>
           ))}
         </div>
@@ -183,7 +187,7 @@ function AuthScreen() {
         <form onSubmit={submit} className="space-y-3">
           {mode === "signup" && (
             <Field
-              label="Prénom"
+              label={t("account.name")}
               value={prenom}
               onChange={setPrenom}
               placeholder="Alex"
@@ -200,7 +204,7 @@ function AuthScreen() {
             required
           />
           <PasswordField
-            label="Mot de passe"
+            label={t("account.password")}
             value={password}
             onChange={setPassword}
             visible={showPassword}
@@ -210,7 +214,7 @@ function AuthScreen() {
           />
           {mode === "signup" && (
             <PasswordField
-              label="Confirmer le mot de passe"
+              label={t("account.confirmPassword")}
               value={confirmPassword}
               onChange={setConfirmPassword}
               visible={showConfirm}
@@ -234,10 +238,10 @@ function AuthScreen() {
             style={{ background: "var(--primary)" }}
           >
             {loading
-              ? "Patientez…"
+              ? t("account.waiting")
               : mode === "signup"
-                ? "Créer mon compte"
-                : "Se connecter"}
+                ? t("account.create")
+                : t("account.login")}
           </button>
         </form>
 
@@ -263,7 +267,7 @@ function AuthScreen() {
             style={{ borderColor: "var(--border)", background: "var(--muted)" }}
           >
             <p className="mb-2 text-[12px] text-muted-foreground">
-              Entrez votre email, nous vous enverrons un lien pour réinitialiser votre mot de passe.
+              {t("account.resetHelp")}
             </p>
             <input
               type="email"
@@ -280,14 +284,14 @@ function AuthScreen() {
               className="mt-2 w-full rounded-xl py-2.5 text-[13px] font-extrabold text-primary-foreground disabled:opacity-60"
               style={{ background: "var(--primary)" }}
             >
-              {forgotLoading ? "Envoi…" : "Envoyer le lien"}
+              {forgotLoading ? t("account.sending") : t("account.sendLink")}
             </button>
           </form>
         )}
 
         <div className="my-4 flex items-center gap-3 text-[11px] uppercase tracking-wider text-muted-foreground">
           <span className="h-px flex-1 bg-border" />
-          ou
+          {t("account.or")}
           <span className="h-px flex-1 bg-border" />
         </div>
 
@@ -299,7 +303,7 @@ function AuthScreen() {
           style={{ borderColor: "var(--border)" }}
         >
           <GoogleIcon />
-          Continuer avec Google
+          {t("account.google")}
         </button>
       </div>
 
@@ -324,6 +328,7 @@ function ConsentBlock({
   acceptedPerms: boolean;
   setAcceptedPerms: (v: boolean) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div
       className="mt-2 space-y-2 rounded-2xl border p-3"
@@ -338,15 +343,15 @@ function ConsentBlock({
           required
         />
         <span>
-          J'accepte les{" "}
+          {t("account.accept")}{" "}
           <Link to="/terms" target="_blank" className="font-semibold text-primary underline">
-            conditions d'utilisation
+            {t("account.terms")}
           </Link>{" "}
           et la{" "}
           <Link to="/privacy" target="_blank" className="font-semibold text-primary underline">
-            politique de confidentialité
+            {t("account.privacy")}
           </Link>{" "}
-          (RGPD, abonnements, essai gratuit 14 jours, résiliation à tout moment).
+          {t("account.legalSummary")}
         </span>
       </label>
       <label className="flex cursor-pointer items-start gap-2.5 text-[12.5px] leading-snug text-foreground">
@@ -414,6 +419,7 @@ function PasswordField({
   autoComplete?: string;
   minLength?: number;
 }) {
+  const { t } = useTranslation();
   return (
     <label className="block">
       <span className="mb-1 block text-[12px] font-semibold text-muted-foreground">{label}</span>
@@ -432,7 +438,7 @@ function PasswordField({
         <button
           type="button"
           onClick={onToggle}
-          aria-label={visible ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+          aria-label={visible ? t("account.hidePassword") : t("account.showPassword")}
           className="absolute right-2 top-1/2 -translate-y-1/2 grid h-8 w-8 place-items-center rounded-lg text-muted-foreground transition hover:text-foreground"
         >
           {visible ? <EyeOff size={16} /> : <Eye size={16} />}

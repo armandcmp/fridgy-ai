@@ -15,9 +15,9 @@ export function PaywallModal({ open, onClose, reason }: { open: boolean; onClose
   const [error, setError] = useState("");
   const billing = useServerFn(getBillingState);
   useEffect(() => { if (!open) { setCheckout(false); return; } let alive = true; setError("");
-    void billing({ data: { environment: getStripeEnvironment() } }).then(r => { if (!alive) return; if ("error" in r) setError(r.error); else setEligible(r.trialEligible); }).catch(e => { if (alive) setError(String(e)); });
+    void billing({ data: { environment: getStripeEnvironment() } }).then(r => { if (!alive) return; if ("error" in r) setError(r.error ?? "Billing unavailable"); else setEligible(r.trialEligible); }).catch(e => { if (alive) setError(String(e)); });
     return () => { alive = false; };
-  }, [open, billing]);
+  }, [open]);
   if (!open) return null;
   const fmt = (v: number) => new Intl.NumberFormat(i18n.language, { style: "currency", currency: "EUR" }).format(v);
   return <div className="fixed inset-0 z-[100] flex items-center justify-center bg-foreground/50 p-4 backdrop-blur-sm" onClick={onClose}>

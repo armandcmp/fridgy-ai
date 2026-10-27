@@ -5,6 +5,7 @@ import { useLocalReactive } from "@/lib/hooks";
 import { MacroBar } from "@/components/MacroBar";
 
 export const Route = createFileRoute("/stats")({
+  head: () => ({ meta: [{ title: "Statistiques — Fridgy" }, { name: "description", content: "Fridgy : statistiques." }, { property: "og:title", content: "Statistiques — Fridgy" }, { property: "og:description", content: "Fridgy : statistiques." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: Stats,
 });
 

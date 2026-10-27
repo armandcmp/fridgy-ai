@@ -12,6 +12,7 @@ import { buildRecipeShareImage, shareOrDownload } from "@/lib/share";
 import { isPremium } from "@/lib/freemium";
 
 export const Route = createFileRoute("/recette/$id")({
+  head: () => ({ meta: [{ title: "Votre recette — Fridgy" }, { name: "description", content: "Fridgy : votre recette." }, { property: "og:title", content: "Votre recette — Fridgy" }, { property: "og:description", content: "Fridgy : votre recette." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
  component: RecipeDetail,
 });
 
