@@ -2,6 +2,7 @@
 // Cross-browser voice recognition backed by server-side Lovable AI transcription.
 // Works on Chrome/Firefox/Safari (macOS+iOS)/Android — anywhere getUserMedia is allowed.
 import { getLanguage } from "./i18n";
+import { supabase } from "@/integrations/supabase/client";
 import { WavRecorder } from "./voiceRecorder";
 
 export type VoiceState = "idle" | "listening" | "interim" | "processing" | "done" | "error";
@@ -101,9 +102,11 @@ export class VoiceRecognitionManager {
     try {
       const form = new FormData();
       form.append("file", blob, "recording.wav");
-      const lang = ISO3[getLanguage()];
+      const lang = getLanguage();
       if (lang) form.append("language", lang);
-      const resp = await fetch("/api/transcribe", { method: "POST", body: form });
+      const { data: auth } = await supabase.auth.getSession();
+      if (!auth.session) throw new Error("Sign in required");
+      const resp = await fetch("/api/transcribe", { method: "POST", body: form, headers: { Authorization: `Bearer ${auth.session.access_token}` } });
       if (!resp.ok) {
         this.cb.onError(resp.status >= 500 ? "network" : "unknown");
         return;

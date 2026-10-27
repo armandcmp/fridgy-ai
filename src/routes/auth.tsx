@@ -80,7 +80,7 @@ function AuthScreen() {
         if (password !== confirmPassword) {
           throw new Error("Les mots de passe ne correspondent pas");
         }
-        const { error } = await supabase.auth.signUp({
+        const { data: signup, error } = await supabase.auth.signUp({
           email: email.trim(),
           password,
           options: {
@@ -89,6 +89,7 @@ function AuthScreen() {
           },
         });
         if (error) throw error;
+        if (!signup.session) { toast.success("Vérifiez votre e-mail pour confirmer votre compte."); setMode("signin"); return; }
         const u = await hydrateFromProfile();
         toast.success("Compte créé !");
         nav({ to: u?.program ? "/" : "/onboarding", replace: true });
@@ -346,7 +347,7 @@ function ConsentBlock({
           <Link to="/privacy" target="_blank" className="font-semibold text-primary underline">
             politique de confidentialité
           </Link>{" "}
-          (RGPD, abonnements, essai gratuit 14 jours, résiliation à tout moment).
+          (RGPD, abonnements, essai gratuit 7 jours, résiliation à tout moment).
         </span>
       </label>
       <label className="flex cursor-pointer items-start gap-2.5 text-[12.5px] leading-snug text-foreground">

@@ -15,7 +15,7 @@ export function PaywallModal({ open, onClose, reason }: { open: boolean; onClose
   const [error, setError] = useState("");
   const billing = useServerFn(getBillingState);
   useEffect(() => { if (!open) { setCheckout(false); return; } let alive = true; setError("");
-    void billing({ data: { environment: getStripeEnvironment() } }).then(r => { if (!alive) return; if ("error" in r) setError(r.error); else setEligible(r.trialEligible); }).catch(e => { if (alive) setError(String(e)); });
+    void billing({ data: { environment: getStripeEnvironment() } }).then(r => { if (!alive) return; if ("error" in r) setError(r.error ?? "Billing unavailable"); else setEligible(r.trialEligible); }).catch(e => { if (alive) setError(String(e)); });
     return () => { alive = false; };
   }, [open, billing]);
   if (!open) return null;
