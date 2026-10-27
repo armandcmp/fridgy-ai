@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/reset-password")({
+  head: () => ({ meta: [{ title: "Nouveau mot de passe — Fridgy" }, { name: "description", content: "Fridgy : nouveau mot de passe." }, { property: "og:title", content: "Nouveau mot de passe — Fridgy" }, { property: "og:description", content: "Fridgy : nouveau mot de passe." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: ResetPassword,
 });
 

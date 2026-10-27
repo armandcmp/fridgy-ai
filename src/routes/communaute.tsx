@@ -15,6 +15,7 @@ import {
 import type { CommunityRecipe } from "@/lib/types";
 
 export const Route = createFileRoute("/communaute")({
+  head: () => ({ meta: [{ title: "Communauté — Fridgy" }, { name: "description", content: "Fridgy : communauté." }, { property: "og:title", content: "Communauté — Fridgy" }, { property: "og:description", content: "Fridgy : communauté." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
  component: Community,
 });
 

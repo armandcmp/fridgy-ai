@@ -31,7 +31,7 @@ async function priceFor(stripe: ReturnType<typeof createStripeClient>, key: keyo
   return price;
 }
 export const createCheckoutSession = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth])
-  .inputValidator(z.object({ priceId: priceSchema, returnUrl: z.string().url(), environment: envSchema }))
+  .inputValidator(z.object({ priceId: priceSchema, returnUrl: z.string().url(), environment: envSchema, language: z.enum(["fr", "en"]).optional() }))
   .handler(async ({ data, context }): Promise<{ clientSecret: string } | { error: string }> => {
     let locked = false;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -59,7 +59,7 @@ export const createCheckoutSession = createServerFn({ method: "POST" }).middlewa
       const trial = !account.trial_used && count === 0 && history.data.length === 0;
       const price = await priceFor(stripe, data.priceId);
       const session = await stripe.checkout.sessions.create({
-        line_items: [{ price: price.id, quantity: 1 }], mode: "subscription", ui_mode: "embedded_page", customer, return_url: returnUrl,
+        locale: data.language ?? "fr", line_items: [{ price: price.id, quantity: 1 }], mode: "subscription", ui_mode: "embedded_page", customer, return_url: returnUrl,
         metadata: { userId: context.userId, priceId: data.priceId, managed_payments: "true" },
         subscription_data: { metadata: { userId: context.userId }, ...(trial && { trial_period_days: TRIAL_DAYS }) },
         managed_payments: { enabled: true },

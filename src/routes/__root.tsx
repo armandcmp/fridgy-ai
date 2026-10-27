@@ -80,8 +80,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "description", content: "Cuisinez avec ce que vous avez dans votre frigo !!!" },
       { property: "og:description", content: "Cuisinez avec ce que vous avez dans votre frigo !!!" },
       { name: "twitter:description", content: "Cuisinez avec ce que vous avez dans votre frigo !!!" },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/lHu4NBQpNJgeLmLAyvNSTRaOiIx1/social-images/social-1782724284161-Image.webp" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/lHu4NBQpNJgeLmLAyvNSTRaOiIx1/social-images/social-1782724284161-Image.webp" },
       { name: "twitter:card", content: "summary_large_image" },
       { property: "og:type", content: "website" },
     ],
@@ -121,6 +119,7 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const loc = useLocation();
   const nav = useNavigate();
+  useEffect(() => { document.documentElement.lang = i18n.language?.startsWith("en") ? "en" : "fr"; }, []);
   const hideNav = loc.pathname === "/onboarding" || loc.pathname === "/auth";
 
   // Notifications disabled: no OneSignal init, no permission prompt.

@@ -25,6 +25,7 @@ import { activateAccount, currentOwner, accountPayload } from "@/lib/account-cac
 import type { Recipe } from "@/lib/types";
 
 export const Route = createFileRoute("/parametres")({
+  head: () => ({ meta: [{ title: "Paramètres — Fridgy" }, { name: "description", content: "Fridgy : paramètres." }, { property: "og:title", content: "Paramètres — Fridgy" }, { property: "og:description", content: "Fridgy : paramètres." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
  component: Settings,
 });
 

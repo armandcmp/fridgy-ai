@@ -9,6 +9,7 @@ import { hydrateFromProfile } from "@/lib/auth-sync";
 const CONSENT_KEY = "fridgy_consent_v1";
 
 export const Route = createFileRoute("/auth")({
+  head: () => ({ meta: [{ title: "Connexion — Fridgy" }, { name: "description", content: "Fridgy : connexion." }, { property: "og:title", content: "Connexion — Fridgy" }, { property: "og:description", content: "Fridgy : connexion." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: AuthScreen,
 });
 
