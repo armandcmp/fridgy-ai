@@ -1,1 +1,4 @@
 - Pro access is derived from the `subscriptions` table (written only by the Stripe webhook at /api/public/payments/webhook) and mirrored into local premium flag via src/lib/subscription.ts; never grant Pro client-side otherwise.
+- Billing rules are centralized in a browser-safe module; authenticated server middleware and atomic usage RPCs enforce access because browser storage is display-only.
+- Legacy personal storage keys form an active-account working set; archive by authenticated user and sync owner-scoped cloud payloads to prevent cross-account data exposure.
+- Stripe checkout uses durable per-user/environment locks and customer mappings; webhook reconciliation reads authoritative Stripe state before writing subscription entitlement.
