@@ -57,7 +57,7 @@ function Settings() {
  const [hasBilling, setHasBilling] = useState(false);
  const [billingBusy, setBillingBusy] = useState(false);
  const [pastDue, setPastDue] = useState(false);
- useEffect(() => { let alive = true; void loadBilling({ data: { environment: getStripeEnvironment() } }).then(r => { if (!alive) return; if ("error" in r) toast.error(r.error); else { setHasBilling(r.hasCustomer); setPastDue(r.rows.some(row => row.status === "past_due")); } }); return () => { alive = false; }; }, [loadBilling]);
+ useEffect(() => { let alive = true; void loadBilling({ data: { environment: getStripeEnvironment() } }).then(r => { if (!alive) return; if ("error" in r) toast.error(r.error); else { setHasBilling(r.hasCustomer); setPastDue(r.rows.some(row => row.status === "past_due")); } }); return () => { alive = false; }; }, []);
  const scheduleCycle = async (priceId: "pro_monthly" | "pro_yearly" | null) => {
    setBillingBusy(true);
    try { const r = await changeCycle({ data: { environment: getStripeEnvironment(), priceId } }); if ("error" in r) throw new Error(r.error); toast.success(r.effectiveAt ? t("billing.scheduled", { date: new Date(r.effectiveAt).toLocaleDateString() }) : t("billing.removeSwitch")); } catch(e) { toast.error(String(e)); } finally { setBillingBusy(false); }
@@ -125,7 +125,7 @@ function Settings() {
  };
  const p = map[slug];
  if (!p) return;
- storage.patchUser({ program: p.name, dailyKcal: p.kcal });
+ storage.patchUser({ program: slug, dailyKcal: p.kcal });
  setEditingProgram(false);
  toast.success(t("settings.profileSaved"));
  };
@@ -138,6 +138,7 @@ function Settings() {
 
 
  const changeLanguage = async (lang: Lang) => {
+ const owner = currentOwner();
  const previousLang = getLanguage();
  if (lang === previousLang || translatingRecipes) return;
  const source = collectStoredRecipesForTranslation();
@@ -153,6 +154,7 @@ function Settings() {
  const result = await translateRecipes({ data: { lang, recipes: chunk } });
  translated.push(...(result.recettes as Recipe[]));
  }
+ if (currentOwner() !== owner || getLanguage() !== lang) return;
  applyTranslatedStoredRecipes(source, translated);
  toast.success(t("settings.recipesTranslated"), { id: "recipe-language-sync" });
  } catch {
@@ -164,17 +166,7 @@ function Settings() {
 
 
  const exportData = () => {
- const data: Record<string, unknown> = {};
- ["fridgechef_user", "fridgechef_history", "fridgechef_favorites", "fridgechef_planning", "fridgechef_memory"].forEach(
- (k) => {
- try {
- const raw = localStorage.getItem(k);
- data[k] = raw ? JSON.parse(raw) : null;
- } catch {
- data[k] = null;
- }
- },
- );
+ const data = { profile: storage.getSessionUser(), personalData: accountPayload() };
  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
  const url = URL.createObjectURL(blob);
  const a = document.createElement("a");

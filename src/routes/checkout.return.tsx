@@ -24,6 +24,6 @@ function CheckoutReturn() {
       timer = setTimeout(tick, 2000);
     } catch { if (!stopped) setState("billing.failed"); } };
     setState("billing.pending"); void tick(); return () => { stopped = true; clearTimeout(timer); };
-  }, [session_id, check, attempt]);
+  }, [session_id, attempt]);
   return <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-6 text-center"><Crown className="text-primary-dark" size={40}/><h1 className="text-2xl font-bold">Fridgy Pro</h1><p role="status" className="text-sm text-muted-foreground">{t(state)}</p>{session_id && state !== "billing.activated" && <Button variant="outline" onClick={() => setAttempt(v => v + 1)}>{t("billing.retry")}</Button>}<Button asChild><Link to="/parametres">{t("billing.settings")}</Link></Button></div>;
 }
