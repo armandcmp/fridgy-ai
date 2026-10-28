@@ -17,16 +17,19 @@ export type Database = {
       account_data: {
         Row: {
           payload: Json
+          revision: number
           updated_at: string
           user_id: string
         }
         Insert: {
           payload?: Json
+          revision?: number
           updated_at?: string
           user_id: string
         }
         Update: {
           payload?: Json
+          revision?: number
           updated_at?: string
           user_id?: string
         }
@@ -42,6 +45,7 @@ export type Database = {
       }
       billing_accounts: {
         Row: {
+          checkout_lock_token: string | null
           checkout_lock_until: string | null
           checkout_session_id: string | null
           customer_id: string | null
@@ -51,6 +55,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          checkout_lock_token?: string | null
           checkout_lock_until?: string | null
           checkout_session_id?: string | null
           customer_id?: string | null
@@ -60,6 +65,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          checkout_lock_token?: string | null
           checkout_lock_until?: string | null
           checkout_session_id?: string | null
           customer_id?: string | null
@@ -77,6 +83,21 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      billing_configuration: {
+        Row: {
+          environment: string
+          portal_configuration_id: string
+        }
+        Insert: {
+          environment: string
+          portal_configuration_id: string
+        }
+        Update: {
+          environment?: string
+          portal_configuration_id?: string
+        }
+        Relationships: []
       }
       generation_usage: {
         Row: {
@@ -125,6 +146,27 @@ export type Database = {
           environment?: string
           id?: string
           processed_at?: string
+        }
+        Relationships: []
+      }
+      payment_locks: {
+        Row: {
+          environment: string
+          expires_at: string
+          subscription_id: string
+          token: string
+        }
+        Insert: {
+          environment: string
+          expires_at: string
+          subscription_id: string
+          token: string
+        }
+        Update: {
+          environment?: string
+          expires_at?: string
+          subscription_id?: string
+          token?: string
         }
         Relationships: []
       }
@@ -210,13 +252,43 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_profile_owner"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      claim_billing_operation: {
+        Args: { p_env: string; p_token: string; p_user: string }
+        Returns: boolean
+      }
+      claim_payment_event: {
+        Args: { p_env: string; p_subscription: string; p_token: string }
+        Returns: boolean
+      }
+      commit_subscription_event: {
+        Args: { p_env: string; p_event: string; p_row: Json; p_token: string }
+        Returns: boolean
+      }
+      finalize_generation: {
+        Args: {
+          p_env: string
+          p_premium: boolean
+          p_reservation: string
+          p_success: boolean
+          p_user: string
+        }
+        Returns: boolean
+      }
       finish_generation: {
         Args: {
           p_env: string
@@ -234,6 +306,10 @@ export type Database = {
       reserve_generation: {
         Args: { p_env: string; p_reservation: string; p_user: string }
         Returns: Json
+      }
+      save_account_data: {
+        Args: { p_payload: Json; p_revision: number }
+        Returns: number
       }
     }
     Enums: {
