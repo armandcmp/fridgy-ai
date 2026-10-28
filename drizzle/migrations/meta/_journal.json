@@ -15,6 +15,13 @@
       "when": 1792683262798,
       "tag": "0001_secure_fridgy_billing_and_account_data",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793168057078,
+      "tag": "0002_serialize_billing_and_account_sync",
+      "breakpoints": true
     }
   ]
 }
