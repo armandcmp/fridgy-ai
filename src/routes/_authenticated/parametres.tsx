@@ -24,7 +24,7 @@ import { getStripeEnvironment } from "@/lib/stripe";
 import { activateAccount, currentOwner, accountPayload } from "@/lib/account-cache";
 import type { Recipe } from "@/lib/types";
 
-export const Route = createFileRoute("/parametres")({
+export const Route = createFileRoute("/_authenticated/parametres")({
   head: () => ({ meta: [{ title: "Paramètres — Fridgy" }, { name: "description", content: "Fridgy : paramètres." }, { property: "og:title", content: "Paramètres — Fridgy" }, { property: "og:description", content: "Fridgy : paramètres." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
  component: Settings,
 });

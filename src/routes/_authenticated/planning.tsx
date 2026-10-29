@@ -11,7 +11,7 @@ import { getLanguage } from "@/lib/i18n";
 import type { Recipe, WeekPlanning } from "@/lib/types";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
-export const Route = createFileRoute("/planning")({
+export const Route = createFileRoute("/_authenticated/planning")({
   head: () => ({ meta: [{ title: "Planning — Fridgy" }, { name: "description", content: "Fridgy : planning." }, { property: "og:title", content: "Planning — Fridgy" }, { property: "og:description", content: "Fridgy : planning." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: Planning,
 });

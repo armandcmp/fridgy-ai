@@ -5,7 +5,7 @@ import { storage } from "@/lib/storage";
 import { useLocalReactive } from "@/lib/hooks";
 import { RecipeCard } from "@/components/RecipeCard";
 
-export const Route = createFileRoute("/generees")({
+export const Route = createFileRoute("/_authenticated/generees")({
   head: () => ({ meta: [{ title: "Recettes générées — Fridgy" }, { name: "description", content: "Fridgy : recettes générées." }, { property: "og:title", content: "Recettes générées — Fridgy" }, { property: "og:description", content: "Fridgy : recettes générées." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: GenereesScreen,
 });

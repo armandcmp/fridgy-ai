@@ -20,7 +20,7 @@ import { VoiceOverlay } from "@/components/VoiceOverlay";
 
 type ModeParam = "photo" | "voice" | "manual";
 
-export const Route = createFileRoute("/frigo")({
+export const Route = createFileRoute("/_authenticated/frigo")({
   head: () => ({ meta: [{ title: "Votre frigo — Fridgy" }, { name: "description", content: "Fridgy : votre frigo." }, { property: "og:title", content: "Votre frigo — Fridgy" }, { property: "og:description", content: "Fridgy : votre frigo." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   validateSearch: (s: Record<string, unknown>): { mode?: ModeParam } => {
     const m = s.mode;

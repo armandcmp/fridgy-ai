@@ -8,7 +8,7 @@ import { usePremium } from "@/lib/freemium";
 import { PaywallModal } from "@/components/PaywallModal";
 import type { MealEntry } from "@/lib/types";
 
-export const Route = createFileRoute("/historique")({
+export const Route = createFileRoute("/_authenticated/historique")({
   head: () => ({ meta: [{ title: "Historique — Fridgy" }, { name: "description", content: "Fridgy : historique." }, { property: "og:title", content: "Historique — Fridgy" }, { property: "og:description", content: "Fridgy : historique." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
  component: Historique,
 });
