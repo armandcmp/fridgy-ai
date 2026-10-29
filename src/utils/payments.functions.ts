@@ -119,7 +119,7 @@ export const changeBillingCycle = createServerFn({ method: "POST" }).middleware(
       if (sub.metadata.userId !== context.userId || sub.cancel_at_period_end) throw new Error("Subscription is unavailable or scheduled to cancel");
       if (!["active", "trialing", "past_due"].includes(sub.status) || sub.items.data.length !== 1 || sub.items.data[0]?.quantity !== 1) throw new Error("Unsupported subscription configuration");
       const existing = typeof sub.schedule === "string" ? sub.schedule : sub.schedule?.id;
-      if (existing) { const owned = await stripe.subscriptionSchedules.retrieve(existing); if (owned.metadata.userId !== context.userId || owned.metadata.app !== "fridgy") throw new Error("This schedule cannot be changed here"); }
+      if (existing) { const owned = await stripe.subscriptionSchedules.retrieve(existing); if (owned.metadata?.userId !== context.userId || owned.metadata?.app !== "fridgy") throw new Error("This schedule cannot be changed here"); }
       if (!data.priceId) { if (existing) await stripe.subscriptionSchedules.release(existing); return { effectiveAt: null }; }
       const item = sub.items.data[0];
       if (!item || !item.current_period_end) throw new Error("Subscription period unavailable");
