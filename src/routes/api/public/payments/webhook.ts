@@ -9,6 +9,10 @@ async function handle(request: Request, environment: StripeEnv) {
   const object = event.data.object;
   const id = event.type.startsWith("customer.subscription.") ? object.id : typeof object.subscription === "string" ? object.subscription : typeof object.parent?.subscription_details?.subscription === "string" ? object.parent.subscription_details.subscription : null;
   if (id) {
+    const token = crypto.randomUUID();
+    const { data: locked, error: leaseError } = await supabaseAdmin.rpc("claim_payment_event", { p_subscription: id, p_env: environment, p_token: token });
+    if (leaseError || !locked) throw new Error(leaseError?.message ?? "Subscription event already processing");
+    try {
     // Fetch authoritative state, rather than persisting potentially delayed payloads.
     const stripe = createStripeClient(environment);
     const sub = await stripe.subscriptions.retrieve(id);
@@ -22,12 +26,11 @@ async function handle(request: Request, environment: StripeEnv) {
         const customer = typeof sub.customer === "string" ? sub.customer : sub.customer.id;
         const product = typeof item.price.product === "string" ? item.price.product : item.price.product.id;
         const iso = (n: number | null | undefined) => n ? new Date(n * 1000).toISOString() : null;
-        const { error } = await supabaseAdmin.from("subscriptions").upsert({ user_id: userId, stripe_subscription_id: sub.id, stripe_customer_id: customer, product_id: product, price_id: item.price.lookup_key ?? item.price.metadata.lovable_external_id ?? item.price.id, status: sub.status, current_period_start: iso(item.current_period_start), current_period_end: iso(item.current_period_end), ended_at: iso(sub.ended_at), cancel_at_period_end: sub.cancel_at_period_end, environment, updated_at: new Date().toISOString() }, { onConflict: "stripe_subscription_id" });
+        const { error } = await supabaseAdmin.rpc("commit_subscription_event", { p_event: event.id, p_env: environment, p_token: token, p_row: { user_id: userId, stripe_subscription_id: sub.id, stripe_customer_id: customer, product_id: product, price_id: item.price.lookup_key ?? item.price.metadata.lovable_external_id ?? item.price.id, status: sub.status, current_period_start: iso(item.current_period_start), current_period_end: iso(item.current_period_end), ended_at: iso(sub.ended_at), cancel_at_period_end: sub.cancel_at_period_end, environment, updated_at: new Date().toISOString() } });
         if (error) throw new Error(error.message);
-        const { error: billingError } = await supabaseAdmin.from("billing_accounts").upsert({ user_id: userId, environment, customer_id: customer, trial_used: true });
-        if (billingError) throw new Error(billingError.message);
       }
     }
+    } finally { await supabaseAdmin.from("payment_locks").delete().eq("subscription_id", id).eq("environment", environment).eq("token", token); }
   }
   const { error } = await supabaseAdmin.from("payment_events").upsert({ id: event.id, environment });
   if (error) throw new Error(error.message);
