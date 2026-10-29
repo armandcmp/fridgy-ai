@@ -18,7 +18,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { BottomNav } from "../components/BottomNav";
 import { LaunchSplash } from "../components/LaunchSplash";
 import { supabase } from "@/integrations/supabase/client";
-import { hydrateFromProfile, schedulePushProfile, clearLocalSession, schedulePushData } from "@/lib/auth-sync";
+import { hydrateFromProfile, schedulePushProfile, clearLocalSession, schedulePushData, observeIdentity } from "@/lib/auth-sync";
 import i18n from "../lib/i18n";
 import { I18nextProvider } from "react-i18next";
 
@@ -136,6 +136,7 @@ function RootComponent() {
       const path = window.location.pathname;
       if (hasSession) {
         const u = await hydrateFromProfile();
+        if (!u) return;
         void import("@/lib/subscription").then((m) => m.syncPremium());
         if (!u?.program && !PUBLIC_PATHS.includes(path)) { nav({ to: "/onboarding", replace: true }); return; }
         if (path === "/auth") {
@@ -158,6 +159,7 @@ function RootComponent() {
 
 
     supabase.auth.getSession().then(({ data }) => {
+      observeIdentity(data.session?.user.id ?? null);
       booted = true;
       void apply(!!data.session).catch(console.error);
     });
@@ -165,6 +167,8 @@ function RootComponent() {
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
       if (!booted) return;
       if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") {
+        observeIdentity(session?.user.id ?? null);
+        queryClient.clear();
         void apply(!!session).catch(console.error);
       }
     });
@@ -184,6 +188,7 @@ function RootComponent() {
       if (localStorage.getItem("fridgy_data_owner") !== data.user.id) return;
       localStorage.setItem("fridgy_server_usage", JSON.stringify({ nextAt: usage?.last_success_at ? Date.parse(usage.last_success_at)+72*3600000 : 0 }));
       const { data: subs } = await supabase.from("subscriptions").select("status,current_period_end").eq("user_id", data.user.id).eq("environment", env).eq("status", "trialing");
+      if (localStorage.getItem("fridgy_data_owner") !== data.user.id) return;
       localStorage.setItem("fridgy_server_trial_end", String(subs?.[0]?.current_period_end ? Date.parse(subs[0].current_period_end) : 0));
       window.dispatchEvent(new CustomEvent("fridgechef:change", { detail: "fridgechef_usage" }));
     };
@@ -198,7 +203,7 @@ function RootComponent() {
     const onChange = (e: Event) => {
       const key = (e as CustomEvent<string>).detail;
       if (key === "fridgechef_session_user") schedulePushProfile();
-      else if (key !== "*" && key !== "fridgechef_premium") schedulePushData();
+      else if (key !== "*" && !["fridgechef_premium", "fridgechef_usage"].includes(key)) schedulePushData();
     };
     window.addEventListener("fridgechef:change", onChange);
     return () => window.removeEventListener("fridgechef:change", onChange);
