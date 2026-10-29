@@ -10,23 +10,24 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
-import { Route as CommunauteRouteImport } from './routes/communaute'
-import { Route as CoursesRouteImport } from './routes/courses'
-import { Route as FrigoRouteImport } from './routes/frigo'
-import { Route as GenereesRouteImport } from './routes/generees'
-import { Route as HistoriqueRouteImport } from './routes/historique'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
-import { Route as ParametresRouteImport } from './routes/parametres'
-import { Route as PlanningRouteImport } from './routes/planning'
 import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as RecettesRouteImport } from './routes/recettes'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as StatsRouteImport } from './routes/stats'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as AuthenticatedCommunauteRouteImport } from './routes/_authenticated/communaute'
+import { Route as AuthenticatedCoursesRouteImport } from './routes/_authenticated/courses'
+import { Route as AuthenticatedFrigoRouteImport } from './routes/_authenticated/frigo'
+import { Route as AuthenticatedGenereesRouteImport } from './routes/_authenticated/generees'
+import { Route as AuthenticatedHistoriqueRouteImport } from './routes/_authenticated/historique'
+import { Route as AuthenticatedParametresRouteImport } from './routes/_authenticated/parametres'
+import { Route as AuthenticatedPlanningRouteImport } from './routes/_authenticated/planning'
+import { Route as AuthenticatedRecettesRouteImport } from './routes/_authenticated/recettes'
+import { Route as AuthenticatedStatsRouteImport } from './routes/_authenticated/stats'
 import { Route as ApiTranscribeRouteImport } from './routes/api/transcribe'
-import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
-import { Route as RecetteIdRouteImport } from './routes/recette.$id'
+import { Route as AuthenticatedCheckoutReturnRouteImport } from './routes/_authenticated/checkout.return'
+import { Route as AuthenticatedRecetteIdRouteImport } from './routes/_authenticated/recette.$id'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
 const IndexRoute = IndexRouteImport.update({
@@ -34,34 +35,13 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CommunauteRoute = CommunauteRouteImport.update({
-  id: '/communaute',
-  path: '/communaute',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CoursesRoute = CoursesRouteImport.update({
-  id: '/courses',
-  path: '/courses',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FrigoRoute = FrigoRouteImport.update({
-  id: '/frigo',
-  path: '/frigo',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GenereesRoute = GenereesRouteImport.update({
-  id: '/generees',
-  path: '/generees',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HistoriqueRoute = HistoriqueRouteImport.update({
-  id: '/historique',
-  path: '/historique',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OnboardingRoute = OnboardingRouteImport.update({
@@ -69,24 +49,9 @@ const OnboardingRoute = OnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ParametresRoute = ParametresRouteImport.update({
-  id: '/parametres',
-  path: '/parametres',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PlanningRoute = PlanningRouteImport.update({
-  id: '/planning',
-  path: '/planning',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RecettesRoute = RecettesRouteImport.update({
-  id: '/recettes',
-  path: '/recettes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -94,30 +59,71 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
   path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
-const StatsRoute = StatsRouteImport.update({
-  id: '/stats',
-  path: '/stats',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedCommunauteRoute = AuthenticatedCommunauteRouteImport.update({
+  id: '/communaute',
+  path: '/communaute',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCoursesRoute = AuthenticatedCoursesRouteImport.update({
+  id: '/courses',
+  path: '/courses',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedFrigoRoute = AuthenticatedFrigoRouteImport.update({
+  id: '/frigo',
+  path: '/frigo',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedGenereesRoute = AuthenticatedGenereesRouteImport.update({
+  id: '/generees',
+  path: '/generees',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedHistoriqueRoute = AuthenticatedHistoriqueRouteImport.update({
+  id: '/historique',
+  path: '/historique',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedParametresRoute = AuthenticatedParametresRouteImport.update({
+  id: '/parametres',
+  path: '/parametres',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPlanningRoute = AuthenticatedPlanningRouteImport.update({
+  id: '/planning',
+  path: '/planning',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedRecettesRoute = AuthenticatedRecettesRouteImport.update({
+  id: '/recettes',
+  path: '/recettes',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedStatsRoute = AuthenticatedStatsRouteImport.update({
+  id: '/stats',
+  path: '/stats',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const ApiTranscribeRoute = ApiTranscribeRouteImport.update({
   id: '/api/transcribe',
   path: '/api/transcribe',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CheckoutReturnRoute = CheckoutReturnRouteImport.update({
-  id: '/checkout/return',
-  path: '/checkout/return',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RecetteIdRoute = RecetteIdRouteImport.update({
+const AuthenticatedCheckoutReturnRoute =
+  AuthenticatedCheckoutReturnRouteImport.update({
+    id: '/checkout/return',
+    path: '/checkout/return',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedRecetteIdRoute = AuthenticatedRecetteIdRouteImport.update({
   id: '/recette/$id',
   path: '/recette/$id',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const ApiPublicPaymentsWebhookRoute =
   ApiPublicPaymentsWebhookRouteImport.update({
@@ -129,65 +135,66 @@ const ApiPublicPaymentsWebhookRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/communaute': typeof CommunauteRoute
-  '/courses': typeof CoursesRoute
-  '/frigo': typeof FrigoRoute
-  '/generees': typeof GenereesRoute
-  '/historique': typeof HistoriqueRoute
   '/onboarding': typeof OnboardingRoute
-  '/parametres': typeof ParametresRoute
-  '/planning': typeof PlanningRoute
   '/privacy': typeof PrivacyRoute
-  '/recettes': typeof RecettesRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/stats': typeof StatsRoute
   '/terms': typeof TermsRoute
+  '/communaute': typeof AuthenticatedCommunauteRoute
+  '/courses': typeof AuthenticatedCoursesRoute
+  '/frigo': typeof AuthenticatedFrigoRoute
+  '/generees': typeof AuthenticatedGenereesRoute
+  '/historique': typeof AuthenticatedHistoriqueRoute
+  '/parametres': typeof AuthenticatedParametresRoute
+  '/planning': typeof AuthenticatedPlanningRoute
+  '/recettes': typeof AuthenticatedRecettesRoute
+  '/stats': typeof AuthenticatedStatsRoute
   '/api/transcribe': typeof ApiTranscribeRoute
-  '/checkout/return': typeof CheckoutReturnRoute
-  '/recette/$id': typeof RecetteIdRoute
+  '/checkout/return': typeof AuthenticatedCheckoutReturnRoute
+  '/recette/$id': typeof AuthenticatedRecetteIdRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/communaute': typeof CommunauteRoute
-  '/courses': typeof CoursesRoute
-  '/frigo': typeof FrigoRoute
-  '/generees': typeof GenereesRoute
-  '/historique': typeof HistoriqueRoute
   '/onboarding': typeof OnboardingRoute
-  '/parametres': typeof ParametresRoute
-  '/planning': typeof PlanningRoute
   '/privacy': typeof PrivacyRoute
-  '/recettes': typeof RecettesRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/stats': typeof StatsRoute
   '/terms': typeof TermsRoute
+  '/communaute': typeof AuthenticatedCommunauteRoute
+  '/courses': typeof AuthenticatedCoursesRoute
+  '/frigo': typeof AuthenticatedFrigoRoute
+  '/generees': typeof AuthenticatedGenereesRoute
+  '/historique': typeof AuthenticatedHistoriqueRoute
+  '/parametres': typeof AuthenticatedParametresRoute
+  '/planning': typeof AuthenticatedPlanningRoute
+  '/recettes': typeof AuthenticatedRecettesRoute
+  '/stats': typeof AuthenticatedStatsRoute
   '/api/transcribe': typeof ApiTranscribeRoute
-  '/checkout/return': typeof CheckoutReturnRoute
-  '/recette/$id': typeof RecetteIdRoute
+  '/checkout/return': typeof AuthenticatedCheckoutReturnRoute
+  '/recette/$id': typeof AuthenticatedRecetteIdRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
-  '/communaute': typeof CommunauteRoute
-  '/courses': typeof CoursesRoute
-  '/frigo': typeof FrigoRoute
-  '/generees': typeof GenereesRoute
-  '/historique': typeof HistoriqueRoute
   '/onboarding': typeof OnboardingRoute
-  '/parametres': typeof ParametresRoute
-  '/planning': typeof PlanningRoute
   '/privacy': typeof PrivacyRoute
-  '/recettes': typeof RecettesRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/stats': typeof StatsRoute
   '/terms': typeof TermsRoute
+  '/_authenticated/communaute': typeof AuthenticatedCommunauteRoute
+  '/_authenticated/courses': typeof AuthenticatedCoursesRoute
+  '/_authenticated/frigo': typeof AuthenticatedFrigoRoute
+  '/_authenticated/generees': typeof AuthenticatedGenereesRoute
+  '/_authenticated/historique': typeof AuthenticatedHistoriqueRoute
+  '/_authenticated/parametres': typeof AuthenticatedParametresRoute
+  '/_authenticated/planning': typeof AuthenticatedPlanningRoute
+  '/_authenticated/recettes': typeof AuthenticatedRecettesRoute
+  '/_authenticated/stats': typeof AuthenticatedStatsRoute
   '/api/transcribe': typeof ApiTranscribeRoute
-  '/checkout/return': typeof CheckoutReturnRoute
-  '/recette/$id': typeof RecetteIdRoute
+  '/_authenticated/checkout/return': typeof AuthenticatedCheckoutReturnRoute
+  '/_authenticated/recette/$id': typeof AuthenticatedRecetteIdRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRouteTypes {
@@ -195,19 +202,19 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/onboarding'
+    | '/privacy'
+    | '/reset-password'
+    | '/terms'
     | '/communaute'
     | '/courses'
     | '/frigo'
     | '/generees'
     | '/historique'
-    | '/onboarding'
     | '/parametres'
     | '/planning'
-    | '/privacy'
     | '/recettes'
-    | '/reset-password'
     | '/stats'
-    | '/terms'
     | '/api/transcribe'
     | '/checkout/return'
     | '/recette/$id'
@@ -216,19 +223,19 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/onboarding'
+    | '/privacy'
+    | '/reset-password'
+    | '/terms'
     | '/communaute'
     | '/courses'
     | '/frigo'
     | '/generees'
     | '/historique'
-    | '/onboarding'
     | '/parametres'
     | '/planning'
-    | '/privacy'
     | '/recettes'
-    | '/reset-password'
     | '/stats'
-    | '/terms'
     | '/api/transcribe'
     | '/checkout/return'
     | '/recette/$id'
@@ -236,45 +243,36 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
     | '/auth'
-    | '/communaute'
-    | '/courses'
-    | '/frigo'
-    | '/generees'
-    | '/historique'
     | '/onboarding'
-    | '/parametres'
-    | '/planning'
     | '/privacy'
-    | '/recettes'
     | '/reset-password'
-    | '/stats'
     | '/terms'
+    | '/_authenticated/communaute'
+    | '/_authenticated/courses'
+    | '/_authenticated/frigo'
+    | '/_authenticated/generees'
+    | '/_authenticated/historique'
+    | '/_authenticated/parametres'
+    | '/_authenticated/planning'
+    | '/_authenticated/recettes'
+    | '/_authenticated/stats'
     | '/api/transcribe'
-    | '/checkout/return'
-    | '/recette/$id'
+    | '/_authenticated/checkout/return'
+    | '/_authenticated/recette/$id'
     | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
-  CommunauteRoute: typeof CommunauteRoute
-  CoursesRoute: typeof CoursesRoute
-  FrigoRoute: typeof FrigoRoute
-  GenereesRoute: typeof GenereesRoute
-  HistoriqueRoute: typeof HistoriqueRoute
   OnboardingRoute: typeof OnboardingRoute
-  ParametresRoute: typeof ParametresRoute
-  PlanningRoute: typeof PlanningRoute
   PrivacyRoute: typeof PrivacyRoute
-  RecettesRoute: typeof RecettesRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
-  StatsRoute: typeof StatsRoute
   TermsRoute: typeof TermsRoute
   ApiTranscribeRoute: typeof ApiTranscribeRoute
-  CheckoutReturnRoute: typeof CheckoutReturnRoute
-  RecetteIdRoute: typeof RecetteIdRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
@@ -287,46 +285,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/communaute': {
-      id: '/communaute'
-      path: '/communaute'
-      fullPath: '/communaute'
-      preLoaderRoute: typeof CommunauteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/courses': {
-      id: '/courses'
-      path: '/courses'
-      fullPath: '/courses'
-      preLoaderRoute: typeof CoursesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/frigo': {
-      id: '/frigo'
-      path: '/frigo'
-      fullPath: '/frigo'
-      preLoaderRoute: typeof FrigoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/generees': {
-      id: '/generees'
-      path: '/generees'
-      fullPath: '/generees'
-      preLoaderRoute: typeof GenereesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/historique': {
-      id: '/historique'
-      path: '/historique'
-      fullPath: '/historique'
-      preLoaderRoute: typeof HistoriqueRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/onboarding': {
@@ -336,32 +306,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/parametres': {
-      id: '/parametres'
-      path: '/parametres'
-      fullPath: '/parametres'
-      preLoaderRoute: typeof ParametresRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/planning': {
-      id: '/planning'
-      path: '/planning'
-      fullPath: '/planning'
-      preLoaderRoute: typeof PlanningRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/privacy': {
       id: '/privacy'
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/recettes': {
-      id: '/recettes'
-      path: '/recettes'
-      fullPath: '/recettes'
-      preLoaderRoute: typeof RecettesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reset-password': {
@@ -371,19 +320,75 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/stats': {
-      id: '/stats'
-      path: '/stats'
-      fullPath: '/stats'
-      preLoaderRoute: typeof StatsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/terms': {
       id: '/terms'
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/communaute': {
+      id: '/_authenticated/communaute'
+      path: '/communaute'
+      fullPath: '/communaute'
+      preLoaderRoute: typeof AuthenticatedCommunauteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/courses': {
+      id: '/_authenticated/courses'
+      path: '/courses'
+      fullPath: '/courses'
+      preLoaderRoute: typeof AuthenticatedCoursesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/frigo': {
+      id: '/_authenticated/frigo'
+      path: '/frigo'
+      fullPath: '/frigo'
+      preLoaderRoute: typeof AuthenticatedFrigoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/generees': {
+      id: '/_authenticated/generees'
+      path: '/generees'
+      fullPath: '/generees'
+      preLoaderRoute: typeof AuthenticatedGenereesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/historique': {
+      id: '/_authenticated/historique'
+      path: '/historique'
+      fullPath: '/historique'
+      preLoaderRoute: typeof AuthenticatedHistoriqueRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/parametres': {
+      id: '/_authenticated/parametres'
+      path: '/parametres'
+      fullPath: '/parametres'
+      preLoaderRoute: typeof AuthenticatedParametresRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/planning': {
+      id: '/_authenticated/planning'
+      path: '/planning'
+      fullPath: '/planning'
+      preLoaderRoute: typeof AuthenticatedPlanningRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/recettes': {
+      id: '/_authenticated/recettes'
+      path: '/recettes'
+      fullPath: '/recettes'
+      preLoaderRoute: typeof AuthenticatedRecettesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/stats': {
+      id: '/_authenticated/stats'
+      path: '/stats'
+      fullPath: '/stats'
+      preLoaderRoute: typeof AuthenticatedStatsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/api/transcribe': {
       id: '/api/transcribe'
@@ -392,19 +397,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiTranscribeRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/checkout/return': {
-      id: '/checkout/return'
+    '/_authenticated/checkout/return': {
+      id: '/_authenticated/checkout/return'
       path: '/checkout/return'
       fullPath: '/checkout/return'
-      preLoaderRoute: typeof CheckoutReturnRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedCheckoutReturnRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/recette/$id': {
-      id: '/recette/$id'
+    '/_authenticated/recette/$id': {
+      id: '/_authenticated/recette/$id'
       path: '/recette/$id'
       fullPath: '/recette/$id'
-      preLoaderRoute: typeof RecetteIdRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedRecetteIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/api/public/payments/webhook': {
       id: '/api/public/payments/webhook'
@@ -416,25 +421,46 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedCommunauteRoute: typeof AuthenticatedCommunauteRoute
+  AuthenticatedCoursesRoute: typeof AuthenticatedCoursesRoute
+  AuthenticatedFrigoRoute: typeof AuthenticatedFrigoRoute
+  AuthenticatedGenereesRoute: typeof AuthenticatedGenereesRoute
+  AuthenticatedHistoriqueRoute: typeof AuthenticatedHistoriqueRoute
+  AuthenticatedParametresRoute: typeof AuthenticatedParametresRoute
+  AuthenticatedPlanningRoute: typeof AuthenticatedPlanningRoute
+  AuthenticatedRecettesRoute: typeof AuthenticatedRecettesRoute
+  AuthenticatedStatsRoute: typeof AuthenticatedStatsRoute
+  AuthenticatedCheckoutReturnRoute: typeof AuthenticatedCheckoutReturnRoute
+  AuthenticatedRecetteIdRoute: typeof AuthenticatedRecetteIdRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedCommunauteRoute: AuthenticatedCommunauteRoute,
+  AuthenticatedCoursesRoute: AuthenticatedCoursesRoute,
+  AuthenticatedFrigoRoute: AuthenticatedFrigoRoute,
+  AuthenticatedGenereesRoute: AuthenticatedGenereesRoute,
+  AuthenticatedHistoriqueRoute: AuthenticatedHistoriqueRoute,
+  AuthenticatedParametresRoute: AuthenticatedParametresRoute,
+  AuthenticatedPlanningRoute: AuthenticatedPlanningRoute,
+  AuthenticatedRecettesRoute: AuthenticatedRecettesRoute,
+  AuthenticatedStatsRoute: AuthenticatedStatsRoute,
+  AuthenticatedCheckoutReturnRoute: AuthenticatedCheckoutReturnRoute,
+  AuthenticatedRecetteIdRoute: AuthenticatedRecetteIdRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
-  CommunauteRoute: CommunauteRoute,
-  CoursesRoute: CoursesRoute,
-  FrigoRoute: FrigoRoute,
-  GenereesRoute: GenereesRoute,
-  HistoriqueRoute: HistoriqueRoute,
   OnboardingRoute: OnboardingRoute,
-  ParametresRoute: ParametresRoute,
-  PlanningRoute: PlanningRoute,
   PrivacyRoute: PrivacyRoute,
-  RecettesRoute: RecettesRoute,
   ResetPasswordRoute: ResetPasswordRoute,
-  StatsRoute: StatsRoute,
   TermsRoute: TermsRoute,
   ApiTranscribeRoute: ApiTranscribeRoute,
-  CheckoutReturnRoute: CheckoutReturnRoute,
-  RecetteIdRoute: RecetteIdRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport
