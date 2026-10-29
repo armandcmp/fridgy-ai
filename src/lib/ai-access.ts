@@ -3,7 +3,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { hasPro, nextFreeAt } from "@/lib/billing-rules";
 
 export function serverPaymentEnv(): "sandbox" | "live" {
-  const token = process.env.VITE_PAYMENTS_CLIENT_TOKEN;
+  const token = import.meta.env.VITE_PAYMENTS_CLIENT_TOKEN;
   if (token?.startsWith("pk_test_")) return "sandbox";
   if (token?.startsWith("pk_live_")) return "live";
   throw new Error("Payments configuration unavailable");
@@ -28,10 +28,14 @@ export const reserveAIGeneration = createMiddleware({ type: "function" }).middle
   if (error) throw new Error(error.message);
   const result = data as { allowed?: boolean; premium?: boolean; next_at?: string } | null;
   if (!result?.allowed) throw new Error(result?.next_at ? `FREE_LIMIT:${result.next_at}` : "Generation already in progress");
-  let success = false;
-  try { const response = await next(); success = true; return response; }
-  finally {
-    const { error: finishError } = await supabaseAdmin.rpc("finish_generation", { p_user: context.userId, p_env: context.environment, p_reservation: reservation, p_success: success, p_premium: result.premium ?? false });
+  const finish = async (success: boolean) => {
+    const { data: completed, error: finishError } = await supabaseAdmin.rpc("finalize_generation", { p_user: context.userId, p_env: context.environment, p_reservation: reservation, p_success: success, p_premium: result.premium ?? false });
     if (finishError) throw new Error(finishError.message);
-  }
+    if (success && !completed) throw new Error("Generation reservation expired");
+  };
+  let response;
+  try { response = await next(); }
+  catch (error) { try { await finish(false); } catch { console.error("Generation release failed"); } throw error; }
+  await finish(true);
+  return response;
 });
