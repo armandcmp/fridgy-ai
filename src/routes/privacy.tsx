@@ -27,7 +27,7 @@ function PrivacyPage() {
         Politique de confidentialité
       </h1>
       <p className="mt-1 text-[12px] text-muted-foreground">
-        Dernière mise à jour : 30 juin 2026
+        Dernière mise à jour : 29 octobre 2026
       </p>
 
       <div className="prose mt-6 space-y-5 text-[14px] leading-relaxed text-foreground">
@@ -43,7 +43,7 @@ function PrivacyPage() {
             <li>Préférences alimentaires, programme nutritionnel et objectifs.</li>
             <li>Historique des recettes générées, planning, listes de courses et favoris.</li>
             <li>
-              Données techniques : journal d'erreurs, identifiant d'appareil (notifications push).
+              Données techniques : journal d'erreurs, identifiants nécessaires à la sécurité du compte.
             </li>
           </ul>
         </Section>
@@ -57,25 +57,25 @@ function PrivacyPage() {
 
         <Section title="4. Finalités">
           Génération de recettes personnalisées, suivi nutritionnel, synchronisation multi-appareils,
-          notifications, support client et amélioration du service.
+          support client et amélioration du service.
         </Section>
 
         <Section title="5. Base légale (RGPD)">
-          Exécution du contrat (compte, recettes), consentement (notifications, micro, caméra),
+          Exécution du contrat (compte, recettes), consentement (micro, caméra),
           intérêt légitime (sécurité et amélioration).
         </Section>
 
         <Section title="6. Sous-traitants">
           <ul className="ml-5 list-disc space-y-1">
-            <li>Hébergement & base de données : Supabase (UE).</li>
-            <li>IA : Anthropic, OpenAI (transcription, vision).</li>
-            <li>Notifications push : OneSignal.</li>
+            <li>Hébergement & base de données : Lovable Cloud.</li>
+            <li>IA : services IA via Lovable (recettes, transcription, vision).</li>
+            <li>Paiement et facturation : Stripe.</li>
           </ul>
         </Section>
 
         <Section title="7. Conservation">
           Vos données sont conservées tant que votre compte est actif. Vous pouvez le supprimer
-          à tout moment depuis Paramètres → Réinitialiser, ou nous écrire.
+          à tout moment depuis Paramètres → Supprimer mon compte, ou nous écrire.
         </Section>
 
         <Section title="8. Vos droits">

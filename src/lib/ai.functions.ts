@@ -28,6 +28,7 @@ async function callAI(body: Record<string, unknown>): Promise<string> {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ model: MODEL, ...body }),
+    signal: AbortSignal.timeout(80000),
   });
   if (!resp.ok) {
     if (resp.status === 429) throw new Error("Limite atteinte, réessayez plus tard.");
@@ -443,6 +444,7 @@ Vise précisément ~${target} kcal par recette (tolérance ±20 %). Force 3 ingr
       pourquoiAdapte: r.pourquoi_adapte,
     }));
 
+    if (!recettes.length) throw new Error("No valid recipes generated");
     return { recettes };
   });
 

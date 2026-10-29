@@ -483,5 +483,12 @@
   "account.accept": "J’accepte les",
   "account.terms": "conditions d’utilisation",
   "account.privacy": "politique de confidentialité",
-  "account.legalSummary": "Essai de 7 jours, abonnements et annulation à tout moment."
+  "account.legalSummary": "Essai de 7 jours, abonnements et annulation à tout moment.",
+  "account.minimum": "Au moins 6 caractères",
+  "account.passwordSaved": "Mot de passe mis à jour !",
+  "account.choosePassword": "Choisissez un nouveau mot de passe",
+  "account.expiredLink": "Lien invalide ou expiré. Demandez un nouveau lien depuis la connexion.",
+  "account.checkLink": "Vérification du lien…",
+  "account.update": "Mettre à jour",
+  "account.newPassword": "Nouveau mot de passe"
 }

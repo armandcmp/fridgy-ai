@@ -10,7 +10,7 @@ import { getLanguage } from "@/lib/i18n";
 import { useLocalReactive } from "@/lib/hooks";
 import type { Recipe } from "@/lib/types";
 
-export const Route = createFileRoute("/courses")({
+export const Route = createFileRoute("/_authenticated/courses")({
   head: () => ({ meta: [{ title: "Liste de courses — Fridgy" }, { name: "description", content: "Fridgy : liste de courses." }, { property: "og:title", content: "Liste de courses — Fridgy" }, { property: "og:description", content: "Fridgy : liste de courses." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
  component: Courses,
 });

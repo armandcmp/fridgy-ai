@@ -483,5 +483,12 @@
   "account.accept": "I accept the",
   "account.terms": "terms of use",
   "account.privacy": "privacy policy",
-  "account.legalSummary": "7-day trial, subscriptions and cancellation anytime."
+  "account.legalSummary": "7-day trial, subscriptions and cancellation anytime.",
+  "account.minimum": "At least 6 characters",
+  "account.passwordSaved": "Password updated!",
+  "account.choosePassword": "Choose a new password",
+  "account.expiredLink": "Invalid or expired link. Request a new link from sign-in.",
+  "account.checkLink": "Checking your link…",
+  "account.update": "Update",
+  "account.newPassword": "New password"
 }

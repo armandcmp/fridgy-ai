@@ -27,7 +27,7 @@ function TermsPage() {
         Conditions d'utilisation
       </h1>
       <p className="mt-1 text-[12px] text-muted-foreground">
-        Dernière mise à jour : 30 juin 2026
+        Dernière mise à jour : 29 octobre 2026
       </p>
 
       <div className="mt-6 space-y-5 text-[14px] leading-relaxed text-foreground">
@@ -48,16 +48,16 @@ function TermsPage() {
 
         <Section title="4. Abonnement Fridgy Pro">
           <ul className="ml-5 list-disc space-y-1">
-            <li>Essai gratuit de 14 jours, sans engagement.</li>
-            <li>Mensuel : 3,89 €/mois — Annuel : 35,88 €/an (au lieu de 46,68 €).</li>
+            <li>Essai gratuit de 7 jours, une seule fois.</li>
+            <li>Mensuel : 3,89 €/mois TTC — Annuel : 35,88 €/an TTC (au lieu de 46,68 €).</li>
             <li>
-              Renouvellement automatique à la fin de chaque période, sauf résiliation au moins
-              24 h avant l'échéance.
+              Renouvellement automatique à la fin de chaque période, sauf résiliation avant l’échéance.
             </li>
             <li>
               Résiliation à tout moment dans Paramètres → Abonnement. L'accès Pro reste actif
               jusqu'à la fin de la période payée.
             </li>
+            <li>Sans Pro, une génération gratuite toutes les 72 heures. Les changements mensuel/annuel prennent effet à l’échéance.</li>
             <li>Aucun remboursement au prorata, sauf obligation légale.</li>
           </ul>
         </Section>
