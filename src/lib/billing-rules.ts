@@ -7,7 +7,7 @@ export const CATALOG = {
 export type PriceKey = keyof typeof CATALOG;
 export type SubscriptionAccess = { status: string; current_period_end: string | null; ended_at?: string | null; price_id?: string };
 export function hasPro(row: SubscriptionAccess | null, now = Date.now()): boolean {
-  if (!row || row.ended_at || (row.price_id && !(row.price_id in CATALOG))) return false;
+  if (!row || row.ended_at || !row.price_id || !Object.hasOwn(CATALOG, row.price_id)) return false;
   const end = row.current_period_end ? Date.parse(row.current_period_end) : null;
   if (end !== null && (!Number.isFinite(end) || end <= now)) return false;
   if (["active", "trialing", "past_due"].includes(row.status)) return true;

@@ -2,3 +2,5 @@
 - Billing rules are centralized in a browser-safe module; authenticated server middleware and atomic usage RPCs enforce access because browser storage is display-only.
 - Legacy personal storage keys form an active-account working set; archive by authenticated user and sync owner-scoped cloud payloads to prevent cross-account data exposure.
 - Stripe checkout uses durable per-user/environment locks and customer mappings; webhook reconciliation reads authoritative Stripe state before writing subscription entitlement.
+- Personal content routes use the client-only authenticated layout; public onboarding and account-recovery routes stay outside it to allow signed-out access.
+- Account payload writes use revision comparisons and preserve dirty local edits on conflicts, so cloud reads cannot silently discard pending changes.
