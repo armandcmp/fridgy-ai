@@ -97,21 +97,24 @@ export const createPortalSession = createServerFn({ method: "POST" }).middleware
   .inputValidator(z.object({ returnUrl: z.string().url(), environment: envSchema })).handler(async ({ data, context }): Promise<{ url: string } | { error: string }> => {
     try {
       const returnUrl = approvedReturnUrl(data.returnUrl, getRequest().url);
-      const { data: account, error } = await context.supabase.from("billing_accounts").select("customer_id").eq("user_id", context.userId).eq("environment", data.environment).maybeSingle();
+      const { data: account, error } = await context.supabase.from("billing_accounts").select("customer_id,deleting").eq("user_id", context.userId).eq("environment", data.environment).maybeSingle();
       if (error) throw new Error(error.message);
+      if (account?.deleting) throw new Error("Account deletion in progress");
       const { data: rows, error: rowError } = await context.supabase.from("subscriptions").select("stripe_customer_id").eq("user_id", context.userId).eq("environment", data.environment).limit(1);
       if (rowError) throw new Error(rowError.message);
       const customer = account?.customer_id ?? rows?.[0]?.stripe_customer_id;
       if (!customer) throw new Error("No billing account found");
       const stripe = createStripeClient(data.environment);
-      let configuration = (await stripe.billingPortal.configurations.list({ active: true, limit: 1 })).data[0];
-      if (!configuration) configuration = await stripe.billingPortal.configurations.create({ business_profile: { headline: "Fridgy Pro" }, features: { customer_update: { enabled: true, allowed_updates: ["email", "address"] }, invoice_history: { enabled: true }, payment_method_update: { enabled: true }, subscription_cancel: { enabled: true, mode: "at_period_end" } } });
+      let configuration = (await stripe.billingPortal.configurations.list({ active: true, limit: 100 })).data.find(c => c.metadata?.app === "fridgy");
+      if (!configuration) configuration = await stripe.billingPortal.configurations.create({ metadata: { app: "fridgy" }, business_profile: { headline: "Fridgy Pro" }, features: { customer_update: { enabled: true, allowed_updates: ["email", "address"] }, invoice_history: { enabled: true }, payment_method_update: { enabled: true }, subscription_cancel: { enabled: true, mode: "at_period_end" } } });
       return { url: (await stripe.billingPortal.sessions.create({ customer, configuration: configuration.id, return_url: returnUrl })).url };
     } catch (e) { return { error: getStripeErrorMessage(e) }; }
   });
 export const changeBillingCycle = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth])
   .inputValidator(z.object({ environment: envSchema, priceId: priceSchema.nullable() })).handler(async ({ data, context }) => {
     try {
+      const { data: billing, error: billingError } = await context.supabase.from("billing_accounts").select("deleting").eq("user_id", context.userId).eq("environment", data.environment).maybeSingle();
+      if (billingError || billing?.deleting) throw new Error(billingError?.message ?? "Account deletion in progress");
       const { data: row, error } = await context.supabase.from("subscriptions").select("stripe_subscription_id").eq("user_id", context.userId).eq("environment", data.environment).in("status", ["active", "trialing", "past_due"]).order("created_at", { ascending: false }).limit(1).single();
       if (error) throw new Error(error.message);
       const stripe = createStripeClient(data.environment);

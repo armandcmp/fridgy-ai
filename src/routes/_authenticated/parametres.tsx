@@ -57,11 +57,12 @@ function Settings() {
  const removeAccount = useServerFn(deleteAccount);
  const [hasBilling, setHasBilling] = useState(false);
  const [billingBusy, setBillingBusy] = useState(false);
+ const [nextCycleDate, setNextCycleDate] = useState<string | null>(null);
  const [pastDue, setPastDue] = useState(false);
  useEffect(() => { let alive = true; void loadBilling({ data: { environment: getStripeEnvironment() } }).then(r => { if (!alive) return; if ("error" in r) toast.error(r.error); else { setHasBilling(r.hasCustomer); setPastDue(r.rows.some(row => row.status === "past_due")); } }); return () => { alive = false; }; }, []);
  const scheduleCycle = async (priceId: "pro_monthly" | "pro_yearly" | null) => {
    setBillingBusy(true);
-   try { const r = await changeCycle({ data: { environment: getStripeEnvironment(), priceId } }); if ("error" in r) throw new Error(r.error); toast.success(r.effectiveAt ? t("billing.scheduled", { date: new Date(r.effectiveAt).toLocaleDateString() }) : t("billing.removeSwitch")); } catch(e) { toast.error(String(e)); } finally { setBillingBusy(false); }
+   try { const r = await changeCycle({ data: { environment: getStripeEnvironment(), priceId } }); if ("error" in r) throw new Error(r.error); setNextCycleDate(r.effectiveAt); toast.success(r.effectiveAt ? t("billing.scheduled", { date: new Date(r.effectiveAt).toLocaleDateString() }) : t("billing.removeSwitch")); } catch(e) { toast.error(String(e)); } finally { setBillingBusy(false); }
  };
  useEffect(() => setMounted(true), []);
 
@@ -433,6 +434,7 @@ function Settings() {
 
 
  {pastDue && <p role="alert" className="mb-3 text-sm text-destructive">{t("billing.pastDue")}</p>}
+ {nextCycleDate && <p className="mb-3 text-sm text-muted-foreground">{t("billing.scheduled", { date: new Date(nextCycleDate).toLocaleDateString(getLanguage() === "fr" ? "fr-FR" : "en-GB") })}</p>}
  {hasBilling && <div className="mb-5 flex flex-col gap-2">
  <Button variant="outline" disabled={billingBusy} onClick={async () => {
  const tab = window.open("about:blank", "_blank"); if (tab) tab.opener = null;
@@ -445,7 +447,7 @@ function Settings() {
  <Button variant="destructive" disabled={billingBusy} className="w-full" onClick={async () => {
  if (window.prompt(t("billing.deleteConfirm")) !== "DELETE") return;
  const owner = currentOwner(); setBillingBusy(true);
- try { const r = await removeAccount({ data: { confirmation: "DELETE" } }); if ("error" in r) throw new Error(r.error); activateAccount(null); if (owner) localStorage.removeItem(`fridgy_cache:${owner}`); const { supabase } = await import("@/integrations/supabase/client"); await supabase.auth.signOut(); nav({ to: "/auth" }); } catch(e) { toast.error(String(e)); } finally { setBillingBusy(false); }
+ try { const r = await removeAccount({ data: { confirmation: "DELETE" } }); if ("error" in r) throw new Error(r.error); activateAccount(null); if (owner) { localStorage.removeItem(`fridgy_cache:${owner}`); localStorage.removeItem(`fridgy_sync:${owner}`); } const { supabase } = await import("@/integrations/supabase/client"); await supabase.auth.signOut(); nav({ to: "/auth" }); } catch(e) { toast.error(String(e)); } finally { setBillingBusy(false); }
  }}>{t("billing.delete")}</Button>
 
  {/* LOGOUT */}
