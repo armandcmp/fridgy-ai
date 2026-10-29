@@ -22,7 +22,7 @@ async function resolveOrCreateCustomer(stripe: ReturnType<typeof createStripeCli
       return customer.id;
     }
   }
-  return (await stripe.customers.create({ ...(options.email && { email: options.email }), ...(options.userId && { metadata: { userId: options.userId } }) })).id;
+  return (await stripe.customers.create({ ...(options.email && { email: options.email }), ...(options.userId && { metadata: { userId: options.userId } }) }, { idempotencyKey: `customer:${options.userId}` })).id;
 }
 async function priceFor(stripe: ReturnType<typeof createStripeClient>, key: keyof typeof CATALOG) {
   const price = (await stripe.prices.list({ lookup_keys: [key], active: true, limit: 1 })).data[0];
@@ -34,12 +34,13 @@ export const createCheckoutSession = createServerFn({ method: "POST" }).middlewa
   .inputValidator(z.object({ priceId: priceSchema, returnUrl: z.string().url(), environment: envSchema, language: z.enum(["fr", "en"]).optional() }))
   .handler(async ({ data, context }): Promise<{ clientSecret: string } | { error: string }> => {
     let locked = false;
+    const operation = crypto.randomUUID();
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     try {
       const returnUrl = approvedReturnUrl(data.returnUrl, getRequest().url, true);
       const { data: got, error: authError } = await context.supabase.auth.getUser();
       if (authError || !got.user) throw new Error("Sign in required");
-      const { data: lock, error: lockError } = await supabaseAdmin.rpc("lock_checkout", { p_user: context.userId, p_env: data.environment });
+      const { data: lock, error: lockError } = await supabaseAdmin.rpc("claim_billing_operation", { p_user: context.userId, p_env: data.environment, p_token: operation });
       if (lockError) throw new Error(lockError.message);
       if (!lock) throw new Error("Checkout already in progress. Please retry shortly.");
       locked = true;
@@ -52,7 +53,10 @@ export const createCheckoutSession = createServerFn({ method: "POST" }).middlewa
         if (prior.status === "open") await stripe.checkout.sessions.expire(prior.id);
       }
       const customer = account.customer_id ?? await resolveOrCreateCustomer(stripe, { userId: context.userId, email: got.user.email });
+      const { error: customerError } = await supabaseAdmin.from("billing_accounts").update({ customer_id: customer }).eq("user_id", context.userId).eq("environment", data.environment).eq("checkout_lock_token", operation);
+      if (customerError) throw new Error(customerError.message);
       const history = await stripe.subscriptions.list({ customer, status: "all", limit: 100 });
+      if (history.has_more) throw new Error("Billing history must be reconciled before checkout");
       if (history.data.some(s => !["canceled", "incomplete_expired"].includes(s.status))) throw new Error("You already have a subscription. Manage it in Settings.");
       const { count, error: historyError } = await context.supabase.from("subscriptions").select("id", { head: true, count: "exact" }).eq("user_id", context.userId).eq("environment", data.environment);
       if (historyError) throw new Error(historyError.message);
@@ -63,13 +67,13 @@ export const createCheckoutSession = createServerFn({ method: "POST" }).middlewa
         metadata: { userId: context.userId, priceId: data.priceId, managed_payments: "true" },
         subscription_data: { metadata: { userId: context.userId }, ...(trial && { trial_period_days: TRIAL_DAYS }) },
         managed_payments: { enabled: true },
-      } as Stripe.Checkout.SessionCreateParams);
-      const { error: saveError } = await supabaseAdmin.from("billing_accounts").update({ customer_id: customer, checkout_session_id: session.id }).eq("user_id", context.userId).eq("environment", data.environment);
-      if (saveError) { await stripe.checkout.sessions.expire(session.id); throw new Error(saveError.message); }
+      } as Stripe.Checkout.SessionCreateParams, { idempotencyKey: `checkout:${context.userId}:${data.priceId}:${account.checkout_session_id ?? "initial"}` });
+      const { data: saved, error: saveError } = await supabaseAdmin.from("billing_accounts").update({ customer_id: customer, checkout_session_id: session.id }).eq("user_id", context.userId).eq("environment", data.environment).eq("checkout_lock_token", operation).eq("deleting", false).select("user_id");
+      if (saveError || !saved?.length) { await stripe.checkout.sessions.expire(session.id); throw new Error(saveError?.message ?? "Checkout operation expired"); }
       if (!session.client_secret) throw new Error("Stripe returned no checkout secret");
       return { clientSecret: session.client_secret };
     } catch (e) { return { error: getStripeErrorMessage(e) }; }
-    finally { if (locked) await supabaseAdmin.from("billing_accounts").update({ checkout_lock_until: null }).eq("user_id", context.userId).eq("environment", data.environment); }
+    finally { if (locked) await supabaseAdmin.from("billing_accounts").update({ checkout_lock_until: null, checkout_lock_token: null }).eq("user_id", context.userId).eq("environment", data.environment).eq("checkout_lock_token", operation); }
   });
 export const getBillingState = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth])
   .inputValidator(z.object({ environment: envSchema })).handler(async ({ data, context }) => {
@@ -113,7 +117,9 @@ export const changeBillingCycle = createServerFn({ method: "POST" }).middleware(
       const stripe = createStripeClient(data.environment);
       const sub = await stripe.subscriptions.retrieve(row.stripe_subscription_id);
       if (sub.metadata.userId !== context.userId || sub.cancel_at_period_end) throw new Error("Subscription is unavailable or scheduled to cancel");
+      if (!["active", "trialing", "past_due"].includes(sub.status) || sub.items.data.length !== 1 || sub.items.data[0]?.quantity !== 1) throw new Error("Unsupported subscription configuration");
       const existing = typeof sub.schedule === "string" ? sub.schedule : sub.schedule?.id;
+      if (existing) { const owned = await stripe.subscriptionSchedules.retrieve(existing); if (owned.metadata.userId !== context.userId || owned.metadata.app !== "fridgy") throw new Error("This schedule cannot be changed here"); }
       if (!data.priceId) { if (existing) await stripe.subscriptionSchedules.release(existing); return { effectiveAt: null }; }
       const item = sub.items.data[0];
       if (!item || !item.current_period_end) throw new Error("Subscription period unavailable");
@@ -123,7 +129,7 @@ export const changeBillingCycle = createServerFn({ method: "POST" }).middleware(
       await stripe.subscriptionSchedules.update(schedule.id, { end_behavior: "release", proration_behavior: "none", phases: [
         { start_date: schedule.current_phase?.start_date ?? item.current_period_start, end_date: item.current_period_end, items: [{ price: item.price.id, quantity: 1 }], ...(sub.trial_end && sub.trial_end > Date.now()/1000 ? { trial_end: sub.trial_end } : {}) },
         { start_date: item.current_period_end, items: [{ price: target.id, quantity: 1 }], proration_behavior: "none", metadata: { userId: context.userId } },
-      ], metadata: { userId: context.userId, nextPrice: data.priceId } });
+      ], metadata: { userId: context.userId, nextPrice: data.priceId, app: "fridgy" } });
       return { effectiveAt: new Date(item.current_period_end * 1000).toISOString() };
     } catch (e) { return { error: getStripeErrorMessage(e) }; }
   });
@@ -131,16 +137,25 @@ export const deleteAccount = createServerFn({ method: "POST" }).middleware([requ
   .inputValidator(z.object({ confirmation: z.literal("DELETE") })).handler(async ({ context }) => {
     try {
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      for (const env of ["sandbox", "live"]) {
+        const { data: account, error } = await supabaseAdmin.from("billing_accounts").select("checkout_lock_until").eq("user_id", context.userId).eq("environment", env).maybeSingle();
+        if (error) throw new Error(error.message);
+        const { error: markError } = await supabaseAdmin.from("billing_accounts").upsert({ user_id: context.userId, environment: env, deleting: true });
+        if (markError) throw new Error(markError.message);
+        if (account?.checkout_lock_until && Date.parse(account.checkout_lock_until) > Date.now()) throw new Error("A billing operation is still running. Retry deletion shortly.");
+      }
       for (const environment of ["sandbox", "live"] as StripeEnv[]) {
         const { data: rows, error } = await context.supabase.from("subscriptions").select("stripe_customer_id").eq("user_id", context.userId).eq("environment", environment);
         if (error) throw new Error(error.message);
-        const { data: account } = await context.supabase.from("billing_accounts").select("customer_id").eq("user_id", context.userId).eq("environment", environment).maybeSingle();
+        const { data: account, error: accountError } = await context.supabase.from("billing_accounts").select("customer_id").eq("user_id", context.userId).eq("environment", environment).maybeSingle();
+        if (accountError) throw new Error(accountError.message);
         const customers = new Set([account?.customer_id, ...(rows ?? []).map(r => r.stripe_customer_id)].filter((id): id is string => !!id));
         if (!customers.size) continue;
         const { error: markError } = await supabaseAdmin.from("billing_accounts").upsert({ user_id: context.userId, environment, deleting: true, customer_id: account?.customer_id ?? [...customers][0] });
         if (markError) throw new Error(markError.message);
         const stripe = createStripeClient(environment);
         for (const customer of customers) {
+          if (account?.customer_id === customer) { const { data: billing, error: billingError } = await context.supabase.from("billing_accounts").select("checkout_session_id").eq("user_id", context.userId).eq("environment", environment).maybeSingle(); if (billingError) throw new Error(billingError.message); if (billing?.checkout_session_id) { const checkout = await stripe.checkout.sessions.retrieve(billing.checkout_session_id); if (checkout.status === "open") await stripe.checkout.sessions.expire(checkout.id); } }
           const subs = await stripe.subscriptions.list({ customer, status: "all", limit: 100 });
           if (subs.has_more) throw new Error("Billing history requires additional reconciliation before deletion");
           for (const sub of subs.data) {
