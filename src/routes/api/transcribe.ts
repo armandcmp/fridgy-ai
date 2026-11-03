@@ -10,6 +10,9 @@ export const Route = createFileRoute("/api/transcribe")({
         const { data: auth, error: authError } = await supabaseAdmin.auth.getUser(token);
         if (authError || !auth.user) return Response.json({ error: "Sign in required" }, { status: 401 });
         if (Number(request.headers.get("content-length") ?? 0) > 12000000) return Response.json({ error: "Audio too large" }, { status: 413 });
+        const { data: allowed, error: limitError } = await supabaseAdmin.rpc("reserve_audio_request", { p_user: auth.user.id });
+        if (limitError) return Response.json({ error: "Audio service unavailable" }, { status: 503 });
+        if (!allowed) return Response.json({ error: "Too many recordings. Try again later." }, { status: 429 });
         const apiKey = process.env.LOVABLE_API_KEY;
         if (!apiKey) {
           return new Response(

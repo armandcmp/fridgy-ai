@@ -59,12 +59,14 @@ export const createCheckoutSession = createServerFn({ method: "POST" }).middlewa
       if (historyError) throw new Error(historyError.message);
       const trial = !account.trial_used && count === 0 && history.data.length === 0;
       const price = await priceFor(stripe, data.priceId);
+      const { data: attempt, error: attemptError } = await supabaseAdmin.rpc("begin_checkout_attempt", { p_user: context.userId, p_env: data.environment, p_token: operation, p_key: JSON.stringify([data.priceId, returnUrl, data.language ?? "fr", trial, account.checkout_session_id]) });
+      if (attemptError || !attempt) throw new Error(attemptError?.message ?? "Checkout unavailable");
       const session = await stripe.checkout.sessions.create({
         locale: data.language ?? "fr", line_items: [{ price: price.id, quantity: 1 }], mode: "subscription", ui_mode: "embedded_page", customer, return_url: returnUrl,
         metadata: { userId: context.userId, priceId: data.priceId, managed_payments: "true" },
         subscription_data: { metadata: { userId: context.userId }, ...(trial && { trial_period_days: TRIAL_DAYS }) },
         managed_payments: { enabled: true },
-      } as Stripe.Checkout.SessionCreateParams, { idempotencyKey: `checkout:${context.userId}:${data.priceId}:${account.checkout_session_id ?? "initial"}` });
+      } as Stripe.Checkout.SessionCreateParams, { idempotencyKey: `checkout:${attempt}` });
       const { data: saved, error: saveError } = await supabaseAdmin.from("billing_accounts").update({ customer_id: customer, checkout_session_id: session.id }).eq("user_id", context.userId).eq("environment", data.environment).eq("checkout_lock_token", operation).eq("deleting", false).select("user_id");
       if (saveError || !saved?.length) { await stripe.checkout.sessions.expire(session.id); throw new Error(saveError?.message ?? "Checkout operation expired"); }
       if (!session.client_secret) throw new Error("Stripe returned no checkout secret");
