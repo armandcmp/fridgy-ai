@@ -22,6 +22,13 @@
       "when": 1793168057078,
       "tag": "0002_serialize_billing_and_account_sync",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793683656606,
+      "tag": "0003_durable_checkout_and_audio_limits",
+      "breakpoints": true
     }
   ]
 }

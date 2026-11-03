@@ -17,13 +17,17 @@ async function handle(request: Request, environment: StripeEnv) {
     const stripe = createStripeClient(environment);
     const sub = await stripe.subscriptions.retrieve(id);
     const userId = sub.metadata.userId;
+    if (!userId) throw new Error("Subscription ownership unresolved");
     if (userId) {
       const { data: profile, error: profileError } = await supabaseAdmin.from("profiles").select("id").eq("id", userId).maybeSingle();
       if (profileError) throw new Error(profileError.message);
+      if (!profile) { return; }
       if (profile) {
         const item = sub.items.data[0];
         if (!item) throw new Error("Subscription has no price item");
         const customer = typeof sub.customer === "string" ? sub.customer : sub.customer.id;
+        const { data: billing, error: billingError } = await supabaseAdmin.from("billing_accounts").select("customer_id").eq("user_id", userId).eq("environment", environment).maybeSingle();
+        if (billingError || billing?.customer_id !== customer) throw new Error("Subscription customer mismatch");
         const product = typeof item.price.product === "string" ? item.price.product : item.price.product.id;
         const iso = (n: number | null | undefined) => n ? new Date(n * 1000).toISOString() : null;
         const { error } = await supabaseAdmin.rpc("commit_subscription_event", { p_event: event.id, p_env: environment, p_token: token, p_row: { user_id: userId, stripe_subscription_id: sub.id, stripe_customer_id: customer, product_id: product, price_id: item.price.lookup_key ?? item.price.metadata.lovable_external_id ?? item.price.id, status: sub.status, current_period_start: iso(item.current_period_start), current_period_end: iso(item.current_period_end), ended_at: iso(sub.ended_at), cancel_at_period_end: sub.cancel_at_period_end, environment, updated_at: new Date().toISOString() } });

@@ -20,7 +20,18 @@ export const Route = createFileRoute("/api/transcribe")({
 
         let form: FormData;
         try {
-          form = await request.formData();
+          const reader = request.body?.getReader();
+          if (!reader) return Response.json({ error: "Missing audio" }, { status: 400 });
+          const chunks: Uint8Array[] = []; let size = 0;
+          while (true) {
+            const part = await reader.read(); if (part.done) break;
+            size += part.value.byteLength;
+            if (size > 12000000) { await reader.cancel(); return Response.json({ error: "Audio too large" }, { status: 413 }); }
+            chunks.push(part.value);
+          }
+          const bytes = new Uint8Array(size); let offset = 0;
+          for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.byteLength; }
+          form = await new Response(bytes, { headers: { "content-type": request.headers.get("content-type") ?? "" } }).formData();
         } catch {
           return new Response(
             JSON.stringify({ error: "Invalid multipart body" }),
@@ -59,6 +70,7 @@ export const Route = createFileRoute("/api/transcribe")({
             method: "POST",
             headers: { Authorization: `Bearer ${apiKey}` },
             body: upstream,
+            signal: AbortSignal.timeout(60000),
           },
         );
 
