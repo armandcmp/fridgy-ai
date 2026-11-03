@@ -223,7 +223,7 @@ function Settings() {
  <p className="truncate text-xs text-muted-foreground">{sessionUser.email}</p>
  )}
  <p className="mt-1 text-[11px] font-semibold uppercase tracking-wider text-primary">
- {user.program}
+ {t(`program.${({"Prise de masse":"bulk","Sèche":"cut","Perte de poids":"loss","Maintien":"maintain"} as Record<string,string>)[user.program ?? ""] ?? user.program}`)}
  </p>
  </div>
  <input
@@ -264,7 +264,7 @@ function Settings() {
  onClick={() => setEditingProgram((v) => !v)}
  className="text-sm text-muted-foreground"
  >
- {user.program} <ChevronRight size={14} className="inline" />
+ {t(`program.${({"Prise de masse":"bulk","Sèche":"cut","Perte de poids":"loss","Maintien":"maintain"} as Record<string,string>)[user.program ?? ""] ?? user.program}`)} <ChevronRight size={14} className="inline" />
  </button>
  </Row>
  {editingProgram && (
