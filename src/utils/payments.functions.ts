@@ -11,18 +11,13 @@ async function resolveOrCreateCustomer(stripe: ReturnType<typeof createStripeCli
   if (options.userId && !/^[a-zA-Z0-9_-]+$/.test(options.userId)) throw new Error("Invalid userId");
   if (options.userId) {
     const found = await stripe.customers.search({ query: `metadata['userId']:'${options.userId}'`, limit: 1 });
-    if (found.data.length) return found.data[0].id;
-  }
-  if (options.email) {
-    const existing = await stripe.customers.list({ email: options.email, limit: 1 });
-    if (existing.data.length) {
-      const customer = existing.data[0];
-      if (customer.metadata?.userId && customer.metadata.userId !== options.userId) throw new Error("Billing customer belongs to another account");
-      if (options.userId && customer.metadata?.userId !== options.userId) await stripe.customers.update(customer.id, { metadata: { ...customer.metadata, userId: options.userId } });
-      return customer.id;
-    }
+    if (found.data.length) { if (found.data[0].metadata.userId !== options.userId) throw new Error("Billing ownership mismatch"); return found.data[0].id; }
   }
   return (await stripe.customers.create({ ...(options.email && { email: options.email }), ...(options.userId && { metadata: { userId: options.userId } }) }, { idempotencyKey: `customer:${options.userId}` })).id;
+}
+async function verifyCustomer(stripe: ReturnType<typeof createStripeClient>, id: string, userId: string) {
+  const customer = await stripe.customers.retrieve(id);
+  if (customer.deleted || customer.metadata.userId !== userId) throw new Error("Billing ownership mismatch");
 }
 async function priceFor(stripe: ReturnType<typeof createStripeClient>, key: keyof typeof CATALOG) {
   const price = (await stripe.prices.list({ lookup_keys: [key], active: true, limit: 1 })).data[0];
@@ -49,10 +44,12 @@ export const createCheckoutSession = createServerFn({ method: "POST" }).middlewa
       if (error) throw new Error(error.message);
       if (account.checkout_session_id) {
         const prior = await stripe.checkout.sessions.retrieve(account.checkout_session_id);
+        if (prior.metadata?.userId !== context.userId) throw new Error("Checkout ownership mismatch");
         if (prior.status === "open" && prior.metadata?.priceId === data.priceId && prior.client_secret) return { clientSecret: prior.client_secret };
         if (prior.status === "open") await stripe.checkout.sessions.expire(prior.id);
       }
       const customer = account.customer_id ?? await resolveOrCreateCustomer(stripe, { userId: context.userId, email: got.user.email });
+      await verifyCustomer(stripe, customer, context.userId);
       const { error: customerError } = await supabaseAdmin.from("billing_accounts").update({ customer_id: customer }).eq("user_id", context.userId).eq("environment", data.environment).eq("checkout_lock_token", operation);
       if (customerError) throw new Error(customerError.message);
       const history = await stripe.subscriptions.list({ customer, status: "all", limit: 100 });
@@ -105,6 +102,7 @@ export const createPortalSession = createServerFn({ method: "POST" }).middleware
       const customer = account?.customer_id ?? rows?.[0]?.stripe_customer_id;
       if (!customer) throw new Error("No billing account found");
       const stripe = createStripeClient(data.environment);
+      await verifyCustomer(stripe, customer, context.userId);
       let configuration = (await stripe.billingPortal.configurations.list({ active: true, limit: 100 })).data.find(c => c.metadata?.app === "fridgy");
       if (!configuration) configuration = await stripe.billingPortal.configurations.create({ metadata: { app: "fridgy" }, business_profile: { headline: "Fridgy Pro" }, features: { customer_update: { enabled: true, allowed_updates: ["email", "address"] }, invoice_history: { enabled: true }, payment_method_update: { enabled: true }, subscription_cancel: { enabled: true, mode: "at_period_end" } } });
       return { url: (await stripe.billingPortal.sessions.create({ customer, configuration: configuration.id, return_url: returnUrl })).url };

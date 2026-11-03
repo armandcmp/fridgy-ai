@@ -19,8 +19,9 @@ export function observeIdentity(id: string | null) {
   if (id !== identity) { generation++; identity = id; hydrated = null; inFlight = null; if (pushTimer) clearTimeout(pushTimer); if (dataTimer) clearTimeout(dataTimer); activateAccount(id); }
 }
 export async function hydrateFromProfile(): Promise<CurrentUser | null> {
+  const initialGeneration = generation;
   const { data } = await supabase.auth.getUser();
-  if (!data.user) return null;
+  if (!data.user || initialGeneration !== generation) return null;
   observeIdentity(data.user.id);
   if (hydrated === data.user.id) return storage.getSessionUser();
   if (inFlight) return inFlight;
@@ -85,7 +86,7 @@ async function uploadData() {
       const payload = accountPayload();
       const { data: auth } = await supabase.auth.getUser(); if (auth.user?.id !== id || generation !== version) return;
       const { data: revision, error } = await supabase.rpc("save_account_data", { p_revision: state.revision, p_payload: payload });
-      if (error) throw new Error(error.message.includes("SYNC_CONFLICT") ? "Cloud sync conflict: local changes are preserved. Reload before retrying." : error.message);
+      if (error) throw new Error(error.message.includes("SYNC_CONFLICT") ? "Cloud sync conflict: your local changes are preserved. Export your data in Settings before reconciling changes from another device." : error.message);
       const latest = syncState(id); latest.revision = revision; latest.dirty = latest.edit !== state.edit; saveState(id, latest);
     }
   } finally { uploadRunning = false; }
