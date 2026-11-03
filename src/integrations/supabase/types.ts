@@ -43,8 +43,36 @@ export type Database = {
           },
         ]
       }
+      audio_usage: {
+        Row: {
+          requests: number
+          user_id: string
+          window_start: string
+        }
+        Insert: {
+          requests?: number
+          user_id: string
+          window_start?: string
+        }
+        Update: {
+          requests?: number
+          user_id?: string
+          window_start?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audio_usage_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       billing_accounts: {
         Row: {
+          checkout_attempt_id: string | null
+          checkout_attempt_key: string | null
           checkout_lock_token: string | null
           checkout_lock_until: string | null
           checkout_session_id: string | null
@@ -55,6 +83,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          checkout_attempt_id?: string | null
+          checkout_attempt_key?: string | null
           checkout_lock_token?: string | null
           checkout_lock_until?: string | null
           checkout_session_id?: string | null
@@ -65,6 +95,8 @@ export type Database = {
           user_id: string
         }
         Update: {
+          checkout_attempt_id?: string | null
+          checkout_attempt_key?: string | null
           checkout_lock_token?: string | null
           checkout_lock_until?: string | null
           checkout_session_id?: string | null
@@ -267,6 +299,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      begin_checkout_attempt: {
+        Args: { p_env: string; p_key: string; p_token: string; p_user: string }
+        Returns: string
+      }
       claim_billing_operation: {
         Args: { p_env: string; p_token: string; p_user: string }
         Returns: boolean
@@ -303,6 +339,7 @@ export type Database = {
         Args: { p_env: string; p_user: string }
         Returns: boolean
       }
+      reserve_audio_request: { Args: { p_user: string }; Returns: boolean }
       reserve_generation: {
         Args: { p_env: string; p_reservation: string; p_user: string }
         Returns: Json
