@@ -1,11 +1,11 @@
 # Payment and account audit
 
-- [x] Inspect checkout, catalog, gateway, webhook, subscription access, and billing configuration.
-- [x] Check account settings and missing-session checkout return in a signed-in browser.
-- [x] Complete authentication and account-management findings.
-- [ ] Confirm customer-facing rules for taxes, free access, plan changes, and account deletion.
-- [ ] Present the implementation plan after those answers.
-- [ ] Implement approved corrections with regression tests.
-- [ ] Verify checkout and account flows end to end and provide preview test instructions.
+- [x] Audit catalog, authentication, checkout, gateway, webhook, renewals and account management.
+- [x] Confirm pricing, seven-day one-time trial, 72-hour free interval and renewal-time cycle changes.
+- [x] Implement the approved payment/account protections and regression tests.
+- [x] Verify sandbox checkout, seven-day trial and webhook activation (October 27), portal, FR/EN billing controls, signed-out protection and empty checkout return.
+- [x] Provide preview test instructions in PAYMENT_TESTING.md.
+- [ ] Complete real-payment activation: owner must connect/claim Stripe, complete its company verification and install Lovable on the live account.
+- [ ] Confirm the legal contact and company details, and review final legal wording before live launch; existing support address is unverified.
 
-Blocked: business-rule answers are required before finalizing and implementing the plan. Live payments additionally require Stripe account claim, verification, and app installation.
+Known limitation: concurrent-device sync conflicts preserve local data and report an error; automatic conflict merging is not implemented. Account deletion, renewal failure and renewal-time execution were not exercised against the owner's account to avoid destructive changes or real charges.

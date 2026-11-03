@@ -8,6 +8,7 @@ import {
   useNavigate,
   HeadContent,
   Scripts,
+  ClientOnly,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 import { Toaster } from "sonner";
@@ -215,7 +216,7 @@ function RootComponent() {
         <div className="mx-auto min-h-screen max-w-md" style={{ paddingBottom: hideNav ? 0 : 80 }}>
           <Outlet />
         </div>
-        {!hideNav && <BottomNav />}
+        {!hideNav && <ClientOnly><BottomNav /></ClientOnly>}
         <Toaster position="top-center" richColors />
         <LaunchSplash />
       </I18nextProvider>
